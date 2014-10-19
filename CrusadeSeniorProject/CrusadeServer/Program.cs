@@ -59,34 +59,51 @@ namespace CrusadeServer
                 byte[] dataBuf = new byte[received];
                 Array.Copy(_buffer, dataBuf, received);
 
-                Console.WriteLine(DateTime.Now.ToString("HH:mm:ss: ")
-                    + Encoding.ASCII.GetString(dataBuf));
-                
-                for(int i = 0; i <_clientSockets.Count; ++i)
+                string clientMsg = Encoding.ASCII.GetString(dataBuf);
+                string sendMsg;
+
+                if (clientMsg != "CLOSE_CONNECTION")
+                {
+                    sendMsg = clientMsg;   
+                }
+                else
+                {
+                    sendMsg = "A client has disconnected." + Environment.NewLine;
+                    _clientSockets.Remove(socket);
+                    socket.Disconnect(true);
+                    socket.Close();
+                }
+
+                Console.WriteLine(DateTime.Now.ToString("HH:mm:ss: ") + sendMsg);
+
+                for (int i = 0; i < _clientSockets.Count; ++i)
                 {
                     try
                     {
                         _clientSockets[i].BeginSend(dataBuf, 0, dataBuf.Length, SocketFlags.None,
                             new AsyncCallback(SendCallBack), _clientSockets[i]);
                     }
-                    catch(SocketException ex)
+                    catch (SocketException ex)
                     {
                         Console.WriteLine(Environment.NewLine + DateTime.Now.TimeOfDay.ToString() + ": " + "Could not send message to socket #" + i.ToString());
                         Console.WriteLine(DateTime.Now.TimeOfDay.ToString() + ": " + "Error: " + ex.Message + Environment.NewLine);
                     }
                 }
 
-                socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
-            }
-            catch(SocketException ex)
+                if (socket.Connected)
+                    socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);  
+                
+                else
+                    PrintNumConnections();
+                
+            } 
+
+            catch (SocketException ex)
             {
-                Console.WriteLine(Environment.NewLine + DateTime.Now.TimeOfDay.ToString() 
-                    + ": " + "Error: " + ex.Message);
+                Console.WriteLine(Environment.NewLine + DateTime.Now.TimeOfDay.ToString() + ": " + "Error: " + ex.Message);
 
                 _clientSockets.Remove(socket);
-
-                Console.WriteLine(DateTime.Now.TimeOfDay.ToString() + ": " + "Clients connected: " 
-                    + _clientSockets.Count + Environment.NewLine);
+                PrintNumConnections();
             }
         }
 
@@ -94,6 +111,13 @@ namespace CrusadeServer
         {
             Socket socket = (Socket)ar.AsyncState;
             socket.EndSend(ar);
+        }
+
+
+        private static void PrintNumConnections()
+        {
+            Console.WriteLine(DateTime.Now.TimeOfDay.ToString() + ": " + "Clients connected: "
+                    + _clientSockets.Count + Environment.NewLine);
         }
     }
 }

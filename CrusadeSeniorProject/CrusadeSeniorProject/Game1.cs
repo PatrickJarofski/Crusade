@@ -14,17 +14,31 @@ namespace CrusadeSeniorProject
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Game
+    public class CrusadeGame : Game
     {
+        private readonly ServerConnection _Connection;
+
+        private bool exiting = false;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public Game1()
+        public CrusadeGame()
             : base()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            try
+            {
+                _Connection = new ServerConnection(this);
+            }
+            catch (System.Net.Sockets.SocketException)
+            {
+
+            }
         }
+
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -35,9 +49,9 @@ namespace CrusadeSeniorProject
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
             base.Initialize();
         }
+
 
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
@@ -50,6 +64,7 @@ namespace CrusadeSeniorProject
 
             // TODO: use this.Content to load your game content here
         }
+
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
@@ -68,7 +83,16 @@ namespace CrusadeSeniorProject
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            {
+                if (!exiting)
+                {
+                    exiting = true;
+                    _Connection.EndConnection();
+                    Exit();
+                }
+
+            }
+               
 
             // TODO: Add your update logic here
 
