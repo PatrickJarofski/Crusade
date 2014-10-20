@@ -14,7 +14,7 @@ namespace CrusadeSeniorProject
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class CrusadeGame : Game
+    public class CrusadeGameClient : Game
     {
         private readonly ServerConnection _Connection;
 
@@ -23,7 +23,7 @@ namespace CrusadeSeniorProject
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public CrusadeGame()
+        public CrusadeGameClient()
             : base()
         {
             graphics = new GraphicsDeviceManager(this);

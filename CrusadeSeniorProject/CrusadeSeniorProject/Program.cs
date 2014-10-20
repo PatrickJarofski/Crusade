@@ -18,7 +18,7 @@ namespace CrusadeSeniorProject
         [STAThread]
         static void Main()
         {
-            using (var game = new CrusadeGame())
+            using (var game = new CrusadeGameClient())
                 game.Run();
         }
     }
