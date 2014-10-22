@@ -38,15 +38,12 @@ namespace CrusadeServer
             Socket socket = _serverSocket.EndAccept(ar);
             _clientSockets.Add(socket);
 
-            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None,
-                new AsyncCallback(ReceiveCallBack), socket);
+            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
+
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), null);
 
-            Console.WriteLine(Environment.NewLine + DateTime.Now.ToString("HH:mm:ss: ") 
-                + "A client has connected");
-            Console.WriteLine("Total clients connected: " + _clientSockets.Count 
-                + Environment.NewLine);
-
+            Console.WriteLine(Environment.NewLine + DateTime.Now.ToString("HH:mm:ss: ") + "A client has connected");
+            Console.WriteLine("Total clients connected: " + _clientSockets.Count + Environment.NewLine);
         }
 
         private static void ReceiveCallBack(IAsyncResult ar)
@@ -68,13 +65,14 @@ namespace CrusadeServer
                 }
                 else
                 {
-                    sendMsg = "A client has disconnected." + Environment.NewLine;
+                    sendMsg = Environment.NewLine + "A client has disconnected." + Environment.NewLine;
                     _clientSockets.Remove(socket);
                     socket.Disconnect(true);
                     socket.Close();
                 }
 
                 Console.WriteLine(DateTime.Now.ToString("HH:mm:ss: ") + sendMsg);
+                dataBuf = Encoding.ASCII.GetBytes(sendMsg);
 
                 for (int i = 0; i < _clientSockets.Count; ++i)
                 {
@@ -112,7 +110,6 @@ namespace CrusadeServer
             Socket socket = (Socket)ar.AsyncState;
             socket.EndSend(ar);
         }
-
 
         private static void PrintNumConnections()
         {

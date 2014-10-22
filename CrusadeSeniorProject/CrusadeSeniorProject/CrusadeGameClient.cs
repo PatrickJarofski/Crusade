@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
+using System.Threading;
+using System.Threading.Tasks;
 #endregion
 
 namespace CrusadeSeniorProject
@@ -16,12 +18,18 @@ namespace CrusadeSeniorProject
     /// </summary>
     public class CrusadeGameClient : Game
     {
+        ManualResetEvent sendDone = new ManualResetEvent(false);
+
         private readonly ServerConnection _Connection;
 
         private bool exiting = false;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteFont MonoFont;
+
+        private string _serverMessage = "No new message.";
+        static Random random = new Random();
 
         public CrusadeGameClient()
             : base()
@@ -31,11 +39,11 @@ namespace CrusadeSeniorProject
 
             try
             {
-                _Connection = new ServerConnection(this);
+                _Connection = new ServerConnection(this);                
             }
-            catch (System.Net.Sockets.SocketException)
+            catch (System.Net.Sockets.SocketException ex)
             {
-
+                ServerConnection.WriteToErrorLog(ex.Message);
             }
         }
 
@@ -62,7 +70,7 @@ namespace CrusadeSeniorProject
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            MonoFont = Content.Load<SpriteFont>("MonoFont");
         }
 
 
@@ -80,24 +88,37 @@ namespace CrusadeSeniorProject
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
+        protected async override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
-                if (!exiting)
-                {
-                    exiting = true;
-                    _Connection.EndConnection();
-                    Exit();
-                }
+                _Connection.EndConnection();
+                Exit();                
+            }                      
 
-            }
-               
 
-            // TODO: Add your update logic here
+                Thread.Sleep(50);
+                await sendMessage();
+                sendDone.WaitOne();
+                sendDone.Reset();
 
-            base.Update(gameTime);
+            base.Update(gameTime); 
         }
+
+
+        private async Task sendMessage()
+        {
+            int num = random.Next(0, 11);
+            if (num == 5 || num == 10)
+                _Connection.SendMessage(DateTime.Now.ToString("HH:mm:ss: ") + "A fancy new message!"); 
+
+            else
+                _Connection.SendMessage(DateTime.Now.ToString("HH:mm:ss: ") + "A new message!");
+
+            await Task.Delay(2000);
+            sendDone.Set();
+        }
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -108,8 +129,18 @@ namespace CrusadeSeniorProject
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(MonoFont, _serverMessage, new Vector2(200, 200), Color.White);
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        internal void UpdateFromServer(string message)
+        {
+            _serverMessage = message;
         }
     }
 }
