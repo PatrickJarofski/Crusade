@@ -137,29 +137,30 @@ namespace CrusadeSeniorProject
 
                 int bytesReceived = _clientSocket.EndReceive(ar);
 
-                    // There might be more data, so store the data received so far.
-                    state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));
+                // There might be more data, so store the data received so far.
+                state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));
 
-                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize,
-                        SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
-                
+                //client.BeginReceive(state.buffer, 0, StateObject.BufferSize,
+                //    SocketFlags.None, new AsyncCallback(ReceiveCallback), state);          
 
+                if(state.stringBuilder.Length > 1)
+                {
+                    string msg = state.stringBuilder.ToString();
+                    msg = msg.TrimEnd('\0');
 
-                    if(state.stringBuilder.Length > 1)
-                    {
-                        string msg = state.stringBuilder.ToString();
-                        msg = msg.TrimEnd('\0');
-
-                        if (msg != "CLOSE_CONNECTION")
-                            _GameClient.UpdateFromServer(msg);
-                    }
-                                      
-                
+                    if (msg != "CLOSE_CONNECTION")
+                        _GameClient.UpdateFromServer(msg);
+                }                                     
             }
 
             catch (SocketException ex)
             {
                 throw ex;
+            }
+
+            catch (ObjectDisposedException ex)
+            {
+                WriteToErrorLog(ex.Message);
             }
 
             receiveDone.Set(); 
@@ -171,7 +172,6 @@ namespace CrusadeSeniorProject
             try
             {
                 SendMessage("CLOSE_CONNECTION");
-                sendDone.WaitOne();
 
                 _clientSocket.Shutdown(SocketShutdown.Both);
                 _clientSocket.Close();
@@ -186,7 +186,7 @@ namespace CrusadeSeniorProject
 
         public static void WriteToErrorLog(string msg)
         {
-            File.AppendAllText("Errorlog.txt", Environment.NewLine + DateTime.Now.ToString("HH:mm:ss: ") + msg);
+            File.AppendAllText("Errorlog.txt", Environment.NewLine + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss: ") + msg + Environment.NewLine);
         }
     }
 }

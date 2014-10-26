@@ -31,20 +31,20 @@ namespace CrusadeSeniorProject
         private string _serverMessage = "No new message.";
         static Random random = new Random();
 
+
+        private static System.Timers.Timer DEBUG_TIMER;
+
         public CrusadeGameClient()
             : base()
         {
-            graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this); 
             Content.RootDirectory = "Content";
 
-            try
-            {
-                _Connection = new ServerConnection(this);                
-            }
-            catch (System.Net.Sockets.SocketException ex)
-            {
-                ServerConnection.WriteToErrorLog(ex.Message);
-            }
+            _Connection = new ServerConnection(this);
+
+            DEBUG_TIMER = new System.Timers.Timer(1000);
+            DEBUG_TIMER.Elapsed += sendMessage;
+            DEBUG_TIMER.Enabled = true;
         }
 
 
@@ -88,35 +88,32 @@ namespace CrusadeSeniorProject
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected async override void Update(GameTime gameTime)
+        protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
-                _Connection.EndConnection();
+                if (!exiting)
+                {
+                    _Connection.EndConnection();
+                    DEBUG_TIMER.Enabled = false;
+                }
+
+                exiting = true;              
                 Exit();                
-            }                      
-
-
-                Thread.Sleep(50);
-                await sendMessage();
-                sendDone.WaitOne();
-                sendDone.Reset();
+            }
 
             base.Update(gameTime); 
         }
 
 
-        private async Task sendMessage()
+        private void sendMessage(Object source, System.Timers.ElapsedEventArgs e)
         {
-            int num = random.Next(0, 11);
-            if (num == 5 || num == 10)
+            int num = random.Next(0, 5);
+            if (num == 0 || num == 2)
                 _Connection.SendMessage(DateTime.Now.ToString("HH:mm:ss: ") + "A fancy new message!"); 
 
             else
                 _Connection.SendMessage(DateTime.Now.ToString("HH:mm:ss: ") + "A new message!");
-
-            await Task.Delay(2000);
-            sendDone.Set();
         }
 
 
@@ -131,7 +128,7 @@ namespace CrusadeSeniorProject
             // TODO: Add your drawing code here
             spriteBatch.Begin();
 
-            spriteBatch.DrawString(MonoFont, _serverMessage, new Vector2(200, 200), Color.White);
+            spriteBatch.DrawString(MonoFont, _serverMessage, new Vector2(50, 200), Color.White);
 
             spriteBatch.End();
 
