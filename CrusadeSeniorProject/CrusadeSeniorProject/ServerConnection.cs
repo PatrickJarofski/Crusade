@@ -71,7 +71,7 @@ namespace CrusadeSeniorProject
         {
             try
             {
-                byte[] byteData = Encoding.ASCII.GetBytes(message + Environment.NewLine);
+                byte[] byteData = Encoding.ASCII.GetBytes(message);
 
                 _clientSocket.BeginSend(byteData, 0, byteData.Length,
                         SocketFlags.None, new AsyncCallback(SendCallback), null);
@@ -158,8 +158,8 @@ namespace CrusadeSeniorProject
 
             finally
             {
-                if (msg.Length > 0 && msg != "CLOSE_CONNECTION")
-                    _GameClient.UpdateFromServer(msg + Environment.NewLine);
+                if (msg.Length > 0 && msg != ("CLOSE_CONNECTION"))
+                    _GameClient.UpdateFromServer(msg);
             }
 
             receiveDone.Set(); 
