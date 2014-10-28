@@ -71,7 +71,7 @@ namespace CrusadeSeniorProject
         {
             try
             {
-                byte[] byteData = Encoding.ASCII.GetBytes(message);
+                byte[] byteData = Encoding.ASCII.GetBytes(message + Environment.NewLine);
 
                 _clientSocket.BeginSend(byteData, 0, byteData.Length,
                         SocketFlags.None, new AsyncCallback(SendCallback), null);
