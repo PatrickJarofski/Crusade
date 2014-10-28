@@ -130,6 +130,7 @@ namespace CrusadeSeniorProject
 
         private void ReceiveCallback(IAsyncResult ar)
         {
+            string msg = string.Empty;
             try
             {
                 StateObject state = (StateObject)ar.AsyncState;
@@ -137,30 +138,28 @@ namespace CrusadeSeniorProject
 
                 int bytesReceived = _clientSocket.EndReceive(ar);
 
-                // There might be more data, so store the data received so far.
-                state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));
+                state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));   
 
-                //client.BeginReceive(state.buffer, 0, StateObject.BufferSize,
-                //    SocketFlags.None, new AsyncCallback(ReceiveCallback), state);          
-
-                if(state.stringBuilder.Length > 1)
-                {
-                    string msg = state.stringBuilder.ToString();
-                    msg = msg.TrimEnd('\0');
-
-                    if (msg != "CLOSE_CONNECTION")
-                        _GameClient.UpdateFromServer(msg);
-                }                                     
+                msg = state.stringBuilder.ToString();
+                msg = msg.TrimEnd('\0');                                                  
             }
 
             catch (SocketException ex)
             {
-                throw ex;
+                WriteToErrorLog(ex.Message);
+                msg = ex.Message;
             }
 
             catch (ObjectDisposedException ex)
             {
                 WriteToErrorLog(ex.Message);
+                msg = ex.Message;
+            }
+
+            finally
+            {
+                if (msg.Length > 0 && msg != "CLOSE_CONNECTION")
+                    _GameClient.UpdateFromServer(msg + Environment.NewLine);
             }
 
             receiveDone.Set(); 
