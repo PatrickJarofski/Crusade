@@ -42,7 +42,7 @@ namespace CrusadeSeniorProject
 
             _Connection = new ServerConnection(this);
 
-            DEBUG_TIMER = new System.Timers.Timer(1000);
+            DEBUG_TIMER = new System.Timers.Timer(2000);
             DEBUG_TIMER.Elapsed += sendMessage;
             DEBUG_TIMER.Enabled = true;
         }
