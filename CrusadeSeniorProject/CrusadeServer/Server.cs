@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 
 namespace CrusadeServer
 {
@@ -76,16 +77,7 @@ namespace CrusadeServer
 
                 for (int i = 0; i < _clientSockets.Count; ++i)
                 {
-                    try
-                    {
-                        _clientSockets[i].BeginSend(dataBuf, 0, dataBuf.Length, SocketFlags.None,
-                            new AsyncCallback(SendCallBack), _clientSockets[i]);
-                    }
-                    catch (SocketException ex)
-                    {
-                        Console.WriteLine(Environment.NewLine + DateTime.Now.TimeOfDay.ToString() + ": " + "Could not send message to socket #" + i.ToString());
-                        Console.WriteLine(DateTime.Now.TimeOfDay.ToString() + ": " + "Error: " + ex.Message + Environment.NewLine);
-                    }
+                    SendData(_clientSockets[i], dataBuf);
                 }
 
                 if (socket.Connected)
@@ -98,23 +90,63 @@ namespace CrusadeServer
 
             catch (SocketException ex)
             {
-                Console.WriteLine(Environment.NewLine + DateTime.Now.TimeOfDay.ToString() + ": " + "Error: " + ex.Message);
+                string error = "ReceiveCallback Error: " + ex.Message;
+                WriteErrorToConsole(ref error);
+                WriteToErrorLog(ref error);
 
                 _clientSockets.Remove(socket);
                 PrintNumConnections();
             }
         }
 
+
+        private static void SendData(Socket socket, byte[] bufferToSend)
+        {
+            try
+            {
+                socket.BeginSend(bufferToSend, 0, bufferToSend.Length, SocketFlags.None,
+                    new AsyncCallback(SendCallBack), socket);
+            }
+            catch (SocketException ex)
+            {
+                string error = "SendData Error: " + ex.Message;
+                WriteErrorToConsole(ref error);
+                WriteToErrorLog(ref error);
+            }
+        }
+
+
         private static void SendCallBack(IAsyncResult ar)
         {
-            Socket socket = (Socket)ar.AsyncState;
-            socket.EndSend(ar);
+            try
+            {
+                Socket socket = (Socket)ar.AsyncState;
+                socket.EndSend(ar);
+            }
+            catch(SocketException ex)
+            {
+                string error = "SendCallback Error: " + ex.Message;
+                WriteErrorToConsole(ref error);
+                WriteToErrorLog(ref error);
+            }
         }
 
         private static void PrintNumConnections()
         {
             Console.WriteLine(DateTime.Now.TimeOfDay.ToString() + ": " + "Clients connected: "
                     + _clientSockets.Count + Environment.NewLine);
+        }
+
+        private static void WriteToErrorLog(ref string error)
+        {
+            string separator = Environment.NewLine + "============================" + Environment.NewLine;
+            File.AppendAllText("Server Error Log.txt", separator + DateTime.Now.ToString("yyyyMMdd||hh:mm:ss ") + error + separator);
+        }
+
+        private static void WriteErrorToConsole(ref string error)
+        {
+            string separator = Environment.NewLine + "============================" + Environment.NewLine;
+            Console.WriteLine(separator + DateTime.Now.ToString("yyyyMMdd||hh:mm:ss ") + error + separator);
         }
     }
 }

@@ -36,8 +36,6 @@ namespace CrusadeSeniorProject
                 IPAddress _IPAddress = ipHostInfo[0];
                 IPEndPoint endpoint = new IPEndPoint(_IPAddress, _Port);
 
-                //_clientSocket.Connect(endpoint);
-
                 _clientSocket.ReceiveTimeout = 3000;
                 _clientSocket.SendTimeout = 3000;
                 _clientSocket.BeginConnect(endpoint, new AsyncCallback(ConnectCallback), _clientSocket);
@@ -185,7 +183,7 @@ namespace CrusadeSeniorProject
 
         public static void WriteToErrorLog(string msg)
         {
-            File.AppendAllText("Errorlog.txt", Environment.NewLine + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss: ") + msg + Environment.NewLine);
+            File.AppendAllText("Client Error Log.txt", Environment.NewLine + DateTime.Now.ToString("yyyy/MM/dd||HH:mm:ss: ") + msg + Environment.NewLine);
         }
     }
 }
