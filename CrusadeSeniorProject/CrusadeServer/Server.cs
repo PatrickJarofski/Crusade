@@ -140,13 +140,13 @@ namespace CrusadeServer
         private static void WriteToErrorLog(ref string error)
         {
             string separator = Environment.NewLine + "============================" + Environment.NewLine;
-            File.AppendAllText("Server Error Log.txt", separator + DateTime.Now.ToString("yyyyMMdd||hh:mm:ss ") + error + separator);
+            File.AppendAllText("Server Error Log.txt", separator + DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss ") + error + separator);
         }
 
         private static void WriteErrorToConsole(ref string error)
         {
             string separator = Environment.NewLine + "============================" + Environment.NewLine;
-            Console.WriteLine(separator + DateTime.Now.ToString("yyyyMMdd||hh:mm:ss ") + error + separator);
+            Console.WriteLine(separator + DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss ") + error + separator);
         }
     }
 }
