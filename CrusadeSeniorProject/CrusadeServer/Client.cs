@@ -20,7 +20,7 @@ namespace CrusadeServer
             set { _playerNumber = value; }
         }
 
-        public Client(Socket socket)
+        public Client(ref Socket socket)
         {
             clientSocket = socket;
             PlayerID = PlayerNumber.NotAPlayer;           // Indicates this Client has

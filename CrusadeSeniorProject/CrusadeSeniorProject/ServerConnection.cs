@@ -13,7 +13,7 @@ namespace CrusadeSeniorProject
     {
         private readonly CrusadeGameClient _GameClient;
 
-        readonly Socket _clientSocket;
+        private readonly Socket _clientSocket;
         const int _Port = 777;
 
         private readonly string _name;
@@ -34,13 +34,19 @@ namespace CrusadeSeniorProject
 
                 IPAddress[] ipHostInfo = Dns.GetHostAddresses("primefusion.ddns.net");
                 IPAddress _IPAddress = ipHostInfo[0];
-                IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), _Port);
+
+                IPAddress DebugAddress = IPAddress.Parse("127.0.0.1");
+
+                IPEndPoint endpoint = new IPEndPoint(_IPAddress, _Port);
 
                 _clientSocket.ReceiveTimeout = 3000;
                 _clientSocket.SendTimeout = 3000;
 
-                _clientSocket.BeginConnect(endpoint, new AsyncCallback(ConnectCallback), _clientSocket);
-                connectDone.WaitOne();
+                _clientSocket.Connect(endpoint);
+
+
+                //_clientSocket.BeginConnect(endpoint, new AsyncCallback(ConnectCallback), _clientSocket);
+                //connectDone.WaitOne();
             }
 
             catch(SocketException ex)
@@ -213,7 +219,7 @@ namespace CrusadeSeniorProject
 
         public static void WriteToErrorLog(string msg)
         {
-            File.AppendAllText("Client Error Log.txt", Environment.NewLine + DateTime.Now.ToString("yyyy/MM/dd||HH:mm:ss: ") + msg + Environment.NewLine);
+            File.AppendAllText("Client Error Log.txt", Environment.NewLine + DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss: ") + msg + Environment.NewLine);
         }
     }
 }
