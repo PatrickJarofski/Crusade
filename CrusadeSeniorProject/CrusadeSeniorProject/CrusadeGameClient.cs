@@ -23,7 +23,6 @@ namespace CrusadeSeniorProject
         private readonly ServerConnection _Connection;
 
         private volatile bool exiting = false;
-        private volatile bool connected = false;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;

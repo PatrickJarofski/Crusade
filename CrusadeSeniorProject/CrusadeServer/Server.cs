@@ -181,7 +181,7 @@ namespace CrusadeServer
             if (clientMsg == "CLOSE_CONNECTION")
             {
                 string broadcastMsg = Environment.NewLine + "A client has disconnected." + Environment.NewLine;
-                DisconnectMatchingClient(client);
+                DisconnectClient(client);
 
                 byte[] buffer = Encoding.ASCII.GetBytes("1" + broadcastMsg);
                 ProcessMessageRequest(buffer);
@@ -236,14 +236,13 @@ namespace CrusadeServer
         }
 
 
-        private static void DisconnectMatchingClient(Client client)
+        private static void DisconnectClient(Client client)
         {
             _clientSockets.Remove(client);
             client.clientSocket.Disconnect(true);
             client.clientSocket.Close();
         }
-
-
+        
 
         private static void BeginNewGame()
         {
