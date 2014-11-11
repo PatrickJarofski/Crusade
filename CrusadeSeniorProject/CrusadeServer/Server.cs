@@ -13,7 +13,7 @@ namespace CrusadeServer
     class Program
     {
         private static byte[] _buffer = new byte[1024];
-        private static List<Socket> _clientSockets = new List<Socket>();
+        private static List<Client> _clientSockets = new List<Client>();
         private static Socket _serverSocket = new Socket
             (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
@@ -33,41 +33,39 @@ namespace CrusadeServer
             Console.WriteLine("Setting up server...");
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, _PORT));
             _serverSocket.Listen(2);
-            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), null);
+            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
             Console.WriteLine("Now accepting client connections.");
         }
         
 
-        private static bool isConnected(Socket client)
+        private static bool isConnected(Client client)
         {
             try
             {
-                return !(client.Poll(1, SelectMode.SelectRead) && client.Available == 0);
+                return !(client.clientSocket.Poll(1, SelectMode.SelectRead) && client.clientSocket.Available == 0);
             }
             catch(SocketException)
             {
                 _clientSockets.Remove(client);
-                client.Disconnect(true);
-                client.Close();
+                client.clientSocket.Disconnect(true);
+                client.clientSocket.Close();
                 return false;
             }
         }
 
 
-
         private static void AcceptCallBack(IAsyncResult ar)
         {
             Socket socket = _serverSocket.EndAccept(ar);
-            _clientSockets.Add(socket);
+            Client newClient = new Client(socket);
+            _clientSockets.Add(newClient);
 
             if(_clientSockets.Count == 2)
-            {
                 BeginNewGame();
-            }
 
-            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
+            newClient.clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), newClient.clientSocket);
 
-            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), null);
+            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
 
             Console.WriteLine(Environment.NewLine + DateTime.Now.ToString("HH:mm:ss: ") + "A client has connected");
             Console.WriteLine("Total clients connected: " + _clientSockets.Count + Environment.NewLine);
@@ -77,22 +75,25 @@ namespace CrusadeServer
         private static void ReceiveCallBack(IAsyncResult ar)
         {
             Socket socket = (Socket)ar.AsyncState;
+            Client client = GetMatchingClient(socket);
 
-            if (!isConnected(socket))
+            if (!isConnected(client))
                 return;
 
             try
             {
-                int received = socket.EndReceive(ar);
+                int received = client.clientSocket.EndReceive(ar);
                 byte[] dataBuf = new byte[received];
                 Array.Copy(_buffer, dataBuf, received);
 
                 // Check what type of request we've got
                 // and deal with it accordingly
-                ProcessRequest(dataBuf, socket);
+                if(received > 0)
+                    ProcessRequest(dataBuf, client);
 
-                if (socket.Connected)
-                    socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);  
+                if (isConnected(client))
+                    client.clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, 
+                        new AsyncCallback(ReceiveCallBack), client.clientSocket);  
                 
                 else
                     PrintNumConnections();                
@@ -104,13 +105,13 @@ namespace CrusadeServer
                 WriteErrorToConsole(ref error);
                 WriteToErrorLog(ref error);
 
-                _clientSockets.Remove(socket);
+                _clientSockets.Remove(client);
                 PrintNumConnections();
             }
         }
 
 
-        private static void ProcessRequest(byte[] dataBuf, Socket client)
+        private static void ProcessRequest(byte[] dataBuf, Client client)
         {
             if (dataBuf.Length < 1)
                 return;
@@ -138,7 +139,7 @@ namespace CrusadeServer
         }
 
 
-        private static void ProcessBadRequest(Socket client)
+        private static void ProcessBadRequest(Client client)
         {
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Bad Request");
 
@@ -162,7 +163,7 @@ namespace CrusadeServer
         }
 
 
-        private static void ProcessGameRequest(byte[] dataBuf, Socket client)
+        private static void ProcessGameRequest(byte[] dataBuf, Client client)
         {
             string request = Encoding.ASCII.GetString(dataBuf);
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + request);
@@ -171,7 +172,7 @@ namespace CrusadeServer
         }
 
 
-        private static void ProcessClientRequest(byte[] dataBuf, Socket client)
+        private static void ProcessClientRequest(byte[] dataBuf, Client client)
         {
             string clientMsg = Encoding.ASCII.GetString(dataBuf);
 
@@ -180,9 +181,7 @@ namespace CrusadeServer
             if (clientMsg == "CLOSE_CONNECTION")
             {
                 string broadcastMsg = Environment.NewLine + "A client has disconnected." + Environment.NewLine;
-                _clientSockets.Remove(client);
-                client.Disconnect(true);
-                client.Close();
+                DisconnectMatchingClient(client);
 
                 byte[] buffer = Encoding.ASCII.GetBytes("1" + broadcastMsg);
                 ProcessMessageRequest(buffer);
@@ -199,12 +198,12 @@ namespace CrusadeServer
         }
 
 
-        private static void SendData(Socket socket, byte[] bufferToSend)
+        private static void SendData(Client client, byte[] bufferToSend)
         {
             try
             {
-                socket.BeginSend(bufferToSend, 0, bufferToSend.Length, SocketFlags.None,
-                    new AsyncCallback(SendCallBack), socket);
+                client.clientSocket.BeginSend(bufferToSend, 0, bufferToSend.Length, SocketFlags.None,
+                    new AsyncCallback(SendCallBack), client.clientSocket);
             }
             catch (SocketException ex)
             {
@@ -219,8 +218,8 @@ namespace CrusadeServer
         {
             try
             {
-                Socket socket = (Socket)ar.AsyncState;
-                socket.EndSend(ar);
+                Client client = GetMatchingClient((Socket)ar.AsyncState);
+                client.clientSocket.EndSend(ar);
             }
             catch(SocketException ex)
             {
@@ -231,8 +230,37 @@ namespace CrusadeServer
         }
         
 
+        private static Client GetMatchingClient(Socket socket)
+        {
+            return _clientSockets.Find(a => a.clientSocket == socket);
+        }
+
+
+        private static void DisconnectMatchingClient(Client client)
+        {
+            _clientSockets.Remove(client);
+            client.clientSocket.Disconnect(true);
+            client.clientSocket.Close();
+        }
+
+
+
         private static void BeginNewGame()
         {
+            Random rng = new Random();
+            int playerOne = rng.Next(0, 2);
+
+            if (playerOne == 1)
+            {
+                _clientSockets[0].PlayerID = Client.PlayerNumber.PlayerOne;
+                _clientSockets[1].PlayerID = Client.PlayerNumber.PlayerTwo;
+            }
+            else
+            {
+                _clientSockets[1].PlayerID = Client.PlayerNumber.PlayerOne;
+                _clientSockets[0].PlayerID = Client.PlayerNumber.PlayerTwo;
+            }
+
             _Game = new CrusadeGame();
         }
 

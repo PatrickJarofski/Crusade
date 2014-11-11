@@ -23,6 +23,7 @@ namespace CrusadeSeniorProject
         private readonly ServerConnection _Connection;
 
         private volatile bool exiting = false;
+        private volatile bool connected = false;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -37,14 +38,14 @@ namespace CrusadeSeniorProject
         public CrusadeGameClient()
             : base()
         {
-            graphics = new GraphicsDeviceManager(this); 
-            Content.RootDirectory = "Content";
-
             _Connection = new ServerConnection(this);
 
             DEBUG_TIMER = new System.Timers.Timer(2000);
             DEBUG_TIMER.Elapsed += sendMessage;
             DEBUG_TIMER.Enabled = true;
+
+            graphics = new GraphicsDeviceManager(this); 
+            Content.RootDirectory = "Content";
         }
 
 

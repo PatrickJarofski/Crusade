@@ -34,10 +34,11 @@ namespace CrusadeSeniorProject
 
                 IPAddress[] ipHostInfo = Dns.GetHostAddresses("primefusion.ddns.net");
                 IPAddress _IPAddress = ipHostInfo[0];
-                IPEndPoint endpoint = new IPEndPoint(_IPAddress, _Port);
+                IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), _Port);
 
                 _clientSocket.ReceiveTimeout = 3000;
                 _clientSocket.SendTimeout = 3000;
+
                 _clientSocket.BeginConnect(endpoint, new AsyncCallback(ConnectCallback), _clientSocket);
                 connectDone.WaitOne();
             }
