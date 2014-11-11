@@ -22,7 +22,7 @@ namespace CrusadeSeniorProject
 
         private readonly ServerConnection _Connection;
 
-        private bool exiting = false;
+        private volatile bool exiting = false;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -110,10 +110,10 @@ namespace CrusadeSeniorProject
         {
             int num = random.Next(0, 5);
             if (num == 0 || num == 2)
-                _Connection.SendMessage(DateTime.Now.ToString("HH:mm:ss: ") + "A fancy new message!"); 
+                _Connection.SendMessageRequest(Environment.NewLine + DateTime.Now.ToString("hh:mm:ss: ") + "A fancy new message!"); 
 
             else
-                _Connection.SendMessage(DateTime.Now.ToString("HH:mm:ss: ") + "A new message!");
+                _Connection.SendMessageRequest(Environment.NewLine + DateTime.Now.ToString("hh:mm:ss: ") + "A new message!");
         }
 
 

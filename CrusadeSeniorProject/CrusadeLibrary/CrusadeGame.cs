@@ -46,7 +46,10 @@ namespace CrusadeLibrary
         }
 
 
-
+        public Player GetCurrentPlayer()
+        {
+            return currentPlayer;
+        }
 
         #endregion
 

@@ -55,7 +55,12 @@
   <ItemGroup>
     <Content Include="Icon.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\CrusadeServer\CrusadeServer.csproj">
+      <Project>{78907635-3656-4af8-aef8-8c0386c5c785}</Project>
+      <Name>CrusadeServer</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Content\MonoFont.xnb">

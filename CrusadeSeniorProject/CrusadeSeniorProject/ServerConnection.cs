@@ -47,7 +47,7 @@ namespace CrusadeSeniorProject
                 WriteToErrorLog("ACTION: Constructor " + ex.Message);
             }
             
-            SendMessage("New Client " + _name + " has joined.");
+            SendMessageRequest("New Client " + _name + " has joined.");
         }
 
         private void ConnectCallback(IAsyncResult ar)
@@ -65,13 +65,11 @@ namespace CrusadeSeniorProject
         }
 
 
-        public void SendMessage(string message)
+        private void SendRequestToServer(byte[] request)
         {
             try
             {
-                byte[] byteData = Encoding.ASCII.GetBytes(message);
-
-                _clientSocket.BeginSend(byteData, 0, byteData.Length,
+                _clientSocket.BeginSend(request, 0, request.Length,
                         SocketFlags.None, new AsyncCallback(SendCallback), null);
             }
 
@@ -164,11 +162,42 @@ namespace CrusadeSeniorProject
         }       
 
 
-        internal void EndConnection()
+        public void SendClientRequest(string request)
+        {
+            byte[] buffer = formatRequest(request, CrusadeServer.RequestType.Client_Request);
+            SendRequestToServer(buffer);
+        }
+
+
+        public void SendGameRequest(string request)
+        {
+            byte[] buffer = formatRequest(request, CrusadeServer.RequestType.Game_Request);
+            SendRequestToServer(buffer);
+        }
+
+
+        public void SendMessageRequest(string request)
+        {
+            byte[] buffer = formatRequest(request, CrusadeServer.RequestType.Message_Request);
+            SendRequestToServer(buffer);
+        }
+
+
+        private byte[] formatRequest(string request, byte requestType)
+        {
+            byte[] buffer = new byte[request.Length + 1];
+            buffer[0] = requestType;
+
+            Encoding.ASCII.GetBytes(request, 0, request.Length, buffer, 1);
+            return buffer;
+        }
+        
+
+        public void EndConnection()
         {
             try
             {
-                SendMessage("CLOSE_CONNECTION");
+              //  SendClientRequest("CLOSE_CONNECTION");
 
                 _clientSocket.Shutdown(SocketShutdown.Both);
                 _clientSocket.Close();
