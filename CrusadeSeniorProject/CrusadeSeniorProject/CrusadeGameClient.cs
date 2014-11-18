@@ -9,6 +9,10 @@ using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
 using System.Threading;
 using System.Threading.Tasks;
+
+// For convenience
+using RequestType = CrusadeServer.RequestResponse.RequestType;
+using ResponseType = CrusadeServer.RequestResponse.ResponseType;
 #endregion
 
 namespace CrusadeSeniorProject
@@ -114,6 +118,8 @@ namespace CrusadeSeniorProject
 
             else
                 _Connection.SendMessageRequest(Environment.NewLine + DateTime.Now.ToString("hh:mm:ss: ") + "A new message!");
+
+            _Connection.RequestBoardState();
         }
 
 
@@ -135,9 +141,43 @@ namespace CrusadeSeniorProject
             base.Draw(gameTime);
         }
 
-        internal void UpdateFromServer(string message)
+        internal void UpdateFromServer(ResponseType responseType, string message)
         {
             _serverMessage = message;
+            
+            // Some check to see what kind of message it is
+            switch(responseType)
+            {
+                case ResponseType.ClientResponse:
+                    ProcessClientResponse(message);
+                    break;
+
+                case ResponseType.GameResponse:
+                    ProcessGameRepsonse(message);
+                    break;
+
+                case ResponseType.MessageResponse:
+                    ProcessMessageResponse(message);
+                    break;
+
+                default:
+                    throw new FormatException("An invalid response type was received by the game client.");                    
+            }
+        }
+
+        private void ProcessClientResponse(string message)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ProcessMessageResponse(string message)
+        {
+            _serverMessage = message;
+        }
+
+        private void ProcessGameRepsonse(string message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

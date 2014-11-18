@@ -7,6 +7,9 @@ using System.Text;
 using System.IO;
 using System.Threading;
 
+using RequestType = CrusadeServer.RequestResponse.RequestType;
+using ResponseType = CrusadeServer.RequestResponse.ResponseType;
+
 namespace CrusadeSeniorProject
 {
     public class ServerConnection
@@ -56,6 +59,7 @@ namespace CrusadeSeniorProject
             
             SendMessageRequest("New Client " + _name + " has joined.");
         }
+
 
         private void ConnectCallback(IAsyncResult ar)
         {
@@ -133,59 +137,62 @@ namespace CrusadeSeniorProject
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            string msg = string.Empty;
+            string response = string.Empty;
             try
             {
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
 
-                int bytesReceived = _clientSocket.EndReceive(ar);
+                int bytesReceived = client.EndReceive(ar);
 
-                state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));   
+                state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));
 
-                msg = state.stringBuilder.ToString();
-                msg = msg.TrimEnd('\0');                                                  
+                response = state.stringBuilder.ToString();
+                response = response.TrimEnd('\0');
+
+                if(response.Length > 0)
+                {
+                    ResponseType responseType = (ResponseType)state.buffer[0];
+                    string msg = response.Substring(1);
+                    _GameClient.UpdateFromServer(responseType, msg);
+                }
             }
 
             catch (SocketException ex)
             {
                 WriteToErrorLog(ex.Message);
-                msg = ex.Message;
+                response = ex.Message;
             }
 
             catch (ObjectDisposedException ex)
             {
                 WriteToErrorLog(ex.Message);
-                msg = ex.Message;
+                response = ex.Message;
             }
-
             finally
             {
-                if (msg.Length > 0 && msg != ("CLOSE_CONNECTION"))
-                    _GameClient.UpdateFromServer(msg);
+                receiveDone.Set();
             }
-
-            receiveDone.Set(); 
         }       
 
 
         public void SendClientRequest(string request)
         {
-            byte[] buffer = formatRequest(request, CrusadeServer.RequestType.Client_Request);
+            byte[] buffer = formatRequest(request, (byte)RequestType.ClientRequest);
             SendRequestToServer(buffer);
         }
 
 
         public void SendGameRequest(string request)
         {
-            byte[] buffer = formatRequest(request, CrusadeServer.RequestType.Game_Request);
+            byte[] buffer = formatRequest(request, (byte)RequestType.GameRequest);
             SendRequestToServer(buffer);
         }
 
 
         public void SendMessageRequest(string request)
         {
-            byte[] buffer = formatRequest(request, CrusadeServer.RequestType.Message_Request);
+            byte[] buffer = formatRequest(request, (byte)RequestType.MessageRequest);
             SendRequestToServer(buffer);
         }
 
@@ -199,6 +206,12 @@ namespace CrusadeSeniorProject
             return buffer;
         }
         
+
+        public void RequestBoardState()
+        {
+            SendGameRequest("GETGAMEBOARD");
+        }
+
 
         public void EndConnection()
         {

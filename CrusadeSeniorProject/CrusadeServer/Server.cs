@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace CrusadeServer
 {
-    class Program
+    partial class Server
     {
         private static object lockObject = new object();    // For when thread safety is needed
 
@@ -109,9 +109,7 @@ namespace CrusadeServer
             }
             catch (SocketException)
             {
-                _clientSockets.Remove(client);
-                client.clientSocket.Disconnect(true);
-                client.clientSocket.Close();
+                DisconnectClient(client);
                 return false;
             }
         }
@@ -122,19 +120,19 @@ namespace CrusadeServer
             if (dataBuf.Length < 1)
                 return;
 
-            byte requestType = dataBuf[0];
+            RequestResponse.RequestType requestType = (RequestResponse.RequestType)dataBuf[0];
 
             switch(requestType)
             {
-                case RequestType.Client_Request:
+                case RequestResponse.RequestType.ClientRequest:
                     ProcessClientRequest(dataBuf, client);
                     break;
 
-                case RequestType.Game_Request:
+                case RequestResponse.RequestType.GameRequest:
                     ProcessGameRequest(dataBuf, client);
                     break;
 
-                case RequestType.Message_Request:
+                case RequestResponse.RequestType.MessageRequest:
                     ProcessMessageRequest(dataBuf);
                     break;
 
@@ -157,14 +155,14 @@ namespace CrusadeServer
         private static void ProcessMessageRequest(byte[] dataBuf)
         {
             // Strip requestType byte
-            byte[] message = StripTypeByte(dataBuf);
+            dataBuf[0] = (byte)RequestResponse.ResponseType.MessageResponse;
 
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Broadcasting: " + Encoding.ASCII.GetString(message));
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Broadcasting: " + Encoding.ASCII.GetString(dataBuf));
 
             // Broadcast Message
             for(int i = 0; i < _clientSockets.Count; ++i)
             {
-                SendData(_clientSockets[i], message);
+                SendData(_clientSockets[i], dataBuf);
             }
         }
 
@@ -244,32 +242,13 @@ namespace CrusadeServer
 
         private static void DisconnectClient(Client client)
         {
+            Console.WriteLine("Disconnecting Client...");
             _clientSockets.Remove(client);
             client.clientSocket.Disconnect(true);
             client.clientSocket.Close();
         }
         
-
-        private static void BeginNewGame()
-        {
-            Random rng = new Random();
-            int playerOne = rng.Next(0, 2);
-
-            if (playerOne == 1)
-            {
-                _clientSockets[0].PlayerID = Client.PlayerNumber.PlayerOne;
-                _clientSockets[1].PlayerID = Client.PlayerNumber.PlayerTwo;
-            }
-            else
-            {
-                _clientSockets[1].PlayerID = Client.PlayerNumber.PlayerOne;
-                _clientSockets[0].PlayerID = Client.PlayerNumber.PlayerTwo;
-            }
-
-            _Game = new CrusadeGame();
-        }
-
-
+        
         private static void WriteToErrorLog(ref string error)
         {
             lock (lockObject)

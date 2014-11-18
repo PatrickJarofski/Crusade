@@ -19,10 +19,10 @@ namespace CrusadeServer
     ///               
     /// Message_Request: A request to relay a simple message.
     /// </summary>
-    public static class RequestType
+    public static class RequestResponse
     {
-        public const byte Client_Request = 0x01;
-        public const byte Game_Request = 0x02;
-        public const byte Message_Request = 0x03;
+        public enum RequestType : byte { ClientRequest, GameRequest, MessageRequest };
+
+        public enum ResponseType : byte { ClientResponse, GameResponse, MessageResponse };
     }
 }

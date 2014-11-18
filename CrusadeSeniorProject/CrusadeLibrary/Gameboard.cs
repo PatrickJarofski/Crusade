@@ -44,6 +44,14 @@ namespace CrusadeLibrary
         }
 
 
+        public bool CellOccupied(int x, int y)
+        {
+            if (_board[x, y] != null)
+                return true;
+
+            else
+                return false;
+        }
 
     }
 }
