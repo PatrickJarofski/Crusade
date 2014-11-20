@@ -46,10 +46,8 @@ namespace CrusadeSeniorProject
                 _clientSocket.SendTimeout = 3000;
 
                 _clientSocket.Connect(endpoint);
+                Receive();
 
-
-                //_clientSocket.BeginConnect(endpoint, new AsyncCallback(ConnectCallback), _clientSocket);
-                //connectDone.WaitOne();
             }
 
             catch(SocketException ex)
@@ -96,10 +94,6 @@ namespace CrusadeSeniorProject
             
             sendDone.WaitOne();
             sendDone.Reset();
-
-            Receive();
-            receiveDone.WaitOne();
-            receiveDone.Reset();
         }
 
 
@@ -153,9 +147,13 @@ namespace CrusadeSeniorProject
                 if(response.Length > 0)
                 {
                     ResponseType responseType = (ResponseType)state.buffer[0];
+
                     string msg = response.Substring(1);
                     _GameClient.UpdateFromServer(responseType, msg);
                 }
+
+                // Begin a another async receive
+                Receive();
             }
 
             catch (SocketException ex)
@@ -168,10 +166,6 @@ namespace CrusadeSeniorProject
             {
                 WriteToErrorLog(ex.Message);
                 response = ex.Message;
-            }
-            finally
-            {
-                receiveDone.Set();
             }
         }       
 
@@ -217,8 +211,6 @@ namespace CrusadeSeniorProject
         {
             try
             {
-              //  SendClientRequest("CLOSE_CONNECTION");
-
                 _clientSocket.Shutdown(SocketShutdown.Both);
                 _clientSocket.Close();
             }

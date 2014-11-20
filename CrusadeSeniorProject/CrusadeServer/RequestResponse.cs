@@ -21,8 +21,8 @@ namespace CrusadeServer
     /// </summary>
     public static class RequestResponse
     {
-        public enum RequestType : byte { ClientRequest, GameRequest, MessageRequest };
+        public enum RequestType : byte { None, ClientRequest, GameRequest, MessageRequest };
 
-        public enum ResponseType : byte { ClientResponse, GameResponse, MessageResponse };
+        public enum ResponseType : byte { None, ClientResponse, GameResponse, MessageResponse };
     }
 }

@@ -27,12 +27,13 @@ namespace CrusadeSeniorProject
         private readonly ServerConnection _Connection;
 
         private volatile bool exiting = false;
+        private volatile bool inAGame = false;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont MonoFont;
 
-        private string _serverMessage = "No new message.";
+        private string _serverMessage = "Not connected.";
         static Random random = new Random();
 
 
@@ -98,11 +99,12 @@ namespace CrusadeSeniorProject
             {
                 if (!exiting)
                 {
-                    _Connection.EndConnection();
+                    exiting = true;  
                     DEBUG_TIMER.Enabled = false;
+                    _serverMessage = "Shutting down...";
+                    _Connection.EndConnection();                    
                 }
-
-                exiting = true;              
+                            
                 Exit();                
             }
 
@@ -113,13 +115,20 @@ namespace CrusadeSeniorProject
         private void sendMessage(Object source, System.Timers.ElapsedEventArgs e)
         {
             int num = random.Next(0, 5);
-            if (num == 0 || num == 2)
-                _Connection.SendMessageRequest(Environment.NewLine + DateTime.Now.ToString("hh:mm:ss: ") + "A fancy new message!"); 
 
-            else
-                _Connection.SendMessageRequest(Environment.NewLine + DateTime.Now.ToString("hh:mm:ss: ") + "A new message!");
+            if (!inAGame)
+            {
+                if (num == 0 || num == 2)
+                    _Connection.SendMessageRequest(DateTime.Now.ToString("hh:mm:ss: ") + "A fancy new message!");
 
-            _Connection.RequestBoardState();
+                else
+                    _Connection.SendMessageRequest(DateTime.Now.ToString("hh:mm:ss: ") + "A new message!");
+            }
+
+            if(inAGame)
+                _Connection.RequestBoardState();
+
+            Console.WriteLine(_serverMessage);
         }
 
 
@@ -134,12 +143,14 @@ namespace CrusadeSeniorProject
             // TODO: Add your drawing code here
             spriteBatch.Begin();
 
-            spriteBatch.DrawString(MonoFont, _serverMessage, new Vector2(50, 200), Color.White);
+           // spriteBatch.DrawString(MonoFont, _serverMessage, new Vector2(100, 100), Color.White);
+            
 
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
+
 
         internal void UpdateFromServer(ResponseType responseType, string message)
         {
@@ -165,9 +176,16 @@ namespace CrusadeSeniorProject
             }
         }
 
+
         private void ProcessClientResponse(string message)
         {
-            throw new NotImplementedException();
+            if (message == "GAMESTARTED")
+                lock (_Connection)
+                    inAGame = true;
+
+            else if (message == "GAMEOVER")
+                lock (_Connection)
+                    inAGame = false;
         }
 
         private void ProcessMessageResponse(string message)
@@ -177,7 +195,23 @@ namespace CrusadeSeniorProject
 
         private void ProcessGameRepsonse(string message)
         {
-            throw new NotImplementedException();
+            char[] delimiters = {'|'};
+            string[] messageBroken = message.Split(delimiters);
+
+            int width = Convert.ToInt32(messageBroken[0]);
+            int height = Convert.ToInt32(messageBroken[1]);
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            for (int i = 2; i < messageBroken.Length; ++i)
+            {
+                if (messageBroken[i] == "=")
+                    sb.Append('\n');
+                else
+                    sb.Append(messageBroken[i]);
+            }
+
+            _serverMessage = sb.ToString();
+
         }
     }
 }

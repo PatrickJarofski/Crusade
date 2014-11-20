@@ -10,23 +10,28 @@ using System.Threading;
 
 namespace CrusadeServer
 {
-    partial class Server
+    internal partial class Server
     {
         private static object lockObject = new object();    // For when thread safety is needed
 
         private static byte[] _buffer = new byte[1024];
-        private static List<Client> _clientSockets = new List<Client>();
+        private static volatile List<Client> _clientList = new List<Client>();
         private static Socket _serverSocket = new Socket
             (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         private const int _PORT = 777;
 
-        private static CrusadeGame _Game;
+        private static volatile CrusadeGame _Game;
+
 
         static void Main(string[] args)
         {
             Console.Title = "Crusade Server";
             SetupServer();
+
+            Thread checkConnectionsThread = new Thread(PollClients);
+            checkConnectionsThread.Start();
+
             Console.ReadLine();
         }
 
@@ -41,24 +46,51 @@ namespace CrusadeServer
             Console.WriteLine("Server EndPoint: " + _serverSocket.LocalEndPoint.ToString());
             Console.WriteLine("Now accepting client connections.");
         }
+
+
+        private static void PollClients()
+        {
+            while (true)
+            {
+                foreach (Client client in _clientList.ToArray())
+                {
+                    if (!isConnected(client))
+                        DisconnectClient(client);
+
+                    if (_clientList.Count < 2 && _Game != null)
+                    {
+                        ShutdownGame();
+
+                        // Start accepting client connections again
+                        _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
+                    }
+                }
+                Thread.Sleep(10);
+            }
+        }
        
 
         private static void AcceptCallBack(IAsyncResult ar)
         {
             Socket socket = _serverSocket.EndAccept(ar);
-            Client newClient = new Client(ref socket);
-            _clientSockets.Add(newClient);
+            Client newClient = new Client(socket);
+            _clientList.Add(newClient);
 
             newClient.clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, 
                 new AsyncCallback(ReceiveCallBack), newClient.clientSocket);
 
-            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
 
             Console.WriteLine(Environment.NewLine + DateTime.Now.ToString("HH:mm:ss: ") + "A client has connected");
-            Console.WriteLine("Total clients connected: " + _clientSockets.Count + Environment.NewLine);
+            Console.WriteLine("Total clients connected: " + _clientList.Count + Environment.NewLine);
 
-            if (_clientSockets.Count == 2)
+            if (_clientList.Count > 1)
+            {
                 BeginNewGame();
+            }
+            
+            else // wait for more clients
+                _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
+
         }
 
 
@@ -78,7 +110,8 @@ namespace CrusadeServer
 
                 // Check what type of request we've got
                 // and deal with it accordingly
-                if(received > 0)
+
+                if(received > 0 && isConnected(client))
                     ProcessRequest(dataBuf, client);
 
                 if (isConnected(client))
@@ -92,27 +125,28 @@ namespace CrusadeServer
             catch (SocketException ex)
             {
                 string error = "ReceiveCallback Error: " + ex.Message;
-                WriteErrorToConsole(ref error);
-                WriteToErrorLog(ref error);
+                WriteErrorToConsole(error);
+                WriteToErrorLog(error);
 
-                _clientSockets.Remove(client);
+                _clientList.Remove(client);
                 PrintNumConnections();
             }
         }
-
+        
 
         private static bool isConnected(Client client)
         {
             try
             {
-                return !(client.clientSocket.Poll(1, SelectMode.SelectRead) && client.clientSocket.Available == 0);
+                return (client.clientSocket.Poll(-1, SelectMode.SelectRead) && client.clientSocket.Poll(-1, SelectMode.SelectWrite));             
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
-                DisconnectClient(client);
+                WriteErrorToConsole(ex.Message);
+                WriteToErrorLog(ex.Message);
                 return false;
             }
-        }
+        } 
 
 
         private static void ProcessRequest(byte[] dataBuf, Client client)
@@ -148,31 +182,33 @@ namespace CrusadeServer
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Bad Request");
 
             byte[] buffer = Encoding.ASCII.GetBytes("Bad Request");
-            SendData(client, buffer);
+            SendData(client, buffer, RequestResponse.ResponseType.MessageResponse);
         }
 
 
         private static void ProcessMessageRequest(byte[] dataBuf)
         {
-            // Strip requestType byte
-            dataBuf[0] = (byte)RequestResponse.ResponseType.MessageResponse;
+            // strip requesttype byte
+            Array.Copy(dataBuf, 1, dataBuf, 0, dataBuf.Length - 1);
+            dataBuf[dataBuf.Length - 1] = (byte)'\0';
 
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Broadcasting: " + Encoding.ASCII.GetString(dataBuf));
 
             // Broadcast Message
-            for(int i = 0; i < _clientSockets.Count; ++i)
+            for(int i = 0; i < _clientList.Count; ++i)
             {
-                SendData(_clientSockets[i], dataBuf);
+                SendData(_clientList[i], dataBuf, RequestResponse.ResponseType.MessageResponse);
             }
         }
 
 
         private static void ProcessGameRequest(byte[] dataBuf, Client client)
         {
-            string request = Encoding.ASCII.GetString(dataBuf);
+            string request = Encoding.ASCII.GetString(dataBuf, 1, dataBuf.Length - 1);
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + request);
 
-            // TODO: Figure out the rest
+           // if (request == "GETGAMEBOARD")
+                GiveClientsBoardState();
         }
 
 
@@ -181,39 +217,29 @@ namespace CrusadeServer
             string clientMsg = Encoding.ASCII.GetString(dataBuf);
 
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss CLIENT REQ: ") + clientMsg);
-
-            if (clientMsg == "CLOSE_CONNECTION")
-            {
-                string broadcastMsg = Environment.NewLine + "A client has disconnected." + Environment.NewLine;
-                DisconnectClient(client);
-
-                byte[] buffer = Encoding.ASCII.GetBytes("1" + broadcastMsg);
-                ProcessMessageRequest(buffer);
-            }
         }
 
 
-        private static byte[] StripTypeByte(byte[] array)
+        private static void SendData(Client client, byte[] bufferToSend, RequestResponse.ResponseType responseType)
         {
-            byte[] returnArray = new byte[array.Length - 1];
-            Array.Copy(array, 1, returnArray, 0, (array.Length - 1));
+            if (!isConnected(client))
+                return;
 
-            return returnArray;
-        }
-
-
-        private static void SendData(Client client, byte[] bufferToSend)
-        {
             try
             {
-                client.clientSocket.BeginSend(bufferToSend, 0, bufferToSend.Length, SocketFlags.None,
-                    new AsyncCallback(SendCallBack), client.clientSocket);
+                byte[] buffer = new byte[bufferToSend.Length + 1];
+                buffer[0] = (byte)responseType;
+                Array.Copy(bufferToSend, 0, buffer, 1, bufferToSend.Length);
+
+                if(isConnected(client))
+                    client.clientSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None,
+                        new AsyncCallback(SendCallBack), client.clientSocket);
             }
             catch (SocketException ex)
             {
                 string error = "SendData Error: " + ex.Message;
-                WriteErrorToConsole(ref error);
-                WriteToErrorLog(ref error);
+                WriteErrorToConsole(error);
+                WriteToErrorLog(error);
             }
         }
 
@@ -228,28 +254,29 @@ namespace CrusadeServer
             catch(SocketException ex)
             {
                 string error = "SendCallback Error: " + ex.Message;
-                WriteErrorToConsole(ref error);
-                WriteToErrorLog(ref error);
+                WriteErrorToConsole(error);
+                WriteToErrorLog(error);
             }
         }
         
 
         private static Client GetMatchingClient(Socket socket)
         {
-            return _clientSockets.Find(a => a.clientSocket == socket);
+            return _clientList.Find(a => a.clientSocket == socket);
         }
 
 
         private static void DisconnectClient(Client client)
         {
-            Console.WriteLine("Disconnecting Client...");
-            _clientSockets.Remove(client);
+            Console.WriteLine("Disconnecting Client...");            
+            client.clientSocket.Shutdown(SocketShutdown.Both);
             client.clientSocket.Disconnect(true);
             client.clientSocket.Close();
+            _clientList.Remove(client);
         }
         
         
-        private static void WriteToErrorLog(ref string error)
+        private static void WriteToErrorLog(string error)
         {
             lock (lockObject)
             {
@@ -260,7 +287,7 @@ namespace CrusadeServer
         }
 
 
-        private static void WriteErrorToConsole(ref string error)
+        private static void WriteErrorToConsole(string error)
         {
             string separator = Environment.NewLine + "============================" + Environment.NewLine;
             Console.WriteLine(separator + DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss ") + error + separator);
@@ -270,7 +297,7 @@ namespace CrusadeServer
         private static void PrintNumConnections()
         {
             Console.WriteLine(DateTime.Now.TimeOfDay.ToString() + ": " + "Clients connected: "
-                    + _clientSockets.Count + Environment.NewLine);
+                    + _clientList.Count + Environment.NewLine);
         }
    
 

@@ -37,8 +37,8 @@ namespace CrusadeLibrary
 
         private void CreateDebugPieces()
         {
-            GamePiece debug1 = new GamePiece(3, 0);
-            GamePiece debug2 = new GamePiece(3, 4);
+            GamePiece debug1 = new GamePiece(2, 0);
+            GamePiece debug2 = new GamePiece(2, 4);
             _board.PlaceGamePiece(debug1);
             _board.PlaceGamePiece(debug2);
         }

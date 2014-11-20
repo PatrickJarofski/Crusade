@@ -7,8 +7,8 @@ namespace CrusadeLibrary
 {
     public class Gameboard
     {
-        public const int BOARD_WIDTH = 6;
-        public const int BOARD_HEIGHT = 6;
+        public const int BOARD_WIDTH = 5;
+        public const int BOARD_HEIGHT = 5;
 
         private GamePiece[,] _board;
 
