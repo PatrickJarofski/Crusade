@@ -10,13 +10,16 @@ namespace CrusadeLibrary
     {
         #region Members
 
-         private Player _player1;
-         private Player _player2;
+        private Player _player1;
+        private Player _player2;
 
-         private Player currentPlayer;
+        private Player currentPlayer;
 
-         private Gameboard _board;
+        private Gameboard _board;
 
+        private System.Timers.Timer debugTimer;
+        private System.Timers.Timer timerToStartDebugTimer;
+        private Random rng;
         #endregion
 
 
@@ -32,8 +35,10 @@ namespace CrusadeLibrary
 
             currentPlayer = _player1;
 
+            rng = new Random();
             CreateDebugPieces();
         }
+
 
         private void CreateDebugPieces()
         {
@@ -41,7 +46,20 @@ namespace CrusadeLibrary
             GamePiece debug2 = new GamePiece(2, 4);
             _board.PlaceGamePiece(debug1);
             _board.PlaceGamePiece(debug2);
+
+            timerToStartDebugTimer = new System.Timers.Timer(10000);
+            timerToStartDebugTimer.Elapsed += StartDebugTimer;
+            timerToStartDebugTimer.Start();
         }
+
+        private void StartDebugTimer(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            debugTimer = new System.Timers.Timer(4000);
+            debugTimer.Elapsed += ExtraDebugPieces;
+            debugTimer.Start();
+            timerToStartDebugTimer.Stop();
+        }
+
 
         public string[,] GetBoardState()
         {
@@ -84,6 +102,12 @@ namespace CrusadeLibrary
         public Player GetCurrentPlayer()
         {
             return currentPlayer;
+        }
+
+
+        private void ExtraDebugPieces(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            _board.PlaceGamePiece(new GamePiece(rng.Next(Gameboard.BOARD_WIDTH), rng.Next(Gameboard.BOARD_HEIGHT)));
         }
 
         #endregion
