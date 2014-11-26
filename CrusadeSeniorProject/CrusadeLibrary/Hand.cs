@@ -7,14 +7,14 @@ namespace CrusadeLibrary
 {
     public class Hand
     {
-        List<Card> _cardHand;
+        List<Card> _cardList;
 
         /// <summary>
         /// Constructor for Hand
         /// </summary>
         public Hand()
         {
-            _cardHand = new List<Card>();
+            _cardList = new List<Card>();
         }
 
 
@@ -24,7 +24,7 @@ namespace CrusadeLibrary
         /// <returns>List of type Card</returns>
         public List<Card> GetHand()
         {
-            return _cardHand;
+            return _cardList;
         }
 
 
@@ -34,7 +34,7 @@ namespace CrusadeLibrary
         /// <returns>int equal to # of cards in the Hand</returns>
         public int Count()
         {
-            return _cardHand.Count;
+            return _cardList.Count;
         }
 
 
@@ -44,7 +44,7 @@ namespace CrusadeLibrary
         /// <param name="card">Card to add</param>
         public void AddCard(Card card)
         {
-            _cardHand.Add(card);
+            _cardList.Add(card);
         }
 
 
@@ -57,7 +57,7 @@ namespace CrusadeLibrary
         /// the input parameter string</returns>
         public Card PlayCard(string cardToPlay)
         {
-            return _cardHand.Find(a => a.CardName == cardToPlay);
+            return _cardList.Find(a => a.Name == cardToPlay);
         }
 
 
@@ -67,7 +67,7 @@ namespace CrusadeLibrary
         /// <param name="cardToRemove">Name of the card to remove</param>
         public void RemoveCard(string cardToRemove)
         {
-            _cardHand.Remove(_cardHand.Find(a => a.CardName == cardToRemove));
+            _cardList.Remove(_cardList.Find(a => a.Name == cardToRemove));
         }
 
 
@@ -79,7 +79,7 @@ namespace CrusadeLibrary
         /// <returns>True or false depending on if the hand has the card</returns>
         public bool HasCard(string cardToFind)
         {
-            return _cardHand.Exists(a => a.CardName == cardToFind);
+            return _cardList.Exists(a => a.Name == cardToFind);
         }
 
 
@@ -98,12 +98,12 @@ namespace CrusadeLibrary
             // Shuffle the hand so the
             // cards are chosen randomly
             Random random = new Random();
-            _cardHand.OrderBy(a => random.Next());
+            _cardList.OrderBy(a => random.Next());
 
             for (int i = 0; i < numCards; ++i)
             {
-                discardList.Add(_cardHand[i]);
-                _cardHand.Remove(_cardHand[i]);
+                discardList.Add(_cardList[i]);
+                _cardList.Remove(_cardList[i]);
             }
             return discardList;
         }

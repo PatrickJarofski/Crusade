@@ -15,9 +15,9 @@ namespace CrusadeLibrary
         /// </summary>
         public Deck()
         {
-            _cardDeck = new Queue<Card>();     
+            _cardDeck = new Queue<Card>();
 
-            // Populate deck with player's cards
+            _cardDeck.Enqueue(new TroopCard("Swordsman"));
         }
 
 

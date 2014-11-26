@@ -5,27 +5,10 @@ using System.Text;
 
 namespace CrusadeLibrary
 {
-    public class Card
+    public enum CardLocation { NoLocation, Deck, Hand, Field, Grave };
+
+    public interface Card : GameObject
     {
-        private readonly string _name;
-        // Have a GUID for unique id purposes?
-
-        public string CardName { get { return _name; } }
-
-
-        #region Methods
-
-        public Card(string name)
-        {
-            _name = name;
-        }
-
-        public Card()
-            : this("Default Name")
-        {
-
-        }
-
-        #endregion
+        CardLocation Location { get; set; }
     }
 }
