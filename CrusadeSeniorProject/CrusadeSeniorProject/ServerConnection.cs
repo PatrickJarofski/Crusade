@@ -16,7 +16,6 @@ namespace CrusadeSeniorProject
         private readonly CrusadeGameClient _GameClient;
 
         private readonly Socket _clientSocket;
-        private readonly TcpClient _tcpClient;
         private const int _Port = 777;
 
         private int idCount = 0;
@@ -147,12 +146,6 @@ namespace CrusadeSeniorProject
                 {
                     state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));
 
-                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 
-                        SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
-                }
-
-                else
-                {
                     response = state.stringBuilder.ToString();
                     response = response.TrimEnd('\0');
 
