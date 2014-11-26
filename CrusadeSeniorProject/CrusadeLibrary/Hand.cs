@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrusadeLibrary
 {
-    public class Hand
+    public class Hand : BaseGameObject
     {
         List<Card> _cardList;
 
@@ -109,5 +109,9 @@ namespace CrusadeLibrary
         }
 
 
+        public override void Execute()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

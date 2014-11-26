@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrusadeLibrary
 {
-    public class Gameboard
+    public class Gameboard : BaseGameObject
     {
         public const int BOARD_WIDTH = 5;
         public const int BOARD_HEIGHT = 5;
@@ -53,5 +53,10 @@ namespace CrusadeLibrary
                 return false;
         }
 
+
+        public override void Execute()
+        {
+            return;
+        }
     }
 }

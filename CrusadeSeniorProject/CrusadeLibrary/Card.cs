@@ -7,10 +7,27 @@ namespace CrusadeLibrary
 {
     public enum CardLocation { NoLocation, Deck, Hand, Field, Grave };
 
-    public interface Card : GameObject
+    public abstract class Card : BaseGameObject
     {
-        CardLocation Location { get; set; }
+        private string _name;
+        private CardLocation _cardLocation;
 
-        string Name { get; }
+        #region Properties
+        public CardLocation Location
+        {
+            get { return _cardLocation; }
+            set { _cardLocation = value; }
+        }
+
+        public string Name
+        {
+            get { return _name; }
+        }
+        #endregion
+
+        public Card(string name)
+        {
+            _name = name;
+        }
     }
 }

@@ -32,12 +32,12 @@ namespace CrusadeLibrary
 
         #region Methods
         public EquipCard(string name)
+            : base(name)
         {
-            _guid = new Guid();
-            _name = name;
+
         }
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }

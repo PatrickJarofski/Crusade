@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrusadeLibrary
 {
-    public class GamePiece
+    public class GamePiece : BaseGameObject
     {
         private int _xCoordinate;
         private int _yCoordinate;
@@ -31,6 +31,11 @@ namespace CrusadeLibrary
         public Tuple<int, int> GetCoordinates()
         {
             return new Tuple<int, int>(_xCoordinate, _yCoordinate);
+        }
+
+        public override void Execute()
+        {
+            throw new NotImplementedException();
         }
     }
 }

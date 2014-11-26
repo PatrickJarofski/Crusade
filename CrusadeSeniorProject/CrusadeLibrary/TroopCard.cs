@@ -76,13 +76,13 @@ namespace CrusadeLibrary
 
         #region Methods
         public TroopCard(string name)
+            : base(name)
         {
-            _name = name;
-            _guid = new Guid();
+
         }
 
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }

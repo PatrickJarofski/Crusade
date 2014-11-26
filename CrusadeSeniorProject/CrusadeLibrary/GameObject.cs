@@ -12,4 +12,22 @@ namespace CrusadeLibrary
 
         void Execute();
     }
+
+    public abstract class BaseGameObject : GameObject
+    {
+        private Guid _guid;
+
+        public Guid ID
+        {
+            get { return _guid; }
+        }
+
+        public BaseGameObject()
+        {
+            _guid = new Guid();
+        }
+
+
+        abstract public void Execute();
+    }
 }
