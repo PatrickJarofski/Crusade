@@ -7,8 +7,7 @@ using System.Text;
 using System.IO;
 using System.Threading;
 
-using RequestType = CrusadeServer.RequestResponse.RequestType;
-using ResponseType = CrusadeServer.RequestResponse.ResponseType;
+using CrusadeServer;
 
 namespace CrusadeSeniorProject
 {
@@ -17,9 +16,13 @@ namespace CrusadeSeniorProject
         private readonly CrusadeGameClient _GameClient;
 
         private readonly Socket _clientSocket;
-        const int _Port = 777;
+        private readonly TcpClient _tcpClient;
+        private const int _Port = 777;
 
+        private int idCount = 0;
         private readonly string _name;
+
+        private object lockObject = new object();
 
         private static ManualResetEvent connectDone = new ManualResetEvent(false);
         private static ManualResetEvent sendDone = new ManualResetEvent(false);
@@ -53,6 +56,7 @@ namespace CrusadeSeniorProject
             catch(SocketException ex)
             {
                 WriteToErrorLog("ACTION: Constructor " + ex.Message);
+                throw new Exception(ex.Message);
             }
             
             SendMessageRequest("New Client " + _name + " has joined.");
@@ -139,17 +143,24 @@ namespace CrusadeSeniorProject
 
                 int bytesReceived = client.EndReceive(ar);
 
-                state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));
-
-                response = state.stringBuilder.ToString();
-                response = response.TrimEnd('\0');
-
-                if(response.Length > 0)
+                if (bytesReceived > 0)
                 {
-                    ResponseType responseType = (ResponseType)state.buffer[0];
+                    state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));
 
-                    string msg = response.Substring(1);
-                    _GameClient.UpdateFromServer(responseType, msg);
+                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 
+                        SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
+                }
+
+                else
+                {
+                    response = state.stringBuilder.ToString();
+                    response = response.TrimEnd('\0');
+
+                    if (response.Length > 0)
+                    {
+                        JSONResponse jsonResponse = JSONResponse.ConvertToJson(response);
+                        _GameClient.UpdateFromServer(jsonResponse.responseType, jsonResponse.response);
+                    }
                 }
 
                 // Begin a another async receive
@@ -172,32 +183,35 @@ namespace CrusadeSeniorProject
 
         public void SendClientRequest(string request)
         {
-            byte[] buffer = formatRequest(request, (byte)RequestType.ClientRequest);
-            SendRequestToServer(buffer);
+            SendRequestToServer(GetBuffer(RequestTypes.ClientRequest, request));
         }
 
 
         public void SendGameRequest(string request)
         {
-            byte[] buffer = formatRequest(request, (byte)RequestType.GameRequest);
-            SendRequestToServer(buffer);
+            SendRequestToServer(GetBuffer(RequestTypes.GameRequest, request));
         }
 
 
         public void SendMessageRequest(string request)
         {
-            byte[] buffer = formatRequest(request, (byte)RequestType.MessageRequest);
-            SendRequestToServer(buffer);
+            SendRequestToServer(GetBuffer(RequestTypes.MessageRequest, request));
         }
 
 
-        private byte[] formatRequest(string request, byte requestType)
+        private byte[] GetBuffer(string requestType, string request)
         {
-            byte[] buffer = new byte[request.Length + 1];
-            buffer[0] = requestType;
+            JSONRequest jsonRequest = new JSONRequest();
 
-            Encoding.ASCII.GetBytes(request, 0, request.Length, buffer, 1);
-            return buffer;
+            jsonRequest.ID = ++idCount;
+
+            IPEndPoint ep = (IPEndPoint)_clientSocket.LocalEndPoint;
+            jsonRequest.requestIP = ep.Address.ToString();
+            jsonRequest.requestPort = ep.Port;
+            jsonRequest.requestType = requestType;
+            jsonRequest.request = request;
+
+            return Encoding.ASCII.GetBytes(JSONRequest.ConvertToString(jsonRequest));
         }
         
 
@@ -222,9 +236,13 @@ namespace CrusadeSeniorProject
         }
 
 
-        public static void WriteToErrorLog(string msg)
+        public void WriteToErrorLog(string msg)
         {
-            File.AppendAllText("Client Error Log.txt", Environment.NewLine + DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss: ") + msg + Environment.NewLine);
+            lock (lockObject)
+            {
+                File.AppendAllText("Client Error Log.txt", Environment.NewLine + 
+                    DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss: ") + msg + Environment.NewLine);
+            }
         }
     }
 }

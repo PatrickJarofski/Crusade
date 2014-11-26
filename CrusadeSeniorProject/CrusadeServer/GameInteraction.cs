@@ -8,14 +8,11 @@ using System.IO;
 using CrusadeLibrary;
 using System.Threading;
 
-using RequestType = CrusadeServer.RequestResponse.RequestType;
-using ResponseType = CrusadeServer.RequestResponse.ResponseType;
-
 namespace CrusadeServer
 {
     partial class Server
     {
-        private static void BeginNewGame()
+        private void BeginNewGame()
         {
             Random rng = new Random();
             int playerOne = rng.Next(0, 2);
@@ -34,14 +31,11 @@ namespace CrusadeServer
             _Game = new CrusadeGame();
 
             Console.WriteLine("Game has started.");
-
-            string msg = "GAMESTARTED";
-            byte[] buffer = Encoding.ASCII.GetBytes(msg);
-            UpdateClients(buffer, ResponseType.ClientResponse);
+            UpdateAllClients(GenerateResponse(ResponseTypes.ClientResponse, "GAMESTARTED"));
         }
 
 
-        private static void ShutdownGame()
+        private void ShutdownGame()
         {
             _Game = null;
             lock(_clientList)
@@ -50,25 +44,22 @@ namespace CrusadeServer
                     client.PlayerID = Client.PlayerNumber.NotAPlayer;
             }
 
-
-            byte[] buffer = Encoding.ASCII.GetBytes("GAMEOVER");
-
             Console.WriteLine("Game has ended.");
             foreach (Client client in _clientList)
             {
-                SendData(client, buffer, RequestResponse.ResponseType.ClientResponse);
+                SendData(client, GenerateResponse(ResponseTypes.GameResponse, "GAMEOVER"));
             }
         }
 
 
-        private static void UpdateClients(byte[] buffer, ResponseType responseType)
+        private void UpdateAllClients(JSONResponse jsonResponse)
         {
             foreach (Client client in _clientList.ToArray())
-                SendData(client, buffer, responseType);
+                SendData(client, jsonResponse);
         }
 
 
-        internal static void GiveClientsBoardState()
+        internal void GiveClientsBoardState()
         {
             if (_Game == null)
                 return;
@@ -98,10 +89,7 @@ namespace CrusadeServer
                 sb.Append("=|");
             }
 
-            // in addition to response type have a subresponse type
-            // to denote the specific client, game, or message reponse type?
-            byte[] buffer = Encoding.ASCII.GetBytes(sb.ToString());
-            UpdateClients(buffer, ResponseType.GameResponse);
+            UpdateAllClients(GenerateResponse(ResponseTypes.GameResponse, sb.ToString()));
         }
     }
 }

@@ -9,10 +9,6 @@ using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
 using System.Threading;
 using System.Threading.Tasks;
-
-// For convenience
-using RequestType = CrusadeServer.RequestResponse.RequestType;
-using ResponseType = CrusadeServer.RequestResponse.ResponseType;
 #endregion
 
 namespace CrusadeSeniorProject
@@ -33,8 +29,10 @@ namespace CrusadeSeniorProject
         SpriteBatch spriteBatch;
         SpriteFont MonoFont;
 
-        private string _serverMessage = "Not connected.";
-        static Random random = new Random();
+        private string _serverMessage = "No new messages";
+        private object lockObject = new object();
+
+        public static readonly Random RNG = new Random();
 
 
         private static System.Timers.Timer DEBUG_TIMER;
@@ -114,7 +112,7 @@ namespace CrusadeSeniorProject
 
         private void sendMessage(Object source, System.Timers.ElapsedEventArgs e)
         {
-            int num = random.Next(0, 5);
+            int num = RNG.Next(0, 5);
 
             if (!inAGame)
             {
@@ -152,22 +150,22 @@ namespace CrusadeSeniorProject
         }
 
 
-        internal void UpdateFromServer(ResponseType responseType, string message)
+        internal void UpdateFromServer(string responseType, string message)
         {
             _serverMessage = message;
             
             // Some check to see what kind of message it is
             switch(responseType)
             {
-                case ResponseType.ClientResponse:
+                case CrusadeServer.ResponseTypes.ClientResponse:
                     ProcessClientResponse(message);
                     break;
 
-                case ResponseType.GameResponse:
+                case CrusadeServer.ResponseTypes.GameResponse:
                     ProcessGameRepsonse(message);
                     break;
 
-                case ResponseType.MessageResponse:
+                case CrusadeServer.ResponseTypes.MessageResponse:
                     ProcessMessageResponse(message);
                     break;
 
@@ -188,10 +186,12 @@ namespace CrusadeSeniorProject
                     inAGame = false;
         }
 
+
         private void ProcessMessageResponse(string message)
         {
             _serverMessage = message;
         }
+
 
         private void ProcessGameRepsonse(string message)
         {

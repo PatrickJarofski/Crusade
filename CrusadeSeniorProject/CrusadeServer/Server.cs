@@ -12,45 +12,59 @@ namespace CrusadeServer
 {
     internal partial class Server
     {
-        private static object lockObject = new object();    // For when thread safety is needed
+        private object lockObject = new object();    // For when thread safety is needed
 
-        private static byte[] _buffer = new byte[1024];
-        private static volatile List<Client> _clientList = new List<Client>();
-        private static Socket _serverSocket = new Socket
+        private byte[] _buffer = new byte[1024];
+        private volatile List<Client> _clientList = new List<Client>();
+        private Socket _serverSocket = new Socket
             (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         private const int _PORT = 777;
 
-        private static volatile CrusadeGame _Game;
+        private volatile CrusadeGame _Game;
+        public volatile bool KeepPollingClients = true;
+
+        private int idCount = 0;
 
 
         static void Main(string[] args)
         {
             Console.Title = "Crusade Server";
-            SetupServer();
+            Server server = new Server();
 
-            Thread checkConnectionsThread = new Thread(PollClients);
-            checkConnectionsThread.Start();
+            Console.WriteLine("\n\nTo shutdown the server press Enter.");
+            Console.Read();
 
-            Console.ReadLine();
+            server.KeepPollingClients = false;
         }
 
 
-        private static void SetupServer()
+        public Server()
         {
-            Console.WriteLine("Setting up server...");
-            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, _PORT));
-            _serverSocket.Listen(2);
-            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
+            try
+            {
+                Console.WriteLine("Setting up server...");
 
-            Console.WriteLine("Server EndPoint: " + _serverSocket.LocalEndPoint.ToString());
-            Console.WriteLine("Now accepting client connections.");
+                _serverSocket.Bind(new IPEndPoint(IPAddress.Any, _PORT));
+                _serverSocket.Listen(2);
+                _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
+
+                Console.WriteLine("Server EndPoint: " + _serverSocket.LocalEndPoint.ToString());
+                Console.WriteLine("Now accepting client connections.");
+
+                Thread checkConnectionsThread = new Thread(PollClients);
+                checkConnectionsThread.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message);
+            }
         }
 
 
-        private static void PollClients()
+        private void PollClients()
         {
-            while (true)
+            while (KeepPollingClients)
             {
                 foreach (Client client in _clientList.ToArray())
                 {
@@ -70,7 +84,7 @@ namespace CrusadeServer
         }
        
 
-        private static void AcceptCallBack(IAsyncResult ar)
+        private void AcceptCallBack(IAsyncResult ar)
         {
             Socket socket = _serverSocket.EndAccept(ar);
             Client newClient = new Client(socket);
@@ -94,7 +108,7 @@ namespace CrusadeServer
         }
 
 
-        private static void ReceiveCallBack(IAsyncResult ar)
+        private void ReceiveCallBack(IAsyncResult ar)
         {
             Socket socket = (Socket)ar.AsyncState;
             Client client = GetMatchingClient(socket);
@@ -134,7 +148,7 @@ namespace CrusadeServer
         }
         
 
-        private static bool isConnected(Client client)
+        private bool isConnected(Client client)
         {
             try
             {
@@ -149,87 +163,77 @@ namespace CrusadeServer
         } 
 
 
-        private static void ProcessRequest(byte[] dataBuf, Client client)
+        private void ProcessRequest(byte[] dataBuf, Client client)
         {
             if (dataBuf.Length < 1)
                 return;
+            
+            JSONRequest request = JSONRequest.ConvertToJson(Encoding.ASCII.GetString(dataBuf));
 
-            RequestResponse.RequestType requestType = (RequestResponse.RequestType)dataBuf[0];
-
-            switch(requestType)
+            switch(request.requestType)
             {
-                case RequestResponse.RequestType.ClientRequest:
-                    ProcessClientRequest(dataBuf, client);
+                case RequestTypes.ClientRequest:
+                    ProcessClientRequest(request);
                     break;
 
-                case RequestResponse.RequestType.GameRequest:
-                    ProcessGameRequest(dataBuf, client);
+                case RequestTypes.GameRequest:
+                    ProcessGameRequest(request);
                     break;
 
-                case RequestResponse.RequestType.MessageRequest:
-                    ProcessMessageRequest(dataBuf);
+                case RequestTypes.MessageRequest:
+                    ProcessMessageRequest(request);
                     break;
 
                 default:
-                    ProcessBadRequest(client);
+                    ProcessBadRequest(request);
                     break;
             }
         }
 
 
-        private static void ProcessBadRequest(Client client)
+        private void ProcessBadRequest(JSONRequest request)
         {
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Bad Request");
 
-            byte[] buffer = Encoding.ASCII.GetBytes("Bad Request");
-            SendData(client, buffer, RequestResponse.ResponseType.MessageResponse);
+            SendData(GetMatchingClient(request.requestIP, request.requestPort), GenerateResponse(ResponseTypes.MessageResponse, "BAD REQUEST"));
         }
 
 
-        private static void ProcessMessageRequest(byte[] dataBuf)
+        private void ProcessMessageRequest(JSONRequest jsonRequest)
         {
-            // strip requesttype byte
-            Array.Copy(dataBuf, 1, dataBuf, 0, dataBuf.Length - 1);
-            dataBuf[dataBuf.Length - 1] = (byte)'\0';
-
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Broadcasting: " + Encoding.ASCII.GetString(dataBuf));
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Broadcasting: " + jsonRequest.request);
 
             // Broadcast Message
-            for(int i = 0; i < _clientList.Count; ++i)
+            foreach(Client client in _clientList)
             {
-                SendData(_clientList[i], dataBuf, RequestResponse.ResponseType.MessageResponse);
+                SendData(client, GenerateResponse(ResponseTypes.MessageResponse, jsonRequest.request));
             }
         }
 
 
-        private static void ProcessGameRequest(byte[] dataBuf, Client client)
-        {
-            string request = Encoding.ASCII.GetString(dataBuf, 1, dataBuf.Length - 1);
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + request);
+        private void ProcessGameRequest(JSONRequest jsonRequest)
+        {            
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + jsonRequest.request);
 
-           // if (request == "GETGAMEBOARD")
+            if (jsonRequest.request == "GETGAMEBOARD")
                 GiveClientsBoardState();
         }
 
 
-        private static void ProcessClientRequest(byte[] dataBuf, Client client)
+        private void ProcessClientRequest(JSONRequest jsonRequest)
         {
-            string clientMsg = Encoding.ASCII.GetString(dataBuf);
-
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss CLIENT REQ: ") + clientMsg);
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss CLIENT REQ: ") + jsonRequest.request);
         }
 
 
-        private static void SendData(Client client, byte[] bufferToSend, RequestResponse.ResponseType responseType)
+        private void SendData(Client client, JSONResponse jsonResponse)
         {
             if (!isConnected(client))
                 return;
 
             try
             {
-                byte[] buffer = new byte[bufferToSend.Length + 1];
-                buffer[0] = (byte)responseType;
-                Array.Copy(bufferToSend, 0, buffer, 1, bufferToSend.Length);
+                byte[] buffer = Encoding.ASCII.GetBytes(JSONResponse.ConvertToString(jsonResponse));
 
                 if(isConnected(client))
                     client.clientSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None,
@@ -244,7 +248,7 @@ namespace CrusadeServer
         }
 
 
-        private static void SendCallBack(IAsyncResult ar)
+        private void SendCallBack(IAsyncResult ar)
         {
             try
             {
@@ -260,13 +264,40 @@ namespace CrusadeServer
         }
         
 
-        private static Client GetMatchingClient(Socket socket)
+        private JSONResponse GenerateResponse(string responseType, string response)
+        {
+            JSONResponse jsonResponse = new JSONResponse();
+            jsonResponse.ID = ++idCount;
+            jsonResponse.responseType = responseType;
+            jsonResponse.response = response;
+
+            return jsonResponse;
+        }
+
+
+        private Client GetMatchingClient(string ip, int port)
+        {
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse(ip), port);
+
+            foreach(Client client in _clientList)
+            {
+                if (client.clientSocket.LocalEndPoint == ep)
+                    return client;
+            }
+
+            // Unable to locate client
+            // Something strange has happened
+            throw new Exception("A request was received from an unconnected client.");
+        }
+
+
+        private Client GetMatchingClient(Socket socket)
         {
             return _clientList.Find(a => a.clientSocket == socket);
         }
 
 
-        private static void DisconnectClient(Client client)
+        private void DisconnectClient(Client client)
         {
             Console.WriteLine("Disconnecting Client...");            
             client.clientSocket.Shutdown(SocketShutdown.Both);
@@ -276,7 +307,7 @@ namespace CrusadeServer
         }
         
         
-        private static void WriteToErrorLog(string error)
+        private void WriteToErrorLog(string error)
         {
             lock (lockObject)
             {
@@ -287,14 +318,14 @@ namespace CrusadeServer
         }
 
 
-        private static void WriteErrorToConsole(string error)
+        private void WriteErrorToConsole(string error)
         {
             string separator = Environment.NewLine + "============================" + Environment.NewLine;
             Console.WriteLine(separator + DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss ") + error + separator);
         }
 
 
-        private static void PrintNumConnections()
+        private void PrintNumConnections()
         {
             Console.WriteLine(DateTime.Now.TimeOfDay.ToString() + ": " + "Clients connected: "
                     + _clientList.Count + Environment.NewLine);
