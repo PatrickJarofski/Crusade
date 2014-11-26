@@ -132,9 +132,7 @@ namespace CrusadeSeniorProject
 
                 if (bytesReceived > 0)
                 {
-                    state.stringBuilder.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesReceived));
-
-                    response = state.stringBuilder.ToString();
+                    response = Encoding.ASCII.GetString(state.buffer, 0, bytesReceived);
                     response = response.TrimEnd('\0');
 
                     if (response.Length > 0)

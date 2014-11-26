@@ -13,6 +13,10 @@ namespace CrusadeSeniorProject
 
         public Socket workSocket = null;
         public byte[] buffer = new byte[BufferSize];
-        public StringBuilder stringBuilder = new StringBuilder();
+
+        public void Clear()
+        {
+            buffer = new byte[BufferSize];
+        }
     }
 }

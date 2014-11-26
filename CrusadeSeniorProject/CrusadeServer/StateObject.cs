@@ -16,8 +16,6 @@ namespace CrusadeServer
         public void Clear()
         {
             buffer = new byte[BufferSize];
-            sb.Clear();
         }
-
     }
 }
