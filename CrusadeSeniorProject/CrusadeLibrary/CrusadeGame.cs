@@ -8,6 +8,9 @@ namespace CrusadeLibrary
 {
     public class CrusadeGame
     {
+        public static readonly Random RNG = new Random();
+
+
         #region Members
 
         private Player _player1;
@@ -19,7 +22,7 @@ namespace CrusadeLibrary
 
         private System.Timers.Timer debugTimer;
         private System.Timers.Timer timerToStartDebugTimer;
-        private Random rng;
+        
         #endregion
 
 
@@ -35,7 +38,6 @@ namespace CrusadeLibrary
 
             currentPlayer = _player1;
 
-            rng = new Random();
             CreateDebugPieces();
         }
 
@@ -107,7 +109,7 @@ namespace CrusadeLibrary
 
         private void ExtraDebugPieces(object sender, System.Timers.ElapsedEventArgs e)
         {
-            _board.PlaceGamePiece(new GamePiece(rng.Next(Gameboard.BOARD_WIDTH), rng.Next(Gameboard.BOARD_HEIGHT)));
+            _board.PlaceGamePiece(new GamePiece(RNG.Next(Gameboard.BOARD_WIDTH), RNG.Next(Gameboard.BOARD_HEIGHT)));
         }
 
         #endregion

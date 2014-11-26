@@ -7,8 +7,22 @@ namespace CrusadeLibrary
 {
     public class Deck
     {
-        Queue<Card> _cardDeck;  
+        #region Members
 
+        Queue<Card> _cardDeck;
+
+        #endregion
+
+        #region Properties
+
+        public int Count
+        {
+            get { return _cardDeck.Count; }
+        }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Constructor for Deck
@@ -17,11 +31,10 @@ namespace CrusadeLibrary
         {
             _cardDeck = new Queue<Card>();
 
-            _cardDeck.Enqueue(new TroopCard("Swordsman"));
+            // Debug
+            AddCardToDeck(new TroopCard("Swordsman"));
         }
 
-
-        #region Methods
 
         /// <summary>
         /// Draws a card from the Deck         
@@ -44,18 +57,16 @@ namespace CrusadeLibrary
         /// </summary>
         public void ShuffleDeck()
         {
-            Random random = new Random();
-            _cardDeck.OrderBy(a => random.Next());  
+            _cardDeck.OrderBy(a => CrusadeGame.RNG.Next());  
         }
 
 
-        /// <summary>
-        /// Gets the number of cards left in the deck
-        /// </summary>
-        /// <returns>int equal to the number of cards left</returns>
-        public int GetCardCount()
+        public void AddCardToDeck(Card card)
         {
-            return _cardDeck.Count;
+            if (card == null)
+                return;
+            else
+                _cardDeck.Enqueue(card);
         }
         #endregion
 
