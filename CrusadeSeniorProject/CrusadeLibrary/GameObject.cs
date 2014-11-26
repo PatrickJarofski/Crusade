@@ -9,7 +9,6 @@ namespace CrusadeLibrary
     public interface GameObject
     {
         Guid ID { get; }
-        string Name { get; }
 
         void Execute();
     }

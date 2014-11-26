@@ -10,5 +10,7 @@ namespace CrusadeLibrary
     public interface Card : GameObject
     {
         CardLocation Location { get; set; }
+
+        string Name { get; }
     }
 }
