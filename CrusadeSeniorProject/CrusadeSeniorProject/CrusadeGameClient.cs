@@ -162,7 +162,7 @@ namespace CrusadeSeniorProject
                     break;
 
                 case CrusadeServer.ResponseTypes.GameResponse:
-                    ProcessGameRepsonse(message);
+                    ProcessGameResponse(message);
                     break;
 
                 case CrusadeServer.ResponseTypes.MessageResponse:
@@ -193,7 +193,7 @@ namespace CrusadeSeniorProject
         }
 
 
-        private void ProcessGameRepsonse(string message)
+        private void ProcessGameResponse(string message)
         {
             char[] delimiters = {'|'};
             string[] messageBroken = message.Split(delimiters);

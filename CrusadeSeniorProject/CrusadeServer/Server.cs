@@ -14,7 +14,6 @@ namespace CrusadeServer
     {
         private object lockObject = new object();    // For when thread safety is needed
 
-        private byte[] _buffer = new byte[1024];
         private volatile List<Client> _clientList = new List<Client>();
         private Socket _serverSocket = new Socket
             (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -86,21 +85,21 @@ namespace CrusadeServer
 
         private void AcceptCallBack(IAsyncResult ar)
         {
-            Socket socket = _serverSocket.EndAccept(ar);
-            Client newClient = new Client(socket);
+            Socket listener = (Socket)ar.AsyncState;
+            Client newClient = new Client(listener.EndAccept(ar));
             _clientList.Add(newClient);
 
-            newClient.clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, 
-                new AsyncCallback(ReceiveCallBack), newClient.clientSocket);
+            StateObject state = new StateObject();
+            state.workerSocket = newClient.clientSocket;
 
+            newClient.clientSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, 
+                new AsyncCallback(ReceiveCallBack), state);
 
             Console.WriteLine(Environment.NewLine + DateTime.Now.ToString("HH:mm:ss: ") + "A client has connected");
             Console.WriteLine("Total clients connected: " + _clientList.Count + Environment.NewLine);
 
             if (_clientList.Count > 1)
-            {
                 BeginNewGame();
-            }
             
             else // wait for more clients
                 _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
@@ -110,8 +109,8 @@ namespace CrusadeServer
 
         private void ReceiveCallBack(IAsyncResult ar)
         {
-            Socket socket = (Socket)ar.AsyncState;
-            Client client = GetMatchingClient(socket);
+            StateObject state = (StateObject)ar.AsyncState;
+            Client client = GetMatchingClient(state.workerSocket);
 
             if (!isConnected(client))
                 return;
@@ -119,18 +118,18 @@ namespace CrusadeServer
             try
             {
                 int received = client.clientSocket.EndReceive(ar);
-                byte[] dataBuf = new byte[received];
-                Array.Copy(_buffer, dataBuf, received);
-
+  
                 // Check what type of request we've got
                 // and deal with it accordingly
-
-                if(received > 0 && isConnected(client))
-                    ProcessRequest(dataBuf, client);
-
                 if (isConnected(client))
-                    client.clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, 
-                        new AsyncCallback(ReceiveCallBack), client.clientSocket);  
+                {
+                    if(received > 0)
+                        ProcessRequest(state.buffer, client);
+
+                    state.Clear();
+                    client.clientSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None,
+                        new AsyncCallback(ReceiveCallBack), state);  
+                }
                 
                 else
                     PrintNumConnections();                
@@ -140,7 +139,7 @@ namespace CrusadeServer
             {
                 string error = "ReceiveCallback Error: " + ex.Message;
                 WriteErrorToConsole(error);
-                WriteToErrorLog(error);
+                WriteErrorToLog(error);
 
                 _clientList.Remove(client);
                 PrintNumConnections();
@@ -157,18 +156,27 @@ namespace CrusadeServer
             catch (SocketException ex)
             {
                 WriteErrorToConsole(ex.Message);
-                WriteToErrorLog(ex.Message);
+                WriteErrorToLog(ex.Message);
                 return false;
             }
         } 
 
 
+        private void LogRequest(string request)
+        {
+            lock (lockObject)
+                File.AppendAllText("Server Request Log.txt", request + Environment.NewLine);
+        }
+
         private void ProcessRequest(byte[] dataBuf, Client client)
         {
             if (dataBuf.Length < 1)
                 return;
+
+            string req = Encoding.ASCII.GetString(dataBuf);
+            LogRequest(req.Trim('\0'));
             
-            JSONRequest request = JSONRequest.ConvertToJson(Encoding.ASCII.GetString(dataBuf));
+            JSONRequest request = JSONRequest.ConvertToJson(req.Trim('\0'));
 
             switch(request.requestType)
             {
@@ -243,7 +251,7 @@ namespace CrusadeServer
             {
                 string error = "SendData Error: " + ex.Message;
                 WriteErrorToConsole(error);
-                WriteToErrorLog(error);
+                WriteErrorToLog(error);
             }
         }
 
@@ -259,7 +267,7 @@ namespace CrusadeServer
             {
                 string error = "SendCallback Error: " + ex.Message;
                 WriteErrorToConsole(error);
-                WriteToErrorLog(error);
+                WriteErrorToLog(error);
             }
         }
         
@@ -307,7 +315,7 @@ namespace CrusadeServer
         }
         
         
-        private void WriteToErrorLog(string error)
+        private void WriteErrorToLog(string error)
         {
             lock (lockObject)
             {

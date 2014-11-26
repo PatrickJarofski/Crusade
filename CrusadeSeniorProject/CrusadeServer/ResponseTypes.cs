@@ -8,8 +8,9 @@ namespace CrusadeServer
 {
     public static class ResponseTypes
     {
-        public const string ClientResponse = "client";
-        public const string GameResponse = "game";
-        public const string MessageResponse = "message";
+        public const string ClientResponse = "CLIENTRSP";
+        public const string GameResponse = "GAMERSP";
+        public const string MessageResponse = "MESSSAGERSP";
+        public const string BadResponse = "BADRSP";
     }
 }

@@ -21,12 +21,30 @@ namespace CrusadeServer
 
         public static string ConvertToString(JSONRequest jsonRequest)
         {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(jsonRequest);
+            try
+            {
+                return Newtonsoft.Json.JsonConvert.SerializeObject(jsonRequest);
+            }
+            catch(Newtonsoft.Json.JsonReaderException)
+            {
+                return RequestTypes.BadRequest;
+            }
         }
 
         public static JSONRequest ConvertToJson(string requestToConvert)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<JSONRequest>(requestToConvert);
+            try
+            {
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<JSONRequest>(requestToConvert);
+            }
+            catch(Newtonsoft.Json.JsonReaderException ex)
+            {
+                JSONRequest badRequest = new JSONRequest();
+                badRequest.ID = -1;
+                badRequest.requestType = RequestTypes.BadRequest;
+                badRequest.request = ex.Message;
+                return badRequest;
+            }
         }
 
     }

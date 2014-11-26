@@ -8,8 +8,9 @@ namespace CrusadeServer
 {
     public static class RequestTypes
     {
-        public const string ClientRequest = "client";
-        public const string GameRequest = "game";
-        public const string MessageRequest = "message";
+        public const string ClientRequest = "CLIENTREQ";
+        public const string GameRequest = "GAMEREQ";
+        public const string MessageRequest = "MESSAGEREQ";
+        public const string BadRequest = "BADREQ";
     }
 }
