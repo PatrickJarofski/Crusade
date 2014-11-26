@@ -162,21 +162,12 @@ namespace CrusadeServer
         } 
 
 
-        private void LogRequest(string request)
-        {
-            lock (lockObject)
-                File.AppendAllText("Server Request Log.txt", request + Environment.NewLine);
-        }
-
         private void ProcessRequest(byte[] dataBuf, Client client)
         {
             if (dataBuf.Length < 1)
                 return;
 
-            string req = Encoding.ASCII.GetString(dataBuf);
-            LogRequest(req.Trim('\0'));
-            
-            JSONRequest request = JSONRequest.ConvertToJson(req.Trim('\0'));
+            JSONRequest request = JSONRequest.ConvertToJson(Encoding.ASCII.GetString(dataBuf).Trim('\0'));
 
             switch(request.requestType)
             {

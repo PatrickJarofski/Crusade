@@ -66,9 +66,6 @@ namespace CrusadeSeniorProject
         {
             try
             {
-                string debug = Encoding.ASCII.GetString(request);
-                LogRequest(debug);
-
                 _clientSocket.BeginSend(request, 0, request.Length,
                         SocketFlags.None, new AsyncCallback(SendCallback), null);
             }
@@ -222,13 +219,6 @@ namespace CrusadeSeniorProject
                 File.AppendAllText("Client Error Log.txt", Environment.NewLine + 
                     DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss: ") + msg + Environment.NewLine);
             }
-        }
-
-
-        private void LogRequest(string request)
-        {
-            lock(lockObject)
-                File.AppendAllText("Client Request Log.txt", request + Environment.NewLine);
         }
     }
 }
