@@ -8,11 +8,6 @@ namespace CrusadeLibrary
 {
     public class FieldCard : Card
     {
-        private readonly Guid _guid;
-        private readonly string _name;
-        private CardLocation _cardLocation;
-
-
         #region Methods
         public FieldCard(string name)
             : base(name)

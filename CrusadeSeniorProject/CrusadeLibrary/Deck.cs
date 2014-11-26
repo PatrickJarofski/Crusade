@@ -5,13 +5,11 @@ using System.Text;
 
 namespace CrusadeLibrary
 {
-    public class Deck : GameObject
+    public class Deck : BaseGameObject
     {
         #region Members
 
-        Guid _guid;
         Queue<Card> _cardDeck;
-
         #endregion
 
         #region Properties
@@ -31,10 +29,11 @@ namespace CrusadeLibrary
         public Deck()
         {
             _cardDeck = new Queue<Card>();
-            _guid = new Guid();
 
             // Debug
             AddCardToDeck(new TroopCard("Swordsman"));
+            AddCardToDeck(new EquipCard("Longsword"));
+            AddCardToDeck(new FieldCard("Second Wind"));
         }
 
 
@@ -73,12 +72,7 @@ namespace CrusadeLibrary
         #endregion
 
 
-        public Guid ID
-        {
-            get { return _guid; }
-        }
-
-        public void Execute()
+        public override void Execute()
         {
             return;
         }

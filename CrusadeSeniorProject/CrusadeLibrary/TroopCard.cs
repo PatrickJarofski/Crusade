@@ -9,9 +9,6 @@ namespace CrusadeLibrary
     public class TroopCard : Card
     {
         #region Members
-        private readonly Guid _guid;
-        private readonly string _name;
-
         private CardLocation _cardLocation;
         private int _currentHP;
         private int _attack;
@@ -22,23 +19,7 @@ namespace CrusadeLibrary
         #endregion
 
 
-        #region Properties
-        public Guid ID
-        {
-            get { return _guid; }
-        }
-
-        public string Name
-        {
-            get { return _name; }
-        }
-
-        public CardLocation Location
-        {
-            get { return _cardLocation; }
-            set { _cardLocation = value; }
-        }
-
+        #region Properites
         public int CurrentHP
         {
             get { return _currentHP; }

@@ -24,7 +24,7 @@ namespace CrusadeLibrary
 
         public BaseGameObject()
         {
-            _guid = new Guid();
+            _guid = Guid.NewGuid();
         }
 
 

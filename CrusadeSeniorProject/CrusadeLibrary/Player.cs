@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrusadeLibrary
 {
-    public class Player
+    public class Player : BaseGameObject
     {
         #region Members
         private Deck _deck;
@@ -54,7 +54,13 @@ namespace CrusadeLibrary
         /// <param name="cardToPlay">Name of the card to play</param>
         public void PlayCard(string cardToPlay)
         {
+            return;
+        }
 
+
+        public override void Execute()
+        {
+            return;
         }
         #endregion
 
