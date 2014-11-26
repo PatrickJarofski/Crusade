@@ -62,21 +62,6 @@ namespace CrusadeSeniorProject
         }
 
 
-        private void ConnectCallback(IAsyncResult ar)
-        {
-            try
-            {
-                Socket client = (Socket)ar.AsyncState;
-                client.EndConnect(ar);
-                connectDone.Set();
-            }
-            catch(SocketException ex)
-            {
-                WriteToErrorLog("ACTION: ConnectCallback() " + ex.Message);
-            }
-        }
-
-
         private void SendRequestToServer(byte[] request)
         {
             try
