@@ -47,7 +47,7 @@ namespace CrusadeServer
             Console.WriteLine("Game has ended.");
             foreach (Client client in _clientList)
             {
-                SendData(client, GenerateResponse(ResponseTypes.GameResponse, "GAMEOVER"));
+                SendData(client, GenerateResponse(ResponseTypes.ClientResponse, "GAMEOVER"));
             }
         }
 
