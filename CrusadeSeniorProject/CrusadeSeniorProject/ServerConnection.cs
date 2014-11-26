@@ -106,10 +106,10 @@ namespace CrusadeSeniorProject
         {
             try
             {
-                StateObject state = new StateObject();
-                state.workSocket = _clientSocket;
+                CrusadeServer.StateObject state = new CrusadeServer.StateObject();
+                state.workerSocket = _clientSocket;
 
-                _clientSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize,
+                _clientSocket.BeginReceive(state.buffer, 0, CrusadeServer.StateObject.BufferSize,
                         SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
             }
 
@@ -125,8 +125,8 @@ namespace CrusadeSeniorProject
             string response = string.Empty;
             try
             {
-                StateObject state = (StateObject)ar.AsyncState;
-                Socket client = state.workSocket;
+                CrusadeServer.StateObject state = (CrusadeServer.StateObject)ar.AsyncState;
+                Socket client = state.workerSocket;
 
                 int bytesReceived = client.EndReceive(ar);
 
