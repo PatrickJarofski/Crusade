@@ -175,17 +175,15 @@ namespace CrusadeSeniorProject
         }
 
 
-        private byte[] GetBuffer(string requestType, string request)
+        private byte[] GetBuffer(byte requestType, string request)
         {
             JSONRequest jsonRequest = new JSONRequest();
 
-            jsonRequest.ID = ++idCount;
-
             IPEndPoint ep = (IPEndPoint)_clientSocket.LocalEndPoint;
-            jsonRequest.requestIP = ep.Address.ToString();
-            jsonRequest.requestPort = ep.Port;
-            jsonRequest.requestType = requestType;
-            jsonRequest.request = request;
+            jsonRequest.RequestIP = ep.Address.ToString();
+            jsonRequest.RequestPort = ep.Port;
+            jsonRequest.RequestType = requestType;
+            jsonRequest.Request = request;
 
             return Encoding.ASCII.GetBytes(JSONRequest.ConvertToString(jsonRequest));
         }

@@ -26,8 +26,7 @@ namespace CrusadeLibrary
         #endregion
 
 
-        #region Methods
-
+        #region Public Methods
         // Eventually take in two clients as parameters??
         public CrusadeGame()
         {
@@ -38,30 +37,13 @@ namespace CrusadeLibrary
 
             currentPlayer = _player1;
 
+            DealStartingHand(_player1);
+            DealStartingHand(_player2);
+
             CreateDebugPieces();
         }
 
-
-        private void CreateDebugPieces()
-        {
-            GamePiece debug1 = new GamePiece(2, 0);
-            GamePiece debug2 = new GamePiece(2, 4);
-            _board.PlaceGamePiece(debug1);
-            _board.PlaceGamePiece(debug2);
-
-            timerToStartDebugTimer = new System.Timers.Timer(10000);
-            timerToStartDebugTimer.Elapsed += StartDebugTimer;
-            timerToStartDebugTimer.Start();
-        }
-
-        private void StartDebugTimer(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            debugTimer = new System.Timers.Timer(4000);
-            debugTimer.Elapsed += ExtraDebugPieces;
-            debugTimer.Start();
-            timerToStartDebugTimer.Stop();
-        }
-
+        
 
         public string[,] GetBoardState()
         {
@@ -101,9 +83,65 @@ namespace CrusadeLibrary
         }
 
 
-        public Player GetCurrentPlayer()
+        public Player.PlayerNumber GetCurrentPlayer()
         {
-            return currentPlayer;
+            if (currentPlayer == _player1)
+                return Player.PlayerNumber.PlayerOne;
+            else
+                return Player.PlayerNumber.PlayerTwo;
+        }
+
+
+        public List<string> GetPlayerHand(Player.PlayerNumber player)
+        {
+            if (player == Player.PlayerNumber.NotAPlayer)
+                return null;
+
+            List<Card> cardList;
+            List<string> returnList = new List<string>();
+
+            if (player == Player.PlayerNumber.PlayerOne)
+                cardList = _player1.GetHand();
+
+            else
+                cardList = _player2.GetHand();
+
+            for(int i = 0; i < cardList.Count; ++i)            
+                returnList.Add(cardList[i].ToString());
+            
+            return returnList;
+        }
+
+
+        #endregion
+
+
+        #region Private Methods
+        private void DealStartingHand(Player player)
+        {
+            for (int i = 0; i < Hand.STARTING_HAND_SIZE; ++i)
+                player.DrawFromDeck();
+        }
+
+
+        private void CreateDebugPieces()
+        {
+            GamePiece debug1 = new GamePiece(2, 0);
+            GamePiece debug2 = new GamePiece(2, 4);
+            _board.PlaceGamePiece(debug1);
+            _board.PlaceGamePiece(debug2);
+
+            timerToStartDebugTimer = new System.Timers.Timer(10000);
+            timerToStartDebugTimer.Elapsed += StartDebugTimer;
+            timerToStartDebugTimer.Start();
+        }
+
+        private void StartDebugTimer(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            debugTimer = new System.Timers.Timer(4000);
+            debugTimer.Elapsed += ExtraDebugPieces;
+            debugTimer.Start();
+            timerToStartDebugTimer.Stop();
         }
 
 

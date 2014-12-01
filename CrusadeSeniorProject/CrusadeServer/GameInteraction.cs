@@ -8,6 +8,8 @@ using System.IO;
 using CrusadeLibrary;
 using System.Threading;
 
+using PlayerNumber = CrusadeLibrary.Player.PlayerNumber;
+
 namespace CrusadeServer
 {
     partial class Server
@@ -19,19 +21,42 @@ namespace CrusadeServer
 
             if (playerOne == 1)
             {
-                _clientList[0].PlayerID = Client.PlayerNumber.PlayerOne;
-                _clientList[1].PlayerID = Client.PlayerNumber.PlayerTwo;
+                _clientList[0].PlayerID = PlayerNumber.PlayerOne;
+                _clientList[1].PlayerID = PlayerNumber.PlayerTwo;
             }
             else
             {
-                _clientList[1].PlayerID = Client.PlayerNumber.PlayerOne;
-                _clientList[0].PlayerID = Client.PlayerNumber.PlayerTwo;
+                _clientList[1].PlayerID = PlayerNumber.PlayerOne;
+                _clientList[0].PlayerID = PlayerNumber.PlayerTwo;
             }
 
             _Game = new CrusadeGame();
 
             Console.WriteLine("Game has started.");
             UpdateAllClients(GenerateResponse(ResponseTypes.ClientResponse, "GAMESTARTED"));
+
+            SendPlayerHand(PlayerNumber.PlayerOne);
+            SendPlayerHand(PlayerNumber.PlayerTwo);
+        }
+
+
+        private void SendPlayerHand(Player.PlayerNumber player)
+        {
+            JSONResponse response = new JSONResponse();
+            response.response = _Game.GetPlayerHand(player).ToString();
+            response.responseType = ResponseTypes.GameResponse;
+
+            SendData(GetPlayer(player), response);
+        }
+
+
+        private Client GetPlayer(Player.PlayerNumber player)
+        {
+            foreach (Client client in _clientList)
+                if (client.PlayerID == player)
+                    return client;
+
+            return null;
         }
 
 
@@ -41,7 +66,7 @@ namespace CrusadeServer
             lock(_clientList)
             {
                 foreach (Client client in _clientList)
-                    client.PlayerID = Client.PlayerNumber.NotAPlayer;
+                    client.PlayerID = PlayerNumber.NotAPlayer;
             }
 
             Console.WriteLine("Game has ended.");

@@ -5,12 +5,12 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
+using PlayerNumber = CrusadeLibrary.Player.PlayerNumber;
+
 namespace CrusadeServer
 {
     public class Client
     {
-        public enum PlayerNumber { PlayerOne, PlayerTwo, NotAPlayer };
-
         public Socket clientSocket;
 
         private PlayerNumber _playerNumber;

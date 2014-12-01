@@ -7,8 +7,32 @@ namespace CrusadeLibrary
 {
     public class Hand : BaseGameObject
     {
-        List<Card> _cardList;
+        #region Constants
 
+        public const int STARTING_HAND_SIZE = 4;
+        public const int MAX_HAND_SIZE = 6;
+
+        #endregion
+
+        #region Members
+
+        private List<Card> _cardList;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Represents the number of cards in the and
+        /// </summary>
+        public int Count
+        {
+            get { return _cardList.Count; }
+        }
+
+        #endregion
+        
+        #region Public Methods
         /// <summary>
         /// Constructor for Hand
         /// </summary>
@@ -26,17 +50,7 @@ namespace CrusadeLibrary
         {
             return _cardList;
         }
-
-
-        /// <summary>
-        /// Gets the number of cards in the Hand
-        /// </summary>
-        /// <returns>int equal to # of cards in the Hand</returns>
-        public int Count()
-        {
-            return _cardList.Count;
-        }
-
+        
 
         /// <summary>
         /// Add an acquired card to the hand
@@ -113,5 +127,7 @@ namespace CrusadeLibrary
         {
             throw new NotImplementedException();
         }
+
+        #endregion
     }
 }

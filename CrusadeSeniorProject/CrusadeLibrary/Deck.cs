@@ -9,7 +9,7 @@ namespace CrusadeLibrary
     {
         #region Members
 
-        Queue<Card> _cardDeck;
+        List<Card> _cardDeck;
         #endregion
 
         #region Properties
@@ -28,12 +28,21 @@ namespace CrusadeLibrary
         /// </summary>
         public Deck()
         {
-            _cardDeck = new Queue<Card>();
+            _cardDeck = new List<Card>();
 
-            // Debug
+            AddDebugCards();
+        }
+
+
+        private void AddDebugCards()
+        {            
             AddCardToDeck(new TroopCard("Swordsman"));
             AddCardToDeck(new EquipCard("Longsword"));
             AddCardToDeck(new FieldCard("Second Wind"));
+            AddCardToDeck(new TroopCard("Archer"));
+            AddCardToDeck(new EquipCard("Composite Bow"));
+            AddCardToDeck(new TroopCard("Knight"));
+            ShuffleDeck();
         }
 
 
@@ -45,7 +54,11 @@ namespace CrusadeLibrary
         public Card DrawCard()
         {
             if (_cardDeck.Count > 0)
-                return _cardDeck.Dequeue();
+            {
+                Card temp = _cardDeck[0];
+                _cardDeck.Remove(_cardDeck[0]);
+                return temp;
+            }
 
             else
                 return null;
@@ -57,17 +70,25 @@ namespace CrusadeLibrary
         /// in the Deck.
         /// </summary>
         public void ShuffleDeck()
-        {
-            _cardDeck.OrderBy(a => CrusadeGame.RNG.Next());  
+        {           
+            int n = _cardDeck.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = CrusadeGame.RNG.Next(n + 1);
+                Card value = _cardDeck[k];
+                _cardDeck[k] = _cardDeck[n];
+                _cardDeck[n] = value;
+            }  
         }
-
+        
 
         public void AddCardToDeck(Card card)
         {
             if (card == null)
                 return;
             else
-                _cardDeck.Enqueue(card);
+                _cardDeck.Add(card);
         }
         #endregion
 

@@ -8,9 +8,7 @@ namespace CrusadeServer
 {
     public class JSONResponse
     {
-        public int ID { get; set; }
-
-        public string responseType { get; set; }
+        public byte responseType { get; set; }
 
         public string response { get; set; }
 
@@ -23,7 +21,7 @@ namespace CrusadeServer
             }
             catch(Newtonsoft.Json.JsonReaderException)
             {
-                return ResponseTypes.BadResponse;
+                return ConvertToString(CreateBadResponse());
             }
         }
 
@@ -33,15 +31,20 @@ namespace CrusadeServer
             {
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<JSONResponse>(responseToConvert);
             }
-            catch(Newtonsoft.Json.JsonReaderException ex)
+            catch(Newtonsoft.Json.JsonReaderException)
             {
-                JSONResponse badRsp = new JSONResponse();
-                badRsp.ID = -1;
-                badRsp.responseType = ResponseTypes.BadResponse;
-                badRsp.response = ex.Message;
-
-                return badRsp;
+                return CreateBadResponse();
             }
+        }
+
+        private static JSONResponse CreateBadResponse()
+        {
+            JSONResponse badResponse = new JSONResponse();
+
+            badResponse.responseType = ResponseTypes.BadResponse;
+            badResponse.response = "Bad RSP";
+
+            return badResponse;
         }
     }
 }

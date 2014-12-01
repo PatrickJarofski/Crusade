@@ -111,22 +111,19 @@ namespace CrusadeSeniorProject
 
 
         private void sendMessage(Object source, System.Timers.ElapsedEventArgs e)
-        {
-            int num = RNG.Next(0, 5);
-
+        {          
             if (!inAGame)
             {
+                int num = RNG.Next(0, 5);
                 if (num == 0 || num == 2)
                     _Connection.SendMessageRequest(DateTime.Now.ToString("hh:mm:ss: ") + "A fancy new message!");
 
                 else
                     _Connection.SendMessageRequest(DateTime.Now.ToString("hh:mm:ss: ") + "A new message!");
+
+                Console.WriteLine(_serverMessage);
             }
 
-            if(inAGame)
-                _Connection.RequestBoardState();
-
-            Console.WriteLine(_serverMessage);
         }
 
 
@@ -150,7 +147,7 @@ namespace CrusadeSeniorProject
         }
 
 
-        internal void UpdateFromServer(string responseType, string message)
+        internal void UpdateFromServer(byte responseType, string message)
         {
             _serverMessage = message;
             
@@ -169,48 +166,66 @@ namespace CrusadeSeniorProject
                     ProcessMessageResponse(message);
                     break;
 
+                case CrusadeServer.ResponseTypes.BadResponse:
+                    ProcessBadResponse(message);
+                    break;
+
                 default:
                     throw new FormatException("An invalid response type was received by the game client.");                    
             }
+        }
+
+        private void ProcessBadResponse(string message)
+        {
+            Console.WriteLine(message);
         }
 
 
         private void ProcessClientResponse(string message)
         {
             if (message == "GAMESTARTED")
+            {
                 lock (_Connection)
                     inAGame = true;
+
+                _Connection.RequestBoardState();
+            }
+
 
             else if (message == "GAMEOVER")
                 lock (_Connection)
                     inAGame = false;
+
+            Console.WriteLine(message);
+
         }
 
 
         private void ProcessMessageResponse(string message)
         {
-            _serverMessage = message;
+            Console.WriteLine(message);
         }
 
 
         private void ProcessGameResponse(string message)
         {
-            char[] delimiters = {'|'};
-            string[] messageBroken = message.Split(delimiters);
+            Console.WriteLine(message);
+            //char[] delimiters = {'|'};
+            //string[] messageBroken = message.Split(delimiters);
 
-            int width = Convert.ToInt32(messageBroken[0]);
-            int height = Convert.ToInt32(messageBroken[1]);
+            //int width = Convert.ToInt32(messageBroken[0]);
+            //int height = Convert.ToInt32(messageBroken[1]);
 
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            for (int i = 2; i < messageBroken.Length; ++i)
-            {
-                if (messageBroken[i] == "=")
-                    sb.Append('\n');
-                else
-                    sb.Append(messageBroken[i]);
-            }
+            //System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            //for (int i = 2; i < messageBroken.Length; ++i)
+            //{
+            //    if (messageBroken[i] == "=")
+            //        sb.Append('\n');
+            //    else
+            //        sb.Append(messageBroken[i]);
+            //}
 
-            _serverMessage = sb.ToString();
+            //_serverMessage = sb.ToString();
 
         }
     }

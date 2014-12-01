@@ -7,6 +7,8 @@ namespace CrusadeLibrary
 {
     public class Player : BaseGameObject
     {
+        public enum PlayerNumber { PlayerOne, PlayerTwo, NotAPlayer };
+
         #region Members
         private Deck _deck;
         private Hand _hand;
@@ -48,12 +50,13 @@ namespace CrusadeLibrary
         }
 
         /// <summary>
-        /// Play a card the player
+        /// (TODO) Play a card the player
         /// has in their hand
         /// </summary>
         /// <param name="cardToPlay">Name of the card to play</param>
         public void PlayCard(string cardToPlay)
         {
+            // TODO
             return;
         }
 
@@ -62,6 +65,13 @@ namespace CrusadeLibrary
         {
             return;
         }
+
+
+        public List<Card> GetHand()
+        {
+            return _hand.GetHand();
+        }
+
         #endregion
 
     }

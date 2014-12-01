@@ -8,15 +8,13 @@ namespace CrusadeServer
 {
     public class JSONRequest
     {
-        public int ID { get; set; }
+        public string RequestIP { get; set; }
 
-        public string requestIP { get; set; }
+        public int RequestPort { get; set; }
 
-        public int requestPort { get; set; }
+        public byte RequestType { get; set; }
 
-        public string requestType { get; set; }
-
-        public string request { get; set; }
+        public string Request { get; set; }
 
 
         public static string ConvertToString(JSONRequest jsonRequest)
@@ -27,7 +25,7 @@ namespace CrusadeServer
             }
             catch(Newtonsoft.Json.JsonReaderException)
             {
-                return RequestTypes.BadRequest;
+                return ConvertToString(CreateBadRequest());
             }
         }
 
@@ -37,14 +35,22 @@ namespace CrusadeServer
             {
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<JSONRequest>(requestToConvert);
             }
-            catch(Newtonsoft.Json.JsonReaderException ex)
+            catch(Newtonsoft.Json.JsonReaderException)
             {
-                JSONRequest badRequest = new JSONRequest();
-                badRequest.ID = -1;
-                badRequest.requestType = RequestTypes.BadRequest;
-                badRequest.request = ex.Message;
-                return badRequest;
+                return CreateBadRequest();
             }
+        }
+
+
+        private static JSONRequest CreateBadRequest()
+        {
+            JSONRequest badRequest = new JSONRequest();
+            badRequest.RequestIP = string.Empty;
+            badRequest.RequestPort = -1;
+            badRequest.RequestType = RequestTypes.BadRequest;
+            badRequest.Request = "Bad REQ";
+
+            return badRequest;
         }
 
     }

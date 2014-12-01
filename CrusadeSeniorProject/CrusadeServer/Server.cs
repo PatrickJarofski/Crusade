@@ -169,7 +169,7 @@ namespace CrusadeServer
 
             JSONRequest request = JSONRequest.ConvertToJson(Encoding.ASCII.GetString(dataBuf).Trim('\0'));
 
-            switch(request.requestType)
+            switch(request.RequestType)
             {
                 case RequestTypes.ClientRequest:
                     ProcessClientRequest(request);
@@ -194,34 +194,34 @@ namespace CrusadeServer
         {
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Bad Request");
 
-            SendData(GetMatchingClient(request.requestIP, request.requestPort), GenerateResponse(ResponseTypes.MessageResponse, "BAD REQUEST"));
+            SendData(GetMatchingClient(request.RequestIP, request.RequestPort), GenerateResponse(ResponseTypes.MessageResponse, "BAD REQUEST"));
         }
 
 
         private void ProcessMessageRequest(JSONRequest jsonRequest)
         {
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Broadcasting: " + jsonRequest.request);
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Broadcasting: " + jsonRequest.Request);
 
             // Broadcast Message
             foreach(Client client in _clientList)
             {
-                SendData(client, GenerateResponse(ResponseTypes.MessageResponse, jsonRequest.request));
+                SendData(client, GenerateResponse(ResponseTypes.MessageResponse, jsonRequest.Request));
             }
         }
 
 
         private void ProcessGameRequest(JSONRequest jsonRequest)
         {            
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + jsonRequest.request);
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + jsonRequest.Request);
 
-            if (jsonRequest.request == "GETGAMEBOARD")
+            if (jsonRequest.Request == "GETGAMEBOARD")
                 GiveClientsBoardState();
         }
 
 
         private void ProcessClientRequest(JSONRequest jsonRequest)
         {
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss CLIENT REQ: ") + jsonRequest.request);
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss CLIENT REQ: ") + jsonRequest.Request);
         }
 
 
@@ -263,10 +263,9 @@ namespace CrusadeServer
         }
         
 
-        private JSONResponse GenerateResponse(string responseType, string response)
+        private JSONResponse GenerateResponse(byte responseType, string response)
         {
             JSONResponse jsonResponse = new JSONResponse();
-            jsonResponse.ID = ++idCount;
             jsonResponse.responseType = responseType;
             jsonResponse.response = response;
 
