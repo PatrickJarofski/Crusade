@@ -27,6 +27,27 @@ namespace CrusadeSeniorProject
         private static ManualResetEvent sendDone = new ManualResetEvent(false);
         private static ManualResetEvent receiveDone = new ManualResetEvent(false);
 
+        public bool Connected
+        {
+            get 
+            {
+                try
+                {
+                    bool write = _clientSocket.Poll(10, SelectMode.SelectWrite);
+                    bool read = _clientSocket.Poll(10, SelectMode.SelectRead);
+                    bool connected = _clientSocket.Connected;
+
+                    return (write && connected);
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(Environment.NewLine + ex.Message + Environment.NewLine);
+                    return false;
+                }
+            }
+        }
+
+
         public ServerConnection(CrusadeGameClient game)
         {
             _GameClient = game;
@@ -173,6 +194,7 @@ namespace CrusadeSeniorProject
         public void SendGameRequest(string request)
         {
             SendRequestToServer(GetBuffer(RequestTypes.GameRequest, request));
+            Console.WriteLine("Sent request to server: " + request);
         }
 
 
@@ -196,12 +218,6 @@ namespace CrusadeSeniorProject
         }
         
 
-        public void RequestBoardState()
-        {
-            SendGameRequest("GETGAMEBOARD");
-        }
-
-
         public void EndConnection()
         {
             try
@@ -215,7 +231,6 @@ namespace CrusadeSeniorProject
                 WriteToErrorLog(ex.Message);
             }
         }
-
 
         public void WriteToErrorLog(string msg)
         {

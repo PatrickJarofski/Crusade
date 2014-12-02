@@ -41,9 +41,16 @@ namespace CrusadeSeniorProject
             Console.Title = "Game Console";
             _Connection = new ServerConnection(this);
 
+            if (_Connection.Connected)
+                Console.WriteLine("Connected to server.");
+            else
+                Console.WriteLine("Unable to connected to server.");
+
             DEBUG_TIMER = new System.Timers.Timer(2000);
             DEBUG_TIMER.Elapsed += sendMessage;
             DEBUG_TIMER.Enabled = true;
+            DEBUG_TIMER.Start();
+            sendMessage();
 
             graphics = new GraphicsDeviceManager(this); 
             Content.RootDirectory = "Content";
@@ -110,7 +117,12 @@ namespace CrusadeSeniorProject
 
 
         private void sendMessage(Object source, System.Timers.ElapsedEventArgs e)
-        {          
+        {
+            sendMessage();
+        }
+
+        private void sendMessage()
+        {
             if (!inAGame)
             {
                 int num = RNG.Next(0, 5);
@@ -120,7 +132,6 @@ namespace CrusadeSeniorProject
                 else
                     _Connection.SendMessageRequest(DateTime.Now.ToString("hh:mm:ss: ") + "A new message!");
             }
-
         }
 
 
@@ -179,20 +190,27 @@ namespace CrusadeSeniorProject
 
         private void ProcessClientResponse(string message)
         {
-            if (message == "GAMESTARTED")
+            if (message == CrusadeServer.Responses.GameStarted)
             {
                 lock (lockObject)
-                { inAGame = true; }
+                {
+                    inAGame = true;
+                    Console.WriteLine("Game has begun.");
+                }
 
-                _Connection.RequestBoardState();
+                _Connection.SendGameRequest(CrusadeServer.Requests.GetGameboard);
+                Thread.Sleep(5);
+                _Connection.SendGameRequest(CrusadeServer.Requests.GetPlayerhand);
             }
 
 
-            else if (message == "GAMEOVER")
+            else if (message == CrusadeServer.Responses.GameOver)
                 lock (lockObject)
                 { inAGame = false; }
 
             Console.WriteLine(message);
+            if (!_Connection.Connected)
+                throw new Exception("Client is not connected.");
         }
 
 

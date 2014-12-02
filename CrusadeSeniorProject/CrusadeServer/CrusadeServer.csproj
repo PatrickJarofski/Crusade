@@ -49,7 +49,9 @@
     <Compile Include="GameInteraction.cs" />
     <Compile Include="JSONRequest.cs" />
     <Compile Include="JSONResponse.cs" />
+    <Compile Include="Requests.cs" />
     <Compile Include="RequestTypes.cs" />
+    <Compile Include="Responses.cs" />
     <Compile Include="ResponseTypes.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

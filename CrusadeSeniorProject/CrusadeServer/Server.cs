@@ -154,6 +154,12 @@ namespace CrusadeServer
             {
                 WriteErrorToConsole(ex.Message);
                 WriteErrorToLog(ex.Message);
+                Console.WriteLine(Environment.NewLine + ex.Message + Environment.NewLine);
+                return false;
+            }
+            catch(NullReferenceException ex)
+            {
+                Console.WriteLine(Environment.NewLine + "ERROR: " + ex.Message + Environment.NewLine);
                 return false;
             }
         } 
@@ -165,6 +171,7 @@ namespace CrusadeServer
                 return;
 
             JSONRequest request = JSONRequest.ConvertToJson(Encoding.ASCII.GetString(dataBuf).Trim('\0'));
+            Console.WriteLine("Receive request: " + request.Request);
 
             switch(request.RequestType)
             {
@@ -212,8 +219,14 @@ namespace CrusadeServer
         {            
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + jsonRequest.Request);
 
-            if (jsonRequest.Request == "GETGAMEBOARD")
+            if (jsonRequest.Request == CrusadeServer.Requests.GetGameboard)
                 GiveClientsBoardState();
+
+            if (jsonRequest.Request == CrusadeServer.Requests.GetPlayerhand)
+            {
+                Client client = GetMatchingClient(jsonRequest.RequestIP, jsonRequest.RequestPort);
+                SendPlayerHand(client.PlayerID);
+            }
         }
 
 
@@ -273,6 +286,9 @@ namespace CrusadeServer
 
         private Client GetMatchingClient(string ip, int port)
         {
+            if (ip == string.Empty)
+                return null;
+
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(ip), port);
 
             foreach(Client client in _clientList)
@@ -290,6 +306,16 @@ namespace CrusadeServer
         private Client GetMatchingClient(Socket socket)
         {
             return _clientList.Find(a => a.clientSocket == socket);
+        }
+
+
+        private Client GetMatchingClient(Player.PlayerNumber player)
+        {
+            foreach (Client client in _clientList)
+                if (client.PlayerID == player)
+                    return client;
+
+            throw new Exception("The specified player does not exist.");
         }
 
 
@@ -325,8 +351,7 @@ namespace CrusadeServer
         {
             Console.WriteLine(DateTime.Now.TimeOfDay.ToString() + ": " + "Clients connected: "
                     + _clientList.Count + Environment.NewLine);
-        }
-   
+        }   
 
     }
 }

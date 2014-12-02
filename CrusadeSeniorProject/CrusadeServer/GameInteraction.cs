@@ -16,8 +16,7 @@ namespace CrusadeServer
     {
         private void BeginNewGame()
         {
-            Random rng = new Random();
-            int playerOne = rng.Next(0, 2);
+            int playerOne = CrusadeLibrary.CrusadeGame.RNG.Next(0, 2);
 
             if (playerOne == 1)
             {
@@ -33,35 +32,18 @@ namespace CrusadeServer
             _Game = new CrusadeGame();
 
             Console.WriteLine("Game has started.");
-            UpdateAllClients(GenerateResponse(ResponseTypes.ClientResponse, "GAMESTARTED"));
-
-            SendPlayerHand(PlayerNumber.PlayerOne);
-            SendPlayerHand(PlayerNumber.PlayerTwo);
+            UpdateAllClients(GenerateResponse(ResponseTypes.ClientResponse, Responses.GameStarted));
         }
 
 
-        private void SendPlayerHand(Player.PlayerNumber player)        
+        private void SendPlayerHand(Player.PlayerNumber player)
         {
             StringBuilder sb = new StringBuilder();
-            JSONResponse response = new JSONResponse();
 
             foreach (string card in _Game.GetPlayerHand(player))
                 sb.Append(card + Environment.NewLine);
 
-            response.response = sb.ToString();
-            response.responseType = ResponseTypes.GameResponse;
-
-            SendData(GetPlayer(player), response);
-        }
-
-
-        private Client GetPlayer(Player.PlayerNumber player)
-        {
-            foreach (Client client in _clientList)
-                if (client.PlayerID == player)
-                    return client;
-
-            return null;
+            SendData(GetMatchingClient(player), GenerateResponse(ResponseTypes.GameResponse, sb.ToString()));
         }
 
 
@@ -77,7 +59,7 @@ namespace CrusadeServer
             Console.WriteLine("Game has ended.");
             foreach (Client client in _clientList)
             {
-                SendData(client, GenerateResponse(ResponseTypes.ClientResponse, "GAMEOVER"));
+                SendData(client, GenerateResponse(ResponseTypes.ClientResponse, Responses.GameOver));
             }
         }
 
