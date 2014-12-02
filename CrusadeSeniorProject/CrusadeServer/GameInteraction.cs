@@ -40,10 +40,15 @@ namespace CrusadeServer
         }
 
 
-        private void SendPlayerHand(Player.PlayerNumber player)
+        private void SendPlayerHand(Player.PlayerNumber player)        
         {
+            StringBuilder sb = new StringBuilder();
             JSONResponse response = new JSONResponse();
-            response.response = _Game.GetPlayerHand(player).ToString();
+
+            foreach (string card in _Game.GetPlayerHand(player))
+                sb.Append(card + Environment.NewLine);
+
+            response.response = sb.ToString();
             response.responseType = ResponseTypes.GameResponse;
 
             SendData(GetPlayer(player), response);

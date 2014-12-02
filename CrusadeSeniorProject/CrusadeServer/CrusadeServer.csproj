@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="GameInteraction.cs" />
     <Compile Include="JSONRequest.cs" />
     <Compile Include="JSONResponse.cs" />

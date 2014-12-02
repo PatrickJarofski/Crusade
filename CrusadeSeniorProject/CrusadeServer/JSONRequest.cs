@@ -33,7 +33,7 @@ namespace CrusadeServer
         {
             try
             {
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<JSONRequest>(requestToConvert);
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<JSONRequest>(requestToConvert.Replace("%", ""));
             }
             catch(Newtonsoft.Json.JsonReaderException)
             {

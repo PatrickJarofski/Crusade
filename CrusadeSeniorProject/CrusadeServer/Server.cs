@@ -23,9 +23,6 @@ namespace CrusadeServer
         private volatile CrusadeGame _Game;
         public volatile bool KeepPollingClients = true;
 
-        private int idCount = 0;
-
-
         static void Main(string[] args)
         {
             Console.Title = "Crusade Server";
@@ -194,7 +191,8 @@ namespace CrusadeServer
         {
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Bad Request");
 
-            SendData(GetMatchingClient(request.RequestIP, request.RequestPort), GenerateResponse(ResponseTypes.MessageResponse, "BAD REQUEST"));
+            SendData(GetMatchingClient(request.RequestIP, request.RequestPort), 
+                GenerateResponse(ResponseTypes.MessageResponse, "BAD REQUEST"));
         }
 
 
@@ -232,7 +230,7 @@ namespace CrusadeServer
 
             try
             {
-                byte[] buffer = Encoding.ASCII.GetBytes(JSONResponse.ConvertToString(jsonResponse));
+                byte[] buffer = Encoding.ASCII.GetBytes(JSONResponse.ConvertToString(jsonResponse) + Constants.ResponseDelimiter);
 
                 if(isConnected(client))
                     client.clientSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None,

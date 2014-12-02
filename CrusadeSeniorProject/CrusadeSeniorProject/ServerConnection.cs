@@ -14,11 +14,11 @@ namespace CrusadeSeniorProject
     public class ServerConnection
     {
         private readonly CrusadeGameClient _GameClient;
+        private readonly char[] delimiters = { CrusadeServer.Constants.ResponseDelimiter };
 
         private readonly Socket _clientSocket;
         private const int _Port = 777;
 
-        private int idCount = 0;
         private readonly string _name;
 
         private object lockObject = new object();
@@ -134,8 +134,15 @@ namespace CrusadeSeniorProject
 
                     if (response.Length > 0)
                     {
-                        JSONResponse jsonResponse = JSONResponse.ConvertToJson(response);
-                        _GameClient.UpdateFromServer(jsonResponse.responseType, jsonResponse.response);
+                        // In case we get several responses
+                        // concatenated together
+                        string[] responses = response.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                    
+                        foreach (string rsp in responses)
+                        {
+                            JSONResponse jsonResponse = JSONResponse.ConvertToJson(rsp);
+                            _GameClient.UpdateFromServer(jsonResponse.responseType, jsonResponse.response);
+                        }
                     }
                 }
 

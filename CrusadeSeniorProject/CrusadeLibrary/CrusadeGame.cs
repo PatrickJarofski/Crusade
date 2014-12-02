@@ -107,7 +107,7 @@ namespace CrusadeLibrary
                 cardList = _player2.GetHand();
 
             for(int i = 0; i < cardList.Count; ++i)            
-                returnList.Add(cardList[i].ToString());
+                returnList.Add(cardList[i].Name);
             
             return returnList;
         }

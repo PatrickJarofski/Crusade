@@ -33,13 +33,12 @@ namespace CrusadeSeniorProject
         private object lockObject = new object();
 
         public static readonly Random RNG = new Random();
-
-
         private static System.Timers.Timer DEBUG_TIMER;
 
         public CrusadeGameClient()
             : base()
         {
+            Console.Title = "Game Console";
             _Connection = new ServerConnection(this);
 
             DEBUG_TIMER = new System.Timers.Timer(2000);
@@ -120,8 +119,6 @@ namespace CrusadeSeniorProject
 
                 else
                     _Connection.SendMessageRequest(DateTime.Now.ToString("hh:mm:ss: ") + "A new message!");
-
-                Console.WriteLine(_serverMessage);
             }
 
         }
@@ -140,7 +137,6 @@ namespace CrusadeSeniorProject
 
            // spriteBatch.DrawString(MonoFont, _serverMessage, new Vector2(100, 100), Color.White);
             
-
             spriteBatch.End();
 
             base.Draw(gameTime);
@@ -185,19 +181,18 @@ namespace CrusadeSeniorProject
         {
             if (message == "GAMESTARTED")
             {
-                lock (_Connection)
-                    inAGame = true;
+                lock (lockObject)
+                { inAGame = true; }
 
                 _Connection.RequestBoardState();
             }
 
 
             else if (message == "GAMEOVER")
-                lock (_Connection)
-                    inAGame = false;
+                lock (lockObject)
+                { inAGame = false; }
 
             Console.WriteLine(message);
-
         }
 
 
