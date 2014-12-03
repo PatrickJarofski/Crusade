@@ -47,9 +47,9 @@ namespace CrusadeSeniorProject
                 Console.WriteLine("Unable to connected to server.");
 
             DEBUG_TIMER = new System.Timers.Timer(2000);
-            DEBUG_TIMER.Elapsed += sendMessage;
-            DEBUG_TIMER.Enabled = true;
-            DEBUG_TIMER.Start();
+            //DEBUG_TIMER.Elapsed += sendMessage;
+            //DEBUG_TIMER.Enabled = true;
+            //DEBUG_TIMER.Start();
             sendMessage();
 
             graphics = new GraphicsDeviceManager(this); 
@@ -190,25 +190,23 @@ namespace CrusadeSeniorProject
 
         private void ProcessClientResponse(string message)
         {
+            Console.WriteLine(message);
+
             if (message == CrusadeServer.Responses.GameStarted)
             {
                 lock (lockObject)
                 {
                     inAGame = true;
                     Console.WriteLine("Game has begun.");
+                    _Connection.SendGameRequest(CrusadeServer.Requests.GetGameboard);
+                    _Connection.SendGameRequest(CrusadeServer.Requests.GetPlayerhand);
                 }
-
-                _Connection.SendGameRequest(CrusadeServer.Requests.GetGameboard);
-                Thread.Sleep(5);
-                _Connection.SendGameRequest(CrusadeServer.Requests.GetPlayerhand);
             }
-
-
+                
             else if (message == CrusadeServer.Responses.GameOver)
                 lock (lockObject)
                 { inAGame = false; }
 
-            Console.WriteLine(message);
             if (!_Connection.Connected)
                 throw new Exception("Client is not connected.");
         }

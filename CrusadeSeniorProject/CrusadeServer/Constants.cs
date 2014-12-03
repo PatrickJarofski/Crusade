@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace CrusadeServer
 {
-    public abstract class Constants
+    public static class Constants
     {
         public const char ResponseDelimiter = '%';
+        public static readonly char[] Delimiters = { ResponseDelimiter };
     }
 }

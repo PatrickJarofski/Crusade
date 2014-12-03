@@ -23,6 +23,7 @@ namespace CrusadeServer
         private volatile CrusadeGame _Game;
         public volatile bool KeepPollingClients = true;
 
+
         static void Main(string[] args)
         {
             Console.Title = "Crusade Server";
@@ -148,7 +149,12 @@ namespace CrusadeServer
         {
             try
             {
-                return (client.clientSocket.Poll(-1, SelectMode.SelectRead) && client.clientSocket.Poll(-1, SelectMode.SelectWrite));             
+                bool part1 = client.clientSocket.Poll(1000, SelectMode.SelectRead);
+                bool part2 = (client.clientSocket.Available == 0);
+                if ((part1 && part2) || !client.clientSocket.Connected)
+                    return false;
+                else
+                    return true;          
             }
             catch (SocketException ex)
             {
@@ -170,36 +176,46 @@ namespace CrusadeServer
             if (dataBuf.Length < 1)
                 return;
 
-            JSONRequest request = JSONRequest.ConvertToJson(Encoding.ASCII.GetString(dataBuf).Trim('\0'));
-            Console.WriteLine("Receive request: " + request.Request);
+            string fullresponse = Encoding.ASCII.GetString(dataBuf).Trim('\0');
+            string[] allRequests = fullresponse.Split(Constants.Delimiters, StringSplitOptions.RemoveEmptyEntries);
 
-            switch(request.RequestType)
+            Console.WriteLine(Environment.NewLine + fullresponse + Environment.NewLine);
+
+            foreach (string currentRequest in allRequests)
             {
-                case RequestTypes.ClientRequest:
-                    ProcessClientRequest(request);
-                    break;
+                JSONRequest request = JSONRequest.ConvertToJson(currentRequest);
+                Console.WriteLine("Receive request: " + currentRequest);
 
-                case RequestTypes.GameRequest:
-                    ProcessGameRequest(request);
-                    break;
+                switch (request.RequestType)
+                {
+                    case RequestTypes.ClientRequest:
+                        ProcessClientRequest(request, client);
+                        break;
 
-                case RequestTypes.MessageRequest:
-                    ProcessMessageRequest(request);
-                    break;
+                    case RequestTypes.GameRequest:
+                        ProcessGameRequest(request, client);
+                        break;
 
-                default:
-                    ProcessBadRequest(request);
-                    break;
+                    case RequestTypes.MessageRequest:
+                        ProcessMessageRequest(request);
+                        break;
+
+                    default:
+                        ProcessBadRequest(request, client);
+                        break;
+                }
             }
         }
 
 
-        private void ProcessBadRequest(JSONRequest request)
+        private void ProcessBadRequest(JSONRequest request, Client client)
         {
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Bad Request");
 
-            SendData(GetMatchingClient(request.RequestIP, request.RequestPort), 
-                GenerateResponse(ResponseTypes.MessageResponse, "BAD REQUEST"));
+            //SendData(GetMatchingClient(request.RequestIP, request.RequestPort), 
+            //    GenerateResponse(ResponseTypes.MessageResponse, "BAD REQUEST"));
+
+            SendData(client, GenerateResponse(ResponseTypes.BadResponse, "Bad Request"));
         }
 
 
@@ -208,14 +224,14 @@ namespace CrusadeServer
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Broadcasting: " + jsonRequest.Request);
 
             // Broadcast Message
-            foreach(Client client in _clientList)
+            foreach(Client client in _clientList.ToArray())
             {
                 SendData(client, GenerateResponse(ResponseTypes.MessageResponse, jsonRequest.Request));
             }
         }
 
 
-        private void ProcessGameRequest(JSONRequest jsonRequest)
+        private void ProcessGameRequest(JSONRequest jsonRequest, Client client)
         {            
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + jsonRequest.Request);
 
@@ -224,13 +240,13 @@ namespace CrusadeServer
 
             if (jsonRequest.Request == CrusadeServer.Requests.GetPlayerhand)
             {
-                Client client = GetMatchingClient(jsonRequest.RequestIP, jsonRequest.RequestPort);
+               // Client client = GetMatchingClient(jsonRequest.RequestIP, jsonRequest.RequestPort);
                 SendPlayerHand(client.PlayerID);
             }
         }
 
 
-        private void ProcessClientRequest(JSONRequest jsonRequest)
+        private void ProcessClientRequest(JSONRequest jsonRequest, Client client)
         {
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss CLIENT REQ: ") + jsonRequest.Request);
         }

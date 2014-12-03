@@ -14,7 +14,6 @@ namespace CrusadeSeniorProject
     public class ServerConnection
     {
         private readonly CrusadeGameClient _GameClient;
-        private readonly char[] delimiters = { CrusadeServer.Constants.ResponseDelimiter };
 
         private readonly Socket _clientSocket;
         private const int _Port = 777;
@@ -88,7 +87,7 @@ namespace CrusadeSeniorProject
             try
             {
                 _clientSocket.BeginSend(request, 0, request.Length,
-                        SocketFlags.None, new AsyncCallback(SendCallback), null);
+                        SocketFlags.None, new AsyncCallback(SendCallback), _clientSocket);
             }
 
             catch (SocketException ex)
@@ -157,7 +156,7 @@ namespace CrusadeSeniorProject
                     {
                         // In case we get several responses
                         // concatenated together
-                        string[] responses = response.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                        string[] responses = response.Split(CrusadeServer.Constants.Delimiters, StringSplitOptions.RemoveEmptyEntries);
                     
                         foreach (string rsp in responses)
                         {
@@ -214,7 +213,9 @@ namespace CrusadeSeniorProject
             jsonRequest.RequestType = requestType;
             jsonRequest.Request = request;
 
-            return Encoding.ASCII.GetBytes(JSONRequest.ConvertToString(jsonRequest));
+            Console.WriteLine("Sending request: " + JSONRequest.ConvertToString(jsonRequest));
+
+            return Encoding.ASCII.GetBytes(JSONRequest.ConvertToString(jsonRequest) + CrusadeServer.Constants.ResponseDelimiter.ToString());
         }
         
 
@@ -231,6 +232,7 @@ namespace CrusadeSeniorProject
                 WriteToErrorLog(ex.Message);
             }
         }
+
 
         public void WriteToErrorLog(string msg)
         {
