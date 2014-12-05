@@ -177,7 +177,7 @@ namespace CrusadeServer
                 return;
 
             string fullresponse = Encoding.ASCII.GetString(dataBuf).Trim('\0');
-            string[] allRequests = fullresponse.Split(Constants.Delimiters, StringSplitOptions.RemoveEmptyEntries);
+            string[] allRequests = fullresponse.Split(Constants.ResponseDelimiters, StringSplitOptions.RemoveEmptyEntries);
 
             Console.WriteLine(Environment.NewLine + fullresponse + Environment.NewLine);
 
@@ -235,15 +235,24 @@ namespace CrusadeServer
         {            
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + jsonRequest.Request);
 
-            if (jsonRequest.Request == CrusadeServer.Requests.GetGameboard)
-                GiveClientsBoardState();
+            string[] requestSplit = jsonRequest.Request.Split(Constants.GameResponseDelimiters, StringSplitOptions.RemoveEmptyEntries);
 
-            if (jsonRequest.Request == CrusadeServer.Requests.GetPlayerhand)
+            switch(requestSplit[0])
             {
-               // Client client = GetMatchingClient(jsonRequest.RequestIP, jsonRequest.RequestPort);
-                SendPlayerHand(client.PlayerID);
+                case Requests.GetGameboard:
+                    GiveClientBoardState(client);
+                    break;
+                case Requests.GetPlayerhand:
+                    SendPlayerHand(client.PlayerID);
+                    break;
+                case Requests.PlayCard:
+                    PlayCard(client, requestSplit[1]);
+                    break;
+
             }
         }
+
+
 
 
         private void ProcessClientRequest(JSONRequest jsonRequest, Client client)

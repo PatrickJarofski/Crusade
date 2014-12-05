@@ -61,6 +61,12 @@ namespace CrusadeLibrary
         }
 
 
+        public Card PlayCard(int cardSlotInHand)
+        {
+            return _hand.RemoveCard(cardSlotInHand);
+        }
+
+
         public override void Execute()
         {
             return;

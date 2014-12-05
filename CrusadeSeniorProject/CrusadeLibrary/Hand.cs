@@ -79,9 +79,11 @@ namespace CrusadeLibrary
         /// Removes a specific card from the hand
         /// </summary>
         /// <param name="cardToRemove">Name of the card to remove</param>
-        public void RemoveCard(string cardToRemove)
+        public Card RemoveCard(int cardSlotToRemove)
         {
-            _cardList.Remove(_cardList.Find(a => a.Name == cardToRemove));
+            Card card = _cardList[cardSlotToRemove];
+            _cardList.RemoveAt(cardSlotToRemove);
+            return card;
         }
 
 

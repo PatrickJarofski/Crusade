@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace CrusadeServer
 {
-    public static class Responses
+    public class Responses
     {
-        public const string GameStarted = "GAMESTARTED";
-        public const string GameOver = "GAMEOVER";
+        public const string GameOver = "GAME_OVER";
+        public const string GameStarted = "GAME_STARTED";
+
+        public const string GiveGameboard = "GIVE_GAMEBOARD\n";
+        public const string GiveHand = "GIVE_HAND\n";
+        public const string CardPlayed = "CARD_PLAYED\n";
     }
 }

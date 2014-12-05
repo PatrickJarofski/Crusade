@@ -156,7 +156,7 @@ namespace CrusadeSeniorProject
                     {
                         // In case we get several responses
                         // concatenated together
-                        string[] responses = response.Split(CrusadeServer.Constants.Delimiters, StringSplitOptions.RemoveEmptyEntries);
+                        string[] responses = response.Split(CrusadeServer.Constants.ResponseDelimiters, StringSplitOptions.RemoveEmptyEntries);
                     
                         foreach (string rsp in responses)
                         {
@@ -193,7 +193,6 @@ namespace CrusadeSeniorProject
         public void SendGameRequest(string request)
         {
             SendRequestToServer(GetBuffer(RequestTypes.GameRequest, request));
-            Console.WriteLine("Sent request to server: " + request);
         }
 
 
@@ -212,8 +211,6 @@ namespace CrusadeSeniorProject
             jsonRequest.RequestPort = ep.Port;
             jsonRequest.RequestType = requestType;
             jsonRequest.Request = request;
-
-            Console.WriteLine("Sending request: " + JSONRequest.ConvertToString(jsonRequest));
 
             return Encoding.ASCII.GetBytes(JSONRequest.ConvertToString(jsonRequest) + CrusadeServer.Constants.ResponseDelimiter.ToString());
         }
@@ -238,7 +235,7 @@ namespace CrusadeSeniorProject
         {
             lock (lockObject)
             {
-                File.AppendAllText("Client Error Log.txt", Environment.NewLine + 
+                File.AppendAllText(DateTime.Now.ToString("yyyy-MM-dd") + " Client Error Log.txt", Environment.NewLine + 
                     DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss: ") + msg + Environment.NewLine);
             }
         }

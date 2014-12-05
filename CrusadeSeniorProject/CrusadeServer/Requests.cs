@@ -10,5 +10,7 @@ namespace CrusadeServer
     {
         public const string GetGameboard = "GETGAMEBOARD";
         public const string GetPlayerhand = "GETPLAYERHAND";
+
+        public const string PlayCard = "PLAY_CARD";
     }
 }

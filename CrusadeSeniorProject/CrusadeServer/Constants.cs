@@ -9,6 +9,8 @@ namespace CrusadeServer
     public static class Constants
     {
         public const char ResponseDelimiter = '%';
-        public static readonly char[] Delimiters = { ResponseDelimiter };
+        public const char GameResponseDelimiter = '$';
+        public static readonly char[] ResponseDelimiters = { ResponseDelimiter };
+        public static readonly char[] GameResponseDelimiters = { GameResponseDelimiter };
     }
 }

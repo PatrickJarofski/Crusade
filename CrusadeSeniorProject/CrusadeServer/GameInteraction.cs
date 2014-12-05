@@ -41,9 +41,9 @@ namespace CrusadeServer
             StringBuilder sb = new StringBuilder();
 
             foreach (string card in _Game.GetPlayerHand(player))
-                sb.Append(card + Environment.NewLine);
+                sb.Append(card + '\n');
 
-            SendData(GetMatchingClient(player), GenerateResponse(ResponseTypes.GameResponse, sb.ToString()));
+            SendData(GetMatchingClient(player), GenerateResponse(ResponseTypes.GameResponse, Responses.GiveHand + Constants.GameResponseDelimiter + sb.ToString()));
         }
 
 
@@ -71,7 +71,7 @@ namespace CrusadeServer
         }
 
 
-        internal void GiveClientsBoardState()
+        internal void GiveClientBoardState(Client client)
         {
             if (_Game == null)
                 return;
@@ -101,7 +101,15 @@ namespace CrusadeServer
                 sb.Append("=|");
             }
 
-            UpdateAllClients(GenerateResponse(ResponseTypes.GameResponse, sb.ToString()));
+            SendData(client, GenerateResponse(ResponseTypes.GameResponse, Responses.GiveGameboard + 
+                Constants.GameResponseDelimiter + sb.ToString() ));
+        }
+
+        private void PlayCard(Client client, string cardSlot)
+        {
+            int card = Convert.ToInt32(cardSlot);
+            string cardPlayed = _Game.PlayCard(client.PlayerID, card);
+            UpdateAllClients(GenerateResponse(ResponseTypes.GameResponse, Responses.CardPlayed + Constants.GameResponseDelimiter + cardPlayed));
         }
     }
 }
