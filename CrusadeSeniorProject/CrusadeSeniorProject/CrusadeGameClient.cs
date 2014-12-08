@@ -202,7 +202,6 @@ namespace CrusadeSeniorProject
                     inAGame = true;
                     Console.WriteLine("Game has begun.");
                     _Connection.SendGameRequest(CrusadeServer.Requests.GetGameboard);
-                    _Connection.SendGameRequest(CrusadeServer.Requests.GetPlayerhand);
                 }
             }
                 
@@ -223,8 +222,6 @@ namespace CrusadeSeniorProject
 
         private void ProcessGameResponse(string message)
         {
-           // Console.WriteLine(message);
-
             string[] messageParse = message.Split(CrusadeServer.Constants.GameResponseDelimiters);
 
             switch(messageParse[0])
@@ -257,11 +254,11 @@ namespace CrusadeSeniorProject
 
         private void ProcessNextTurn(string[] messageParse)
         {
-            if (messageParse[1] == PlayerNumber)
-            {
-                hasTurn = true;
-                _Connection.SendGameRequest(CrusadeServer.Requests.GetPlayerhand);
-            }
+            _Connection.SendGameRequest(CrusadeServer.Requests.GetPlayerhand);
+
+            if (messageParse[1] == PlayerNumber)            
+                hasTurn = true;               
+            
             else
                 hasTurn = false;
 
@@ -299,8 +296,10 @@ namespace CrusadeSeniorProject
             for (int i = 0; i < hand.Length; ++i)
                 Console.WriteLine("{0}. {1}", (i + 1).ToString(), hand[i]);
 
-            if(hasTurn)
+            if (hasTurn)
                 GetCardChoice(hand.Length);
+            else
+                Console.WriteLine("\nWaiting on other player...");
 
             Console.WriteLine(Environment.NewLine);            
         }
