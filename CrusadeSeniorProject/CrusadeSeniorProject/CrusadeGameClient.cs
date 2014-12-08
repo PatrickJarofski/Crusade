@@ -35,6 +35,9 @@ namespace CrusadeSeniorProject
         public static readonly Random RNG = new Random();
         private static System.Timers.Timer DEBUG_TIMER;
 
+        private string PlayerNumber = "None";
+        private bool hasTurn = false;
+
         public CrusadeGameClient()
             : base()
         {
@@ -238,15 +241,51 @@ namespace CrusadeSeniorProject
                     DisplayPlayedCard(messageParse);
                     break;
 
+                case CrusadeServer.Responses.AssignPlayerNumber:
+                    AssignPlayerNumber(messageParse);
+                    break;
+
+                case CrusadeServer.Responses.NextTurn:
+                    ProcessNextTurn(messageParse);
+                    break;
+
                 default:
                     throw new FormatException("Response received is not valid.");
             }
         }
 
 
+        private void ProcessNextTurn(string[] messageParse)
+        {
+            if (messageParse[1] == PlayerNumber)
+            {
+                hasTurn = true;
+                _Connection.SendGameRequest(CrusadeServer.Requests.GetPlayerhand);
+            }
+            else
+                hasTurn = false;
+
+            Console.WriteLine("\nIs it my turn? : " + hasTurn.ToString());
+        }
+
+
+        private void AssignPlayerNumber(string[] messageParse)
+        {
+            if (messageParse[1] == CrusadeServer.Responses.PlayerOne)
+                PlayerNumber = CrusadeServer.Responses.PlayerOne;
+            else if (messageParse[1] == CrusadeServer.Responses.PlayerTwo)
+                PlayerNumber = CrusadeServer.Responses.PlayerTwo;
+            else
+                PlayerNumber = "Not playing";
+
+            Console.Title = PlayerNumber;
+            Console.WriteLine("Player number: " + PlayerNumber);
+        }
+
+
         private void DisplayPlayedCard(string[] messageParse)
         {
-            Console.WriteLine(messageParse[1] + " was played.");
+            Console.WriteLine("============= " + messageParse[1] + " was played. =============");
         }
 
 
@@ -260,22 +299,10 @@ namespace CrusadeSeniorProject
             for (int i = 0; i < hand.Length; ++i)
                 Console.WriteLine("{0}. {1}", (i + 1).ToString(), hand[i]);
 
-            Console.WriteLine(Environment.NewLine);
+            if(hasTurn)
+                GetCardChoice(hand.Length);
 
-            int option = -1;
-            bool validChoice = false;
-            while(!validChoice)
-            {
-                Console.Write("Choose a card to play: ");
-                option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
-
-                if ((option - 1) < hand.Length && (option - 1) > -1)
-                    validChoice = true;
-                else
-                    Console.WriteLine("Invalid Option\n");
-            }
-
-            _Connection.SendGameRequest(CrusadeServer.Requests.PlayCard + CrusadeServer.Constants.GameResponseDelimiter + option.ToString());
+            Console.WriteLine(Environment.NewLine);            
         }
 
 
@@ -298,5 +325,28 @@ namespace CrusadeSeniorProject
         }
 
 
+        private void GetCardChoice(int handSize)
+        {
+            if (hasTurn)
+            {
+                int option = -1;
+                bool validChoice = false;
+                while (!validChoice)
+                {
+                    Console.Write("Choose a card to play: ");
+                    option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
+
+                    if ((option - 1) < handSize && (option - 1) > -1)
+                    {
+                        hasTurn = false;
+                        _Connection.SendGameRequest(CrusadeServer.Requests.PlayCard + CrusadeServer.Constants.GameResponseDelimiter + (option - 1).ToString());
+                        return;
+                    }
+                    else
+                        Console.WriteLine("Invalid Option\n");
+                }
+
+            }
+        }
     }
 }

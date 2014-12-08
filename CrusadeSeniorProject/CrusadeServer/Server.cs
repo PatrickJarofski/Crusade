@@ -253,8 +253,6 @@ namespace CrusadeServer
         }
 
 
-
-
         private void ProcessClientRequest(JSONRequest jsonRequest, Client client)
         {
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss CLIENT REQ: ") + jsonRequest.Request);

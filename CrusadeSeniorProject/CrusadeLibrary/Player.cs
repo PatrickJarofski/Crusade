@@ -35,8 +35,10 @@ namespace CrusadeLibrary
         /// </summary>
         public void DrawFromDeck()
         {
-            // Add some check for null card
-             _hand.AddCard(_deck.DrawCard());
+            Card cardDrawn = _deck.DrawCard();
+
+            if (cardDrawn != null)            
+                _hand.AddCard(cardDrawn);            
         }
 
 
@@ -57,11 +59,11 @@ namespace CrusadeLibrary
         public void PlayCard(string cardToPlay)
         {
             // TODO
-            return;
+            throw new NotImplementedException();
         }
 
 
-        public Card PlayCard(int cardSlotInHand)
+        public string PlayCard(int cardSlotInHand)
         {
             return _hand.RemoveCard(cardSlotInHand);
         }
@@ -73,7 +75,7 @@ namespace CrusadeLibrary
         }
 
 
-        public List<Card> GetHand()
+        public List<string> GetHand()
         {
             return _hand.GetHand();
         }

@@ -42,6 +42,10 @@ namespace CrusadeLibrary
             AddCardToDeck(new TroopCard("Archer"));
             AddCardToDeck(new EquipCard("Composite Bow"));
             AddCardToDeck(new TroopCard("Knight"));
+            AddCardToDeck(new FieldCard("Battle Standard"));
+            AddCardToDeck(new TroopCard("Catapult"));
+            AddCardToDeck(new EquipCard("Plate Armor"));
+            AddCardToDeck(new TroopCard("Crusader"));
             ShuffleDeck();
         }
 

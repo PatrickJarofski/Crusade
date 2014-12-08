@@ -46,9 +46,13 @@ namespace CrusadeLibrary
         /// Gets the cards currently in the Hand
         /// </summary>
         /// <returns>List of type Card</returns>
-        public List<Card> GetHand()
+        public List<string> GetHand()
         {
-            return _cardList;
+            List<string> list = new List<string>();
+            foreach (Card card in _cardList.ToArray())
+                list.Add(card.Name);
+
+            return list;
         }
         
 
@@ -79,9 +83,9 @@ namespace CrusadeLibrary
         /// Removes a specific card from the hand
         /// </summary>
         /// <param name="cardToRemove">Name of the card to remove</param>
-        public Card RemoveCard(int cardSlotToRemove)
+        public string RemoveCard(int cardSlotToRemove)
         {
-            Card card = _cardList[cardSlotToRemove];
+            string card = _cardList[cardSlotToRemove].Name;            
             _cardList.RemoveAt(cardSlotToRemove);
             return card;
         }

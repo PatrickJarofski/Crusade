@@ -33,6 +33,29 @@ namespace CrusadeServer
 
             Console.WriteLine("Game has started.");
             UpdateAllClients(GenerateResponse(ResponseTypes.ClientResponse, Responses.GameStarted));
+            AssignPlayerNumbers();
+            StartNextTurn();
+        }
+
+
+        private void AssignPlayerNumbers()
+        {
+            string playerone;
+            if (_clientList[0].PlayerID == PlayerNumber.PlayerOne)
+                playerone = Responses.PlayerOne;
+            else
+                playerone = Responses.PlayerTwo;
+
+            SendData(_clientList[0], GenerateResponse(ResponseTypes.GameResponse, Responses.AssignPlayerNumber + Constants.GameResponseDelimiter + playerone));
+
+            string playertwo;
+            if (_clientList[1].PlayerID == PlayerNumber.PlayerOne)
+                playertwo = Responses.PlayerOne;
+            else
+                playertwo = Responses.PlayerTwo;
+
+            SendData(_clientList[1], GenerateResponse(ResponseTypes.GameResponse, Responses.AssignPlayerNumber + Constants.GameResponseDelimiter + playertwo));
+
         }
 
 
@@ -105,11 +128,23 @@ namespace CrusadeServer
                 Constants.GameResponseDelimiter + sb.ToString() ));
         }
 
+
         private void PlayCard(Client client, string cardSlot)
         {
             int card = Convert.ToInt32(cardSlot);
             string cardPlayed = _Game.PlayCard(client.PlayerID, card);
             UpdateAllClients(GenerateResponse(ResponseTypes.GameResponse, Responses.CardPlayed + Constants.GameResponseDelimiter + cardPlayed));
+            _Game.BeginNextTurn();
+            StartNextTurn();
+        }
+
+
+        private void StartNextTurn()
+        {
+            if (_Game.GetCurrentPlayer() == Player.PlayerNumber.PlayerOne)
+                UpdateAllClients(GenerateResponse(ResponseTypes.GameResponse, Responses.NextTurn + Constants.GameResponseDelimiter + Responses.PlayerOne));
+            else
+                UpdateAllClients(GenerateResponse(ResponseTypes.GameResponse, Responses.NextTurn + Constants.GameResponseDelimiter + Responses.PlayerTwo));
         }
     }
 }

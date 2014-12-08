@@ -97,36 +97,24 @@ namespace CrusadeLibrary
             if (player == Player.PlayerNumber.NotAPlayer)
                 return null;
 
-            List<Card> cardList;
-            List<string> returnList = new List<string>();
-
             if (player == Player.PlayerNumber.PlayerOne)
-                cardList = _player1.GetHand();
+                return _player1.GetHand();
 
             else
-                cardList = _player2.GetHand();
-
-            for (int i = 0; i < cardList.Count; ++i)
-                returnList.Add(cardList[i].Name);
-
-            return returnList;
+                return _player2.GetHand();
         }
 
 
         public string PlayCard(Player.PlayerNumber player, int cardSlot)
         {
-            Card cardPlayed;
-
             if (player == Player.PlayerNumber.PlayerOne)
-               cardPlayed = _player1.PlayCard(cardSlot);
+               return _player1.PlayCard(cardSlot);
 
             else if (player == Player.PlayerNumber.PlayerTwo)
-              cardPlayed = _player2.PlayCard(cardSlot);
+              return _player2.PlayCard(cardSlot);
 
             else
                 throw new FormatException("An invalid player number was encountered.");
-
-            return cardPlayed.Name;
         }
 
 
