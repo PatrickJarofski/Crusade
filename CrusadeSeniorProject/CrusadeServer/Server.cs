@@ -1,380 +1,212 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Net;
 using System.Net.Sockets;
-using System.IO;
-using CrusadeLibrary;
-using System.Threading;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace CrusadeServer
 {
-    internal partial class Server
+    public partial class Server
     {
-        private object lockObject = new object();    // For when thread safety is needed
+        private const int _Port = 777;
+        private bool shouldListen = true;
 
-        private volatile List<Client> _clientList = new List<Client>();
-        private Socket _serverSocket = new Socket
-            (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private readonly TcpListener _tcpListener;
+        private List<GameClient> _clientList;
 
-        private const int _PORT = 777;
+        private BinaryFormatter binaryFormatter;
+        private object lockObject = new object();
 
-        private volatile CrusadeGame _Game;
-        public volatile bool KeepPollingClients = true;
+        private CrusadeLibrary.CrusadeGame _game;
+
+        private Thread listenThread;
+        private Thread pollThread;
 
 
-        static void Main(string[] args)
+        internal Server()
         {
-            Console.Title = "Crusade Server";
-            Server server = new Server();
+            binaryFormatter = new BinaryFormatter();
+            _clientList = new List<GameClient>();
 
-            Console.WriteLine("\n\nTo shutdown the server press Enter.");
-            Console.Read();
+            IPEndPoint ep = new IPEndPoint(IPAddress.Any, _Port);
+            _tcpListener = new TcpListener(ep);
+            _tcpListener.Start();
 
-            server.KeepPollingClients = false;
-        }
+            listenThread = new Thread(new ThreadStart(ListenForClients));
+            listenThread.Start();
 
+            pollThread = new Thread(new ThreadStart(PollClients));
+            pollThread.Start();
 
-        public Server()
-        {
-            try
-            {
-                Console.WriteLine("Setting up server...");
-
-                _serverSocket.Bind(new IPEndPoint(IPAddress.Any, _PORT));
-                _serverSocket.Listen(2);
-                _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
-
-                Console.WriteLine("Server EndPoint: " + _serverSocket.LocalEndPoint.ToString());
-                Console.WriteLine("Now accepting client connections.");
-
-                Thread checkConnectionsThread = new Thread(PollClients);
-                checkConnectionsThread.Start();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ERROR: " + ex.Message);
-            }
+            Console.WriteLine("Now listening for clients on port {0}.", _Port.ToString());
         }
 
 
         private void PollClients()
         {
-            while (KeepPollingClients)
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+
+            while(true)
             {
-                foreach (Client client in _clientList.ToArray())
+                sw.Restart();
+                foreach(GameClient client in _clientList.ToArray())
                 {
-                    if (!isConnected(client))
+                    if(!isConnected(client))
                         DisconnectClient(client);
-
-                    if (_clientList.Count < 2 && _Game != null)
-                    {
-                        ShutdownGame();
-
-                        // Start accepting client connections again
-                        _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
-                    }
                 }
-                Thread.Sleep(10);
+                while (sw.ElapsedMilliseconds < 300) ;
             }
         }
-       
-
-        private void AcceptCallBack(IAsyncResult ar)
-        {
-            Socket listener = (Socket)ar.AsyncState;
-            Client newClient = new Client(listener.EndAccept(ar));
-            _clientList.Add(newClient);
-
-            StateObject state = new StateObject();
-            state.workerSocket = newClient.clientSocket;
-
-            newClient.clientSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, 
-                new AsyncCallback(ReceiveCallBack), state);
-
-            Console.WriteLine(Environment.NewLine + DateTime.Now.ToString("HH:mm:ss: ") + "A client has connected");
-            Console.WriteLine("Total clients connected: " + _clientList.Count + Environment.NewLine);
-
-            if (_clientList.Count > 1)
-                BeginNewGame();
-            
-            else // wait for more clients
-                _serverSocket.BeginAccept(new AsyncCallback(AcceptCallBack), _serverSocket);
-
-        }
 
 
-        private void ReceiveCallBack(IAsyncResult ar)
-        {
-            StateObject state = (StateObject)ar.AsyncState;
-            Client client = GetMatchingClient(state.workerSocket);
-
-            if (!isConnected(client))
-                return;
-
-            try
-            {
-                int received = client.clientSocket.EndReceive(ar);
-  
-                // Check what type of request we've got
-                // and deal with it accordingly
-                if (isConnected(client))
-                {
-                    if(received > 0)
-                        ProcessRequest(state.buffer, client);
-
-                    state.Clear();
-                    client.clientSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None,
-                        new AsyncCallback(ReceiveCallBack), state);  
-                }
-                
-                else
-                    PrintNumConnections();                
-            } 
-
-            catch (SocketException ex)
-            {
-                string error = "ReceiveCallback Error: " + ex.Message;
-                WriteErrorToConsole(error);
-                WriteErrorToLog(error);
-
-                _clientList.Remove(client);
-                PrintNumConnections();
-            }
-        }
-        
-
-        private bool isConnected(Client client)
+        private bool isConnected(GameClient client)
         {
             try
             {
-                bool part1 = client.clientSocket.Poll(1000, SelectMode.SelectRead);
-                bool part2 = (client.clientSocket.Available == 0);
-                if ((part1 && part2) || !client.clientSocket.Connected)
+                bool part1 = client.TCPclient.Client.Poll(1000, SelectMode.SelectRead);
+                bool part2 = (client.TCPclient.Available == 0);
+                if ((part1 && part2) || !client.TCPclient.Connected)
                     return false;
                 else
-                    return true;          
+                    return true;
             }
             catch (SocketException ex)
             {
-                WriteErrorToConsole(ex.Message);
-                WriteErrorToLog(ex.Message);
-                Console.WriteLine(Environment.NewLine + ex.Message + Environment.NewLine);
+                WriteErrorToConsole("Client Connected Error: " + ex.Message);
+                WriteErrorToLog("Client Connected Error: " + ex.Message);
                 return false;
+            }
+            catch (NullReferenceException ex)
+            {
+                WriteErrorToConsole("Client Connected Error: " + ex.Message);
+                WriteErrorToLog("Client Connected Error: " + ex.Message);
+                return false;
+            }
+        }
+
+
+        private void DisconnectClient(GameClient client)
+        {
+            try
+            {
+                client.PlayerNumber = CrusadeLibrary.Player.PlayerNumber.NotAPlayer;
+
+                lock(_clientList)
+                    _clientList.Remove(client);
+
+                client.TCPclient.Close();
             }
             catch(NullReferenceException ex)
             {
-                Console.WriteLine(Environment.NewLine + "ERROR: " + ex.Message + Environment.NewLine);
-                return false;
+                WriteErrorToConsole("Disconnect Client Error: " + ex.Message);
+                WriteErrorToLog("Disconnect Client Error: " + ex.Message);
             }
-        } 
+        }
+ 
 
-
-        private void ProcessRequest(byte[] dataBuf, Client client)
+        private async void ListenForClients()
         {
-            if (dataBuf.Length < 1)
-                return;
-
-            string fullresponse = Encoding.ASCII.GetString(dataBuf).Trim('\0');
-            string[] allRequests = fullresponse.Split(Constants.ResponseDelimiters, StringSplitOptions.RemoveEmptyEntries);
-
-            Console.WriteLine(Environment.NewLine + fullresponse + Environment.NewLine);
-
-            foreach (string currentRequest in allRequests)
+            while(shouldListen)
             {
-                JSONRequest request = JSONRequest.ConvertToJson(currentRequest);
-                Console.WriteLine("Receive request: " + currentRequest);
-
-                switch (request.RequestType)
+                try
                 {
-                    case RequestTypes.ClientRequest:
-                        ProcessClientRequest(request, client);
-                        break;
+                    if (_clientList.Count < 2)
+                    {
+                        TcpClient client = await _tcpListener.AcceptTcpClientAsync();
 
-                    case RequestTypes.GameRequest:
-                        ProcessGameRequest(request, client);
-                        break;
+                        Thread clientThread = new Thread(new ParameterizedThreadStart(HandleClientComm));
+                        clientThread.Start(client);
 
-                    case RequestTypes.MessageRequest:
-                        ProcessMessageRequest(request);
-                        break;
-
-                    default:
-                        ProcessBadRequest(request, client);
-                        break;
+                        if(_clientList.Count == 2)
+                        {
+                            _game = new CrusadeLibrary.CrusadeGame();
+                        }
+                    }
+                }
+                catch (SocketException ex)
+                {
+                    WriteErrorToLog(ex.Message);
+                    Console.WriteLine("ListenForClient() error written to log.");
                 }
             }
         }
 
 
-        private void ProcessBadRequest(JSONRequest request, Client client)
+        private void HandleClientComm(object obj)
         {
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Bad Request");
+            GameClient newClient = new GameClient((TcpClient)obj);
 
-            //SendData(GetMatchingClient(request.RequestIP, request.RequestPort), 
-            //    GenerateResponse(ResponseTypes.MessageResponse, "BAD REQUEST"));
+            lock(_clientList)
+                _clientList.Add(newClient);
 
-            SendData(client, GenerateResponse(ResponseTypes.BadResponse, "Bad Request"));
-        }
+            NetworkStream clientStream = newClient.TCPclient.GetStream();
+            IPEndPoint ep = (IPEndPoint)newClient.TCPclient.Client.RemoteEndPoint;
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Client connected. " + ep.ToString());
 
-
-        private void ProcessMessageRequest(JSONRequest jsonRequest)
-        {
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Broadcasting: " + jsonRequest.Request);
-
-            // Broadcast Message
-            foreach(Client client in _clientList.ToArray())
+            while(isConnected(newClient))
             {
-                SendData(client, GenerateResponse(ResponseTypes.MessageResponse, jsonRequest.Request));
+                try
+                {
+                    IRequest request = (IRequest)binaryFormatter.Deserialize(newClient.TCPclient.GetStream());
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), request);
+
+                    ResponseTest rsp = new ResponseTest();
+                    binaryFormatter.Serialize(clientStream, rsp);
+                }
+                catch(System.Runtime.Serialization.SerializationException ex)
+                {
+                    WriteErrorToConsole(ex.Message);
+                    WriteErrorToLog(ex.Message);
+                }
             }
+            
         }
 
 
-        private void ProcessGameRequest(JSONRequest jsonRequest, Client client)
-        {            
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "GAME REQ: " + jsonRequest.Request);
-
-            string[] requestSplit = jsonRequest.Request.Split(Constants.GameResponseDelimiters, StringSplitOptions.RemoveEmptyEntries);
-
-            switch(requestSplit[0])
-            {
-                case Requests.GetGameboard:
-                    GiveClientBoardState(client);
-                    break;
-                case Requests.GetPlayerhand:
-                    SendPlayerHand(client.PlayerID);
-                    break;
-                case Requests.PlayCard:
-                    PlayCard(client, requestSplit[1]);
-                    break;
-
-            }
-        }
-
-
-        private void ProcessClientRequest(JSONRequest jsonRequest, Client client)
+        private void ProcessRequest(object state)
         {
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss CLIENT REQ: ") + jsonRequest.Request);
+            IRequest request = (IRequest)state;
+            request.Execute(this);
         }
 
 
-        private void SendData(Client client, JSONResponse jsonResponse)
+        private GameClient GetMatchingClient(TcpClient tcpClient)
         {
-            if (!isConnected(client))
-                return;
-
-            try
+            foreach(GameClient client in _clientList)
             {
-                byte[] buffer = Encoding.ASCII.GetBytes(JSONResponse.ConvertToString(jsonResponse) + Constants.ResponseDelimiter);
-
-                if(isConnected(client))
-                    client.clientSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None,
-                        new AsyncCallback(SendCallBack), client.clientSocket);
-            }
-            catch (SocketException ex)
-            {
-                string error = "SendData Error: " + ex.Message;
-                WriteErrorToConsole(error);
-                WriteErrorToLog(error);
-            }
-        }
-
-
-        private void SendCallBack(IAsyncResult ar)
-        {
-            try
-            {
-                Client client = GetMatchingClient((Socket)ar.AsyncState);
-                client.clientSocket.EndSend(ar);
-            }
-            catch(SocketException ex)
-            {
-                string error = "SendCallback Error: " + ex.Message;
-                WriteErrorToConsole(error);
-                WriteErrorToLog(error);
-            }
-        }
-        
-
-        private JSONResponse GenerateResponse(byte responseType, string response)
-        {
-            JSONResponse jsonResponse = new JSONResponse();
-            jsonResponse.responseType = responseType;
-            jsonResponse.response = response;
-
-            return jsonResponse;
-        }
-
-
-        private Client GetMatchingClient(string ip, int port)
-        {
-            if (ip == string.Empty)
-                return null;
-
-            IPEndPoint ep = new IPEndPoint(IPAddress.Parse(ip), port);
-
-            foreach(Client client in _clientList)
-            {
-                if (client.clientSocket.LocalEndPoint == ep)
+                if (client.TCPclient == tcpClient)
                     return client;
             }
 
-            // Unable to locate client
-            // Something strange has happened
-            throw new Exception("A request was received from an unconnected client.");
+            return null;
         }
 
-
-        private Client GetMatchingClient(Socket socket)
-        {
-            return _clientList.Find(a => a.clientSocket == socket);
-        }
-
-
-        private Client GetMatchingClient(Player.PlayerNumber player)
-        {
-            foreach (Client client in _clientList)
-                if (client.PlayerID == player)
-                    return client;
-
-            throw new Exception("The specified player does not exist.");
-        }
-
-
-        private void DisconnectClient(Client client)
-        {
-            Console.WriteLine("Disconnecting Client...");            
-            client.clientSocket.Shutdown(SocketShutdown.Both);
-            client.clientSocket.Disconnect(true);
-            client.clientSocket.Close();
-            _clientList.Remove(client);
-        }
         
-        
+
         private void WriteErrorToLog(string error)
         {
             lock (lockObject)
             {
-                string separator = Environment.NewLine + "============================" + Environment.NewLine;
-                File.AppendAllText(DateTime.Now.ToString("yyyy-MM-dd ") + "Server Error Log.txt", 
-                    separator + DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss ") + error + separator);
+                string path = DateTime.Now.ToString("YYYY-MM-DD") + " Client Log";
+                string msg = DateTime.Now.ToString("hh:mm:ss ") + error;
+                System.IO.File.AppendAllText(path, msg);
             }
         }
 
 
         private void WriteErrorToConsole(string error)
         {
-            string separator = Environment.NewLine + "============================" + Environment.NewLine;
-            Console.WriteLine(separator + DateTime.Now.ToString("yyyy/MM/dd||hh:mm:ss ") + error + separator);
+            lock (lockObject)
+            {
+                Console.WriteLine(Environment.NewLine);
+                Console.WriteLine("==================================");
+                Console.WriteLine(error);
+                Console.WriteLine("==================================");
+                Console.WriteLine(Environment.NewLine);
+            }
         }
 
-
-        private void PrintNumConnections()
-        {
-            Console.WriteLine(DateTime.Now.TimeOfDay.ToString() + ": " + "Clients connected: "
-                    + _clientList.Count + Environment.NewLine);
-        }   
 
     }
 }

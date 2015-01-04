@@ -1,150 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net;
-using System.Net.Sockets;
-using System.IO;
-using CrusadeLibrary;
-using System.Threading;
-
-using PlayerNumber = CrusadeLibrary.Player.PlayerNumber;
 
 namespace CrusadeServer
 {
-    partial class Server
+    public partial class Server
     {
-        private void BeginNewGame()
+        public void GivePlayerHand(TcpClient tcpClient)
         {
-            int playerOne = CrusadeLibrary.CrusadeGame.RNG.Next(0, 2);
-
-            if (playerOne == 1)
+            if(_game != null)
             {
-                _clientList[0].PlayerID = PlayerNumber.PlayerOne;
-                _clientList[1].PlayerID = PlayerNumber.PlayerTwo;
-            }
-            else
-            {
-                _clientList[1].PlayerID = PlayerNumber.PlayerOne;
-                _clientList[0].PlayerID = PlayerNumber.PlayerTwo;
-            }
+                GameClient client = GetMatchingClient(tcpClient);
+                List<string> hand = _game.GetPlayerHand(client.PlayerNumber);
 
-            _Game = new CrusadeGame();
-
-            Console.WriteLine("Game has started.");
-            UpdateAllClients(GenerateResponse(ResponseTypes.ClientResponse, Responses.GameStarted));
-            AssignPlayerNumbers();
-            StartNextTurn();
-        }
-
-
-        private void AssignPlayerNumbers()
-        {
-            string playerone;
-            if (_clientList[0].PlayerID == PlayerNumber.PlayerOne)
-                playerone = Responses.PlayerOne;
-            else
-                playerone = Responses.PlayerTwo;
-
-            SendData(_clientList[0], GenerateResponse(ResponseTypes.GameResponse, Responses.AssignPlayerNumber + Constants.GameResponseDelimiter + playerone));
-
-            string playertwo;
-            if (_clientList[1].PlayerID == PlayerNumber.PlayerOne)
-                playertwo = Responses.PlayerOne;
-            else
-                playertwo = Responses.PlayerTwo;
-
-            SendData(_clientList[1], GenerateResponse(ResponseTypes.GameResponse, Responses.AssignPlayerNumber + Constants.GameResponseDelimiter + playertwo));
-
-        }
-
-
-        private void SendPlayerHand(Player.PlayerNumber player)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (string card in _Game.GetPlayerHand(player))
-                sb.Append(card + '\n');
-
-            SendData(GetMatchingClient(player), GenerateResponse(ResponseTypes.GameResponse, Responses.GiveHand + Constants.GameResponseDelimiter + sb.ToString()));
-        }
-
-
-        private void ShutdownGame()
-        {
-            _Game = null;
-            lock(_clientList)
-            {
-                foreach (Client client in _clientList)
-                    client.PlayerID = PlayerNumber.NotAPlayer;
-            }
-
-            Console.WriteLine("Game has ended.");
-            foreach (Client client in _clientList)
-            {
-                SendData(client, GenerateResponse(ResponseTypes.ClientResponse, Responses.GameOver));
-            }
-        }
-
-
-        private void UpdateAllClients(JSONResponse jsonResponse)
-        {
-            foreach (Client client in _clientList.ToArray())
-                SendData(client, jsonResponse);
-        }
-
-
-        internal void GiveClientBoardState(Client client)
-        {
-            if (_Game == null)
-                return;
-
-            string[,] board = _Game.GetBoardState();
-            Tuple<int, int> boardSize = _Game.GetBoardDimensions();
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append(boardSize.Item1.ToString());
-            sb.Append('|');
-            sb.Append(boardSize.Item2.ToString());
-            sb.Append('|');
-
-            for(int i = 0; i < boardSize.Item1; ++i)
-            {
-                for(int j = 0; j < boardSize.Item2; ++j)
-                {
-                    if (board[i, j] != String.Empty)
-                        sb.Append('O');
-
-                    else
-                        sb.Append('E');
-
-                    sb.Append('|');
-                }
-                sb.Append("=|");
-            }
-
-            SendData(client, GenerateResponse(ResponseTypes.GameResponse, Responses.GiveGameboard + 
-                Constants.GameResponseDelimiter + sb.ToString() ));
-        }
-
-
-        private void PlayCard(Client client, string cardSlot)
-        {
-            int card = Convert.ToInt32(cardSlot);
-            string cardPlayed = _Game.PlayCard(client.PlayerID, card);
-            UpdateAllClients(GenerateResponse(ResponseTypes.GameResponse, Responses.CardPlayed + Constants.GameResponseDelimiter + cardPlayed));
-            _Game.BeginNextTurn();
-            StartNextTurn();
-        }
-
-
-        private void StartNextTurn()
-        {
-            if (_Game.GetCurrentPlayer() == Player.PlayerNumber.PlayerOne)
-                UpdateAllClients(GenerateResponse(ResponseTypes.GameResponse, Responses.NextTurn + Constants.GameResponseDelimiter + Responses.PlayerOne));
-            else
-                UpdateAllClients(GenerateResponse(ResponseTypes.GameResponse, Responses.NextTurn + Constants.GameResponseDelimiter + Responses.PlayerTwo));
+            }            
         }
     }
 }

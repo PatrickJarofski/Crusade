@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrusadeSeniorProject
+namespace CrusadeServer
 {
-    internal class CrusadeGameClient
+    public interface IResponse
     {
-        internal void Run()
-        {
-
-        }
+        void Execute();
     }
 }

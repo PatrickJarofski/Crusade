@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{12F04A82-5D0B-4F8D-8483-899DF29637B5}</ProjectGuid>
+    <ProjectGuid>{47B75169-8BDD-4FBD-968F-0FBA672D2A8F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CrusadeSeniorProject</RootNamespace>
-    <AssemblyName>CrusadeSeniorProject</AssemblyName>
+    <RootNamespace>CrusadeGameClient</RootNamespace>
+    <AssemblyName>CrusadeGameClient</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
@@ -45,6 +45,7 @@
     <Compile Include="CrusadeGameClient.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
@@ -57,16 +58,16 @@
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Content\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\CrusadeServer\CrusadeServer.csproj">
       <Project>{78907635-3656-4af8-aef8-8c0386c5c785}</Project>
       <Name>CrusadeServer</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="Content\MonoFont.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
