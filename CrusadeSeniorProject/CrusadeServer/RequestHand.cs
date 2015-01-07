@@ -16,6 +16,7 @@ namespace CrusadeServer
         {
             try
             {
+                Console.WriteLine("\nRequesting hand...");
                 server.GivePlayerHand(server.GetMatchingClient(clientId));
             }
             catch(NullReferenceException ex)

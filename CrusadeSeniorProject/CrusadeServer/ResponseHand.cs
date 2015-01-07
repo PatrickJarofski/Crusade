@@ -18,7 +18,7 @@ namespace CrusadeServer
         public void Execute()
         {
             try
-            {
+            {              
                 foreach (string card in hand)
                     Console.WriteLine(card + Environment.NewLine);
             }

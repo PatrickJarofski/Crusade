@@ -153,7 +153,8 @@ namespace CrusadeServer
 
             NetworkStream clientStream = newClient.TCPclient.GetStream();
             IPEndPoint ep = (IPEndPoint)newClient.TCPclient.Client.RemoteEndPoint;
-            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Client connected. " + ep.ToString());
+
+            Console.WriteLine(Environment.NewLine + DateTime.Now.ToString("hh:mm:ss ") + "Client connected. " + ep.ToString());
             Console.WriteLine("ID assigned: {0}", newClient.ID.ToString());
 
             SendClientId(newClient);
@@ -170,8 +171,7 @@ namespace CrusadeServer
                     WriteErrorToConsole(ex.Message);
                     WriteErrorToLog(ex.Message);
                 }
-            }
-            
+            }            
         }
 
 

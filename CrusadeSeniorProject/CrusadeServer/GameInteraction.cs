@@ -17,7 +17,10 @@ namespace CrusadeServer
         public void GivePlayerHand(GameClient client)
         {
             if (_game == null)
+            {
+                Console.WriteLine("Game is null. Ignoring request.");
                 return;
+            }
 
             try
             {
