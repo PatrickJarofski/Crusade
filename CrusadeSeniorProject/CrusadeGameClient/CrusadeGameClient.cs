@@ -27,6 +27,13 @@ namespace CrusadeGameClient
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             _serverConnection = new ServerConnection();
+
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+
+            while (sw.ElapsedMilliseconds < 1500) ;
+            Console.WriteLine("Sending hand request...");
+            _serverConnection.RequestGameHand();
         }
 
         /// <summary>

@@ -20,8 +20,10 @@ namespace CrusadeGameClient
         private Thread receiveThread;
         private bool shouldReceive = false;
 
+        private Guid clientId;
         private object lockObject = new object();
 
+        
         public ServerConnection()
         {
             try
@@ -48,6 +50,7 @@ namespace CrusadeGameClient
                 WriteErrorToConsole("Connect Error: " + ex.Message);
             }
         }
+
 
         private void DebugSendMessage()
         {
@@ -109,7 +112,23 @@ namespace CrusadeGameClient
 
         private void ProcessResponse(IResponse serverResponse)
         {
-            serverResponse.Execute();
+            if(serverResponse is ResponseClientID)
+            {
+                ResponseClientID rsp = serverResponse as ResponseClientID;
+                clientId = rsp.ID;
+
+                Console.WriteLine("ID assigned: {0}", rsp.ID.ToString());
+            }
+         
+            else
+                serverResponse.Execute();
+        }
+
+
+        public void RequestGameHand()
+        {
+            CrusadeServer.RequestHand req = new RequestHand(clientId);
+            SendRequestToServer(req);
         }
 
 
@@ -131,7 +150,7 @@ namespace CrusadeGameClient
         }
 
 
-        private void WriteErrorToLog(string error)        
+        private void WriteErrorToLog(string error)
         {
             lock (lockObject)
             {
@@ -147,9 +166,9 @@ namespace CrusadeGameClient
             lock (lockObject)
             {
                 Console.WriteLine(Environment.NewLine);
-                Console.WriteLine("==================================");
+                Console.WriteLine("====================================================================");
                 Console.WriteLine(error);
-                Console.WriteLine("==================================");
+                Console.WriteLine("====================================================================");
                 Console.WriteLine(Environment.NewLine);
             }
         }

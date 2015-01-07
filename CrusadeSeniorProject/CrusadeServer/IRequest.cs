@@ -11,7 +11,7 @@ namespace CrusadeServer
     /// In addition all Requests need to have the [Serializable] tag
     /// </summary>
     public interface IRequest    
-    {
+    {      
         void Execute(Server server);
     }
 }

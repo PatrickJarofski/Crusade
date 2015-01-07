@@ -1,27 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Net.Sockets;
 
 namespace CrusadeServer
 {
+    [Serializable]
     public class RequestHand : IRequest
     {
-        private TcpClient _client;
-
-        public TcpClient Client
-        {
-            get { return _client; }
-        }
+        private Guid clientId;
         
+        public RequestHand(Guid id)
+        {
+            clientId = id;
+        }
+
         public void Execute(Server server)
         {
-            // server.GivePlayerHand(_client);
-        }
-
-        public RequestHand(TcpClient client)
-        {
-            _client = client;
+            try
+            {
+                server.GivePlayerHand(server.GetMatchingClient(clientId));
+            }
+            catch(NullReferenceException ex)
+            {
+                server.WriteErrorToConsole("Request Hand Error: " + ex.Message);
+                server.WriteErrorToLog("Request Hand Error: " + ex.Message);
+            }
         }
     }
 }

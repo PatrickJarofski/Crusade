@@ -52,6 +52,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestHand.cs" />
     <Compile Include="RequestTest.cs" />
+    <Compile Include="ResponseClientID.cs" />
+    <Compile Include="ResponseHand.cs" />
     <Compile Include="ResponseTest.cs" />
     <Compile Include="Server.cs" />
   </ItemGroup>

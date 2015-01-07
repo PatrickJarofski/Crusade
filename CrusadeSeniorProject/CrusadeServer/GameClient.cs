@@ -7,13 +7,17 @@ using System.Net.Sockets;
 
 namespace CrusadeServer
 {
-    internal class GameClient
+    public class GameClient
     {
         private readonly TcpClient _client;
         private CrusadeLibrary.Player.PlayerNumber _playerNumber;
+        private Guid _id;
 
-        internal GameClient(TcpClient client)
+        public Guid ID { get { return _id; } }
+
+        internal GameClient(TcpClient client, Guid id)
         {
+            _id = id;
             _client = client;
             _playerNumber = CrusadeLibrary.Player.PlayerNumber.NotAPlayer;
         }

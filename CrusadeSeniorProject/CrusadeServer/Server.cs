@@ -83,19 +83,26 @@ namespace CrusadeServer
                 WriteErrorToLog("Client Connected Error: " + ex.Message);
                 return false;
             }
+            catch(ObjectDisposedException ex)
+            {
+                WriteErrorToConsole("Client Connected Error: " + ex.Message);
+                WriteErrorToLog("Client Connected Error: " + ex.Message);
+                return false;
+            }
         }
 
 
         private void DisconnectClient(GameClient client)
         {
             try
-            {
+            {                
                 client.PlayerNumber = CrusadeLibrary.Player.PlayerNumber.NotAPlayer;
 
                 lock(_clientList)
                     _clientList.Remove(client);
 
-                client.TCPclient.Close();
+                Console.WriteLine("Client disconnected. {0}", client.TCPclient.Client.RemoteEndPoint.ToString());
+                client.TCPclient.Close();                
             }
             catch(NullReferenceException ex)
             {
@@ -121,13 +128,17 @@ namespace CrusadeServer
                         if(_clientList.Count == 2)
                         {
                             _game = new CrusadeLibrary.CrusadeGame();
+                            _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
+                            _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
+
+                            Console.WriteLine("Game started.");
                         }
                     }
                 }
                 catch (SocketException ex)
                 {
-                    WriteErrorToLog(ex.Message);
-                    Console.WriteLine("ListenForClient() error written to log.");
+                    WriteErrorToLog("Client Listen Error: " + ex.Message);
+                    WriteErrorToConsole("Client Listen Error: " + ex.Message);
                 }
             }
         }
@@ -135,7 +146,7 @@ namespace CrusadeServer
 
         private void HandleClientComm(object obj)
         {
-            GameClient newClient = new GameClient((TcpClient)obj);
+            GameClient newClient = new GameClient((TcpClient)obj, Guid.NewGuid());
 
             lock(_clientList)
                 _clientList.Add(newClient);
@@ -143,6 +154,9 @@ namespace CrusadeServer
             NetworkStream clientStream = newClient.TCPclient.GetStream();
             IPEndPoint ep = (IPEndPoint)newClient.TCPclient.Client.RemoteEndPoint;
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss ") + "Client connected. " + ep.ToString());
+            Console.WriteLine("ID assigned: {0}", newClient.ID.ToString());
+
+            SendClientId(newClient);
 
             while(isConnected(newClient))
             {
@@ -150,9 +164,6 @@ namespace CrusadeServer
                 {
                     IRequest request = (IRequest)binaryFormatter.Deserialize(newClient.TCPclient.GetStream());
                     ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), request);
-
-                    ResponseTest rsp = new ResponseTest();
-                    binaryFormatter.Serialize(clientStream, rsp);
                 }
                 catch(System.Runtime.Serialization.SerializationException ex)
                 {
@@ -164,6 +175,13 @@ namespace CrusadeServer
         }
 
 
+        private void SendClientId(GameClient newClient)
+        {
+            ResponseClientID rsp = new ResponseClientID(newClient.ID);
+            SendData(newClient, rsp);
+        }
+
+
         private void ProcessRequest(object state)
         {
             IRequest request = (IRequest)state;
@@ -171,20 +189,48 @@ namespace CrusadeServer
         }
 
 
-        private GameClient GetMatchingClient(TcpClient tcpClient)
+        /// <summary>
+        /// Gets the GameClient that matches the given Guid.
+        /// </summary>
+        /// <param name="ep">Guid to match</param>
+        /// <returns>GameClient whose Guid matches the given Guid.</returns>
+        public GameClient GetMatchingClient(Guid id)
         {
+            Console.WriteLine("Given id: " + id.ToString());
             foreach(GameClient client in _clientList)
             {
-                if (client.TCPclient == tcpClient)
+                if (client.ID == id)
                     return client;
             }
 
-            return null;
+            throw new NullReferenceException("The given ID does not match any GameClients.");
         }
 
-        
 
-        private void WriteErrorToLog(string error)
+        private void SendData(GameClient client, IResponse rsp)
+        {
+            try
+            {
+                NetworkStream stream = client.TCPclient.GetStream();
+                binaryFormatter.Serialize(stream, rsp);
+            }
+            catch(SocketException ex)
+            {
+                WriteErrorToConsole("Send Data Error: " + ex.Message);
+                WriteErrorToLog("Send Data Error: " + ex.Message);
+            }
+            catch (System.Runtime.Serialization.SerializationException ex)
+            {
+                WriteErrorToConsole("Send Data Error: " + ex.Message);
+                WriteErrorToLog("Send Data Error: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Writes the given string to the server's error log.
+        /// </summary>
+        /// <param name="error">String to write</param>
+        internal void WriteErrorToLog(string error)
         {
             lock (lockObject)
             {
@@ -194,15 +240,18 @@ namespace CrusadeServer
             }
         }
 
-
-        private void WriteErrorToConsole(string error)
+        /// <summary>
+        /// Writes a given string to the console with additional formatting for readability.
+        /// </summary>
+        /// <param name="error">String to write.</param>
+        internal void WriteErrorToConsole(string error)
         {
             lock (lockObject)
             {
                 Console.WriteLine(Environment.NewLine);
-                Console.WriteLine("==================================");
+                Console.WriteLine("====================================================================");
                 Console.WriteLine(error);
-                Console.WriteLine("==================================");
+                Console.WriteLine("====================================================================");
                 Console.WriteLine(Environment.NewLine);
             }
         }
