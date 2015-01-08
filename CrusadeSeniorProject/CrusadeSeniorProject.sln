@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrusadeLibrary", "CrusadeLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrusadeGameClient", "CrusadeGameClient\CrusadeGameClient.csproj", "{47B75169-8BDD-4FBD-968F-0FBA672D2A8F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReqRspLib", "ReqRspLib\ReqRspLib.csproj", "{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,16 @@ Global
 		{47B75169-8BDD-4FBD-968F-0FBA672D2A8F}.Release|Mixed Platforms.Build.0 = Release|x86
 		{47B75169-8BDD-4FBD-968F-0FBA672D2A8F}.Release|x86.ActiveCfg = Release|x86
 		{47B75169-8BDD-4FBD-968F-0FBA672D2A8F}.Release|x86.Build.0 = Release|x86
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

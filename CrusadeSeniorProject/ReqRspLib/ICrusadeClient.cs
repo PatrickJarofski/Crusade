@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrusadeServer
+namespace ReqRspLib
 {
-    public interface IResponse
+    public interface ICrusadeClient
     {
-        void Execute();
+        Guid ID { get; }
+
+        void DisplayHand(List<string> hand);
     }
 }

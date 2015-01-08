@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrusadeServer
+namespace ReqRspLib
 {
     [Serializable]
     public class RequestTest : IRequest
     {
-        public void Execute(Server server)
+        public void Execute(ICrusadeServer server)
         {
             Console.WriteLine("Did it work?");
         }

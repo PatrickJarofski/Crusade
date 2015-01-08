@@ -9,6 +9,11 @@ namespace CrusadeLibrary
     {
         public enum PlayerNumber { PlayerOne, PlayerTwo, NotAPlayer };
 
+        public const string PLAYERONE = "PlayerOne";
+        public const string PLAYERTWO = "PlayerTwo";
+        public const string NOPLAYER = "NotPlaying";
+
+        
         #region Members
         private Deck _deck;
         private Hand _hand;
@@ -78,6 +83,28 @@ namespace CrusadeLibrary
         public List<string> GetHand()
         {
             return _hand.GetHand();
+        }
+
+
+        public static PlayerNumber ConvertStringToPlayerNumber(string input)
+        {
+            if (input == PLAYERONE)
+                return PlayerNumber.PlayerOne;
+            else if (input == PLAYERTWO)
+                return PlayerNumber.PlayerTwo;
+            else
+                return PlayerNumber.NotAPlayer;
+        }
+
+
+        public static string ConvertPlayerNumberToString(PlayerNumber pn)
+        {
+            if (pn == PlayerNumber.PlayerOne)
+                return PLAYERONE;
+            else if (pn == PlayerNumber.PlayerTwo)
+                return PLAYERTWO;
+            else
+                return NOPLAYER;
         }
 
         #endregion

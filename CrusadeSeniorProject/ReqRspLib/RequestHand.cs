@@ -1,20 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CrusadeServer
+namespace ReqRspLib
 {
+    [Serializable]
     public class RequestHand : IRequest
     {
-        private Server _server;
+        private Guid clientId;
         
-        public void Execute(Server server)
+        public RequestHand(Guid id)
         {
-            _server = server;
+            clientId = id;
         }
 
-        public RequestHand()
+        public void Execute(ICrusadeServer server)
+        {
+            try
+            {
+                Console.WriteLine("\nRequesting hand...");
+                server.GivePlayerHand(server.GetMatchingClient(clientId));
+            }
+            catch(NullReferenceException ex)
+            {
+                server.WriteErrorToConsole("Request Hand Error: " + ex.Message);
+                server.WriteErrorToLog("Request Hand Error: " + ex.Message);
+            }
+        }
     }
 }

@@ -6,11 +6,11 @@ using System.Net;
 using System.IO;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
-using CrusadeServer;
+using ReqRspLib;
 
 namespace CrusadeGameClient
 {
-    internal class ServerConnection
+    internal class ServerConnection : ReqRspLib.ICrusadeClient
     {
         private const int _port = 777;
         private readonly TcpClient _client;
@@ -23,7 +23,8 @@ namespace CrusadeGameClient
         private Guid clientId;
         private object lockObject = new object();
 
-        
+        public Guid ID { get { return clientId; } }
+
         public ServerConnection()
         {
             try
@@ -54,12 +55,12 @@ namespace CrusadeGameClient
 
         private void DebugSendMessage()
         {
-            CrusadeServer.RequestTest req = new RequestTest();
+            ReqRspLib.RequestTest req = new RequestTest();
             SendRequestToServer(req);
         }
 
 
-        private void SendRequestToServer(CrusadeServer.IRequest request)
+        private void SendRequestToServer(ReqRspLib.IRequest request)
         {
             try
             {
@@ -121,13 +122,13 @@ namespace CrusadeGameClient
             }
          
             else
-                serverResponse.Execute();
+                serverResponse.Execute(this);
         }
 
 
         public void RequestGameHand()
         {
-            CrusadeServer.RequestHand req = new RequestHand(clientId);
+            ReqRspLib.RequestHand req = new RequestHand(clientId);
             SendRequestToServer(req);
         }
 
@@ -171,6 +172,16 @@ namespace CrusadeGameClient
                 Console.WriteLine("====================================================================");
                 Console.WriteLine(Environment.NewLine);
             }
+        }
+
+
+        public void DisplayHand(List<string> hand)
+        {
+            Console.WriteLine(Environment.NewLine + "Hand:");
+            foreach (string item in hand)
+                Console.WriteLine(item);
+
+            Console.WriteLine(Environment.NewLine);
         }
     }
 }

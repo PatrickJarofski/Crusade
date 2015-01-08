@@ -11,7 +11,7 @@ namespace ReqRspLib
     /// In addition all Requests need to have the [Serializable] tag
     /// </summary>
     public interface IRequest    
-    {
-        void Execute(Server server);
+    {      
+        void Execute(ICrusadeServer server);
     }
 }

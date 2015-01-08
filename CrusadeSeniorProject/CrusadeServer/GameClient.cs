@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 
 namespace CrusadeServer
 {
-    public class GameClient
+    public class GameClient : ReqRspLib.IGameClient
     {
         private readonly TcpClient _client;
         private CrusadeLibrary.Player.PlayerNumber _playerNumber;
         private Guid _id;
 
-        public Guid ID { get { return _id; } }
+        public Guid ID { get { return _id; } } 
+
 
         internal GameClient(TcpClient client, Guid id)
         {
@@ -29,11 +29,12 @@ namespace CrusadeServer
         }
 
 
-        public CrusadeLibrary.Player.PlayerNumber PlayerNumber
+        public string PlayerNumber
         {
-            get { return _playerNumber; }
-            set { _playerNumber = value; }
+            get { return CrusadeLibrary.Player.ConvertPlayerNumberToString(_playerNumber); }
+            set { _playerNumber = CrusadeLibrary.Player.ConvertStringToPlayerNumber(value); }
         }
+
 
     }
 }

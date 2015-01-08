@@ -4,10 +4,11 @@ using System.Threading;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
+using ReqRspLib;
 
 namespace CrusadeServer
 {
-    public partial class Server
+    public partial class Server : ReqRspLib.ICrusadeServer
     {
         private const int _Port = 777;
         private bool shouldListen = true;
@@ -18,10 +19,12 @@ namespace CrusadeServer
         private BinaryFormatter binaryFormatter;
         private object lockObject = new object();
 
-        private CrusadeLibrary.CrusadeGame _game;
+        private CrusadeLibrary.CrusadeGame _game = null;
 
         private Thread listenThread;
         private Thread pollThread;
+
+        private int ClientsConnected = 0;
 
 
         internal Server()
@@ -96,13 +99,14 @@ namespace CrusadeServer
         {
             try
             {                
-                client.PlayerNumber = CrusadeLibrary.Player.PlayerNumber.NotAPlayer;
+                client.PlayerNumber = CrusadeLibrary.Player.ConvertPlayerNumberToString(CrusadeLibrary.Player.PlayerNumber.NotAPlayer);
 
                 lock(_clientList)
                     _clientList.Remove(client);
 
                 Console.WriteLine("Client disconnected. {0}", client.TCPclient.Client.RemoteEndPoint.ToString());
-                client.TCPclient.Close();                
+                client.TCPclient.Close();
+                --ClientsConnected;
             }
             catch(NullReferenceException ex)
             {
@@ -121,18 +125,10 @@ namespace CrusadeServer
                     if (_clientList.Count < 2)
                     {
                         TcpClient client = await _tcpListener.AcceptTcpClientAsync();
+                        ++ClientsConnected;                   
 
                         Thread clientThread = new Thread(new ParameterizedThreadStart(HandleClientComm));
-                        clientThread.Start(client);
-
-                        if(_clientList.Count == 2)
-                        {
-                            _game = new CrusadeLibrary.CrusadeGame();
-                            _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
-                            _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
-
-                            Console.WriteLine("Game started.");
-                        }
+                        clientThread.Start(client); 
                     }
                 }
                 catch (SocketException ex)
@@ -142,7 +138,6 @@ namespace CrusadeServer
                 }
             }
         }
-
 
         private void HandleClientComm(object obj)
         {
@@ -157,6 +152,8 @@ namespace CrusadeServer
             Console.WriteLine(Environment.NewLine + DateTime.Now.ToString("hh:mm:ss ") + "Client connected. " + ep.ToString());
             Console.WriteLine("ID assigned: {0}", newClient.ID.ToString());
 
+            PrintNumberOfClients();
+            CheckIfNewGame();
             SendClientId(newClient);
 
             while(isConnected(newClient))
@@ -188,25 +185,7 @@ namespace CrusadeServer
             request.Execute(this);
         }
 
-
-        /// <summary>
-        /// Gets the GameClient that matches the given Guid.
-        /// </summary>
-        /// <param name="ep">Guid to match</param>
-        /// <returns>GameClient whose Guid matches the given Guid.</returns>
-        public GameClient GetMatchingClient(Guid id)
-        {
-            Console.WriteLine("Given id: " + id.ToString());
-            foreach(GameClient client in _clientList)
-            {
-                if (client.ID == id)
-                    return client;
-            }
-
-            throw new NullReferenceException("The given ID does not match any GameClients.");
-        }
-
-
+        
         private void SendData(GameClient client, IResponse rsp)
         {
             try
@@ -226,36 +205,31 @@ namespace CrusadeServer
             }
         }
 
-        /// <summary>
-        /// Writes the given string to the server's error log.
-        /// </summary>
-        /// <param name="error">String to write</param>
-        internal void WriteErrorToLog(string error)
+
+        private void CheckIfNewGame()
         {
-            lock (lockObject)
+            int count;
+            lock (_clientList)
+                count = _clientList.Count;
+
+            if (count == 2)
             {
-                string path = DateTime.Now.ToString("YYYY-MM-DD") + " Client Log";
-                string msg = DateTime.Now.ToString("hh:mm:ss ") + error;
-                System.IO.File.AppendAllText(path, msg);
+                lock (lockObject)
+                    _game = new CrusadeLibrary.CrusadeGame();
+
+                _clientList[0].PlayerNumber = CrusadeLibrary.Player.ConvertPlayerNumberToString(CrusadeLibrary.Player.PlayerNumber.PlayerOne);
+                _clientList[1].PlayerNumber = CrusadeLibrary.Player.ConvertPlayerNumberToString(CrusadeLibrary.Player.PlayerNumber.PlayerTwo);
+
+                Console.WriteLine("Game started.");
             }
         }
 
-        /// <summary>
-        /// Writes a given string to the console with additional formatting for readability.
-        /// </summary>
-        /// <param name="error">String to write.</param>
-        internal void WriteErrorToConsole(string error)
-        {
-            lock (lockObject)
-            {
-                Console.WriteLine(Environment.NewLine);
-                Console.WriteLine("====================================================================");
-                Console.WriteLine(error);
-                Console.WriteLine("====================================================================");
-                Console.WriteLine(Environment.NewLine);
-            }
-        }
 
+        private void PrintNumberOfClients()
+        {
+            lock(_clientList)
+                Console.WriteLine(Environment.NewLine + "Number of clients: {0}" + Environment.NewLine, _clientList.Count.ToString());
+        }
 
     }
 }

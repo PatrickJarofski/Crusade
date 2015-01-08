@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrusadeServer
+namespace ReqRspLib
 {
     [Serializable]
     public class ResponseClientID : IResponse
@@ -18,7 +18,7 @@ namespace CrusadeServer
             _id = id;
         }
 
-        public void Execute()
+        public void Execute(ICrusadeClient client)
         {
             throw new NotImplementedException("A ResponseClientID should not be executed.");
         }

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrusadeServer
+namespace ReqRspLib
 {
     public interface IResponse
     {
-        void Execute();
+        void Execute(ICrusadeClient client);
     }
 }
