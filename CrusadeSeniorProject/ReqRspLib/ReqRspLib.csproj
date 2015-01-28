@@ -47,7 +47,6 @@
     <Compile Include="RequestGameboard.cs" />
     <Compile Include="RequestHand.cs" />
     <Compile Include="RequestPlayCard.cs" />
-    <Compile Include="RequestTest.cs" />
     <Compile Include="ResponseBeginNextTurn.cs" />
     <Compile Include="ResponseClientID.cs" />
     <Compile Include="ResponseGameboard.cs" />
@@ -55,7 +54,6 @@
     <Compile Include="ResponseHand.cs" />
     <Compile Include="ResponsePlayCard.cs" />
     <Compile Include="ResponseStartGame.cs" />
-    <Compile Include="ResponseTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

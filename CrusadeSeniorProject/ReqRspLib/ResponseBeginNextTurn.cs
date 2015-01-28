@@ -18,6 +18,7 @@ namespace ReqRspLib
 
         public void Execute(ICrusadeClient client)
         {
+            Console.WriteLine("Next turn player: " + _currentPlayerId.ToString());
             client.BeginNextTurn(_currentPlayerId);
         }
     }

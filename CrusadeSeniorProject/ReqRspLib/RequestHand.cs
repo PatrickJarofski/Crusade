@@ -14,16 +14,7 @@ namespace ReqRspLib
 
         public void Execute(ICrusadeServer server)
         {
-            try
-            {
-                Console.WriteLine("\nRequesting hand...");
-                server.GivePlayerHand(clientId);
-            }
-            catch(NullReferenceException ex)
-            {
-                server.WriteErrorToConsole("Request Hand Error: " + ex.Message);
-                server.WriteErrorToLog("Request Hand Error: " + ex.Message);
-            }
+            server.GivePlayerHand(clientId);
         }
     }
 }

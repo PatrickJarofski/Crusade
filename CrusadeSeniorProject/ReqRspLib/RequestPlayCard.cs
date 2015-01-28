@@ -20,6 +20,7 @@ namespace ReqRspLib
 
         public void Execute(ICrusadeServer server)
         {
+            Console.WriteLine("Playing a card...");
             server.PlayCard(_id, cardToPlay);
         }
     }

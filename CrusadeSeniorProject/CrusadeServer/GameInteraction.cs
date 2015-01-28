@@ -41,6 +41,7 @@ namespace CrusadeServer
             }
         }
 
+
         /// <summary>
         /// Give the client the state of the gameboard
         /// </summary>
@@ -60,7 +61,6 @@ namespace CrusadeServer
         /// <returns>GameClient whose Guid matches the given Guid.</returns>
         private GameClient GetMatchingClient(Guid id)
         {
-            Console.WriteLine("Given id: " + id.ToString());
             foreach (GameClient client in _clientList)
             {
                 if (client.ID == id)
@@ -104,6 +104,8 @@ namespace CrusadeServer
 
             _game.BeginNextTurn();
 
+            Guid id = GetTurnPlayerId();
+            Console.WriteLine("\n=== Current Turn Player: {0} ===\n", id.ToString());
             ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(GetTurnPlayerId());
             BroadcastToClients(rsp);
         }
@@ -115,9 +117,12 @@ namespace CrusadeServer
         /// <returns>The ID of the turn client.</returns>
         private Guid GetTurnPlayerId()
         {
+            CrusadeLibrary.Player.PlayerNumber num = _game.GetCurrentPlayer();
+            Console.WriteLine("\n\n=== Current Player Number = {0} ===\n\n", num.ToString());
+
             foreach(GameClient client in _clientList.ToArray())
             {
-                if (client.PlayerNumber == _game.GetCurrentPlayer())
+                if (client.PlayerNumber == num)
                     return client.ID;
             }
             throw new ArgumentException("The player number specified does not exist.");
