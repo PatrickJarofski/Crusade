@@ -41,7 +41,10 @@ namespace CrusadeServer
             }
         }
 
-
+        /// <summary>
+        /// Give the client the state of the gameboard
+        /// </summary>
+        /// <param name="clientId">Id of the player/client.</param>
         public void GivePlayerGameboard(Guid clientId)
         {
             string[,] board = _game.GetBoardState();
@@ -83,6 +86,9 @@ namespace CrusadeServer
         }
         
 
+        /// <summary>
+        /// Begins the next turn of the game, notifying clients of the change.
+        /// </summary>
         private void BeginNextTurn()
         {
             lock(_clientList)
