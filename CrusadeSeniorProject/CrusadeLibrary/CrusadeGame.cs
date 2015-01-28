@@ -53,11 +53,16 @@ namespace CrusadeLibrary
                 for (int j = 0; j < Gameboard.BOARD_HEIGHT; ++j)
                 {
                     if (_board.CellOccupied(i, j))
-                        board[i, j] = "occupied";
+                        board[i, j] = "O";
 
                     else
-                        board[i, j] = String.Empty;
+                        board[i, j] = "E";
                 }
+                if (board[i, Gameboard.BOARD_WIDTH - 1] == "E")
+                    board[i, Gameboard.BOARD_WIDTH - 1] = "E\n";
+                else
+                    board[i, Gameboard.BOARD_WIDTH - 1] = "O\n";
+                
             }
 
             return board;
@@ -76,7 +81,7 @@ namespace CrusadeLibrary
             if (currentPlayer == _player1)
                 currentPlayer = _player2;
 
-            else
+            else // currentPlayer == _player2
                 currentPlayer = _player1;
 
             currentPlayer.DrawFromDeck();

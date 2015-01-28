@@ -17,7 +17,7 @@ namespace ReqRspLib
             try
             {
                 Console.WriteLine("\nRequesting hand...");
-                server.GivePlayerHand(server.GetMatchingClient(clientId));
+                server.GivePlayerHand(clientId);
             }
             catch(NullReferenceException ex)
             {

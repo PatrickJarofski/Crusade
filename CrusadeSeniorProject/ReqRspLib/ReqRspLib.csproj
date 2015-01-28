@@ -40,15 +40,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ICrusadeClient.cs" />
-    <Compile Include="IGameClient.cs" />
     <Compile Include="IRequest.cs" />
     <Compile Include="IResponse.cs" />
-    <Compile Include="IServer.cs" />
+    <Compile Include="ICrusadeServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RequestGameboard.cs" />
     <Compile Include="RequestHand.cs" />
+    <Compile Include="RequestPlayCard.cs" />
     <Compile Include="RequestTest.cs" />
+    <Compile Include="ResponseBeginNextTurn.cs" />
     <Compile Include="ResponseClientID.cs" />
+    <Compile Include="ResponseGameboard.cs" />
+    <Compile Include="ResponseGetPlayerMove.cs" />
     <Compile Include="ResponseHand.cs" />
+    <Compile Include="ResponsePlayCard.cs" />
+    <Compile Include="ResponseStartGame.cs" />
     <Compile Include="ResponseTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

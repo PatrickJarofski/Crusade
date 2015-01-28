@@ -14,8 +14,10 @@ namespace CrusadeServer
         /// a response back to the client with that hand's information.
         /// </summary>
         /// <param name="client">The GameClient to respond to.</param>
-        public void GivePlayerHand(IGameClient client)
+        public void GivePlayerHand(Guid clientId)
         {
+            GameClient client = GetMatchingClient(clientId);
+
             lock (lockObject)
             {
                 if (_game == null)
@@ -27,10 +29,10 @@ namespace CrusadeServer
 
             try
             {
-                List<string> hand = _game.GetPlayerHand(CrusadeLibrary.Player.ConvertStringToPlayerNumber(client.PlayerNumber));
+                List<string> hand = _game.GetPlayerHand(client.PlayerNumber);
 
                 ResponseHand rsp = new ResponseHand(hand);
-                SendData((GameClient)client, rsp);
+                SendData(client, rsp);
             }
             catch(NullReferenceException ex)
             {
@@ -40,12 +42,20 @@ namespace CrusadeServer
         }
 
 
+        public void GivePlayerGameboard(Guid clientId)
+        {
+            string[,] board = _game.GetBoardState();
+            ResponseGameboard rsp = new ResponseGameboard(board);
+            SendData(GetMatchingClient(clientId), rsp);
+        }
+
+        
         /// <summary>
         /// Gets the GameClient that matches the given Guid.
         /// </summary>
         /// <param name="ep">Guid to match</param>
         /// <returns>GameClient whose Guid matches the given Guid.</returns>
-        public IGameClient GetMatchingClient(Guid id)
+        private GameClient GetMatchingClient(Guid id)
         {
             Console.WriteLine("Given id: " + id.ToString());
             foreach (GameClient client in _clientList)
@@ -59,6 +69,56 @@ namespace CrusadeServer
 
 
         /// <summary>
+        /// Play a card that is in a Client's hand.
+        /// </summary>
+        /// <param name="client">The Client playing the card.</param>
+        /// <param name="cardNum">The index of the card in the hand.</param>
+        public void PlayCard(Guid clientId, int cardNum)
+        {
+            string card = _game.PlayCard((GetMatchingClient(clientId).PlayerNumber), cardNum);
+
+            ResponsePlayCard rsp = new ResponsePlayCard(card);
+            BroadcastToClients(rsp);
+            BeginNextTurn();
+        }
+        
+
+        private void BeginNextTurn()
+        {
+            lock(_clientList)
+            {
+                foreach(GameClient client in _clientList)
+                {
+                    if(client.PlayerNumber == CrusadeLibrary.Player.PlayerNumber.PlayerOne)
+                        client.PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
+                    else
+                        client.PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
+                }
+            }
+
+            _game.BeginNextTurn();
+
+            ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(GetTurnPlayerId());
+            BroadcastToClients(rsp);
+        }
+
+
+        /// <summary>
+        /// Finds the Client that is currently the turn player.
+        /// </summary>
+        /// <returns>The ID of the turn client.</returns>
+        private Guid GetTurnPlayerId()
+        {
+            foreach(GameClient client in _clientList.ToArray())
+            {
+                if (client.PlayerNumber == _game.GetCurrentPlayer())
+                    return client.ID;
+            }
+            throw new ArgumentException("The player number specified does not exist.");
+        }
+
+
+        /// <summary>
         /// Writes the given string to the server's error log.
         /// </summary>
         /// <param name="error">String to write</param>
@@ -66,11 +126,12 @@ namespace CrusadeServer
         {
             lock (lockObject)
             {
-                string path = DateTime.Now.ToString("YYYY-MM-DD") + " Client Log";
+                string path = DateTime.Now.ToString("yyyy-MM-dd" + " Server Log");
                 string msg = DateTime.Now.ToString("hh:mm:ss ") + error;
                 System.IO.File.AppendAllText(path, msg);
             }
         }
+
 
         /// <summary>
         /// Writes a given string to the console with additional formatting for readability.

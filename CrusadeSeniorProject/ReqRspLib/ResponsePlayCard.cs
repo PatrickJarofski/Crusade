@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 namespace ReqRspLib
 {
     [Serializable]
-    public class ResponseHand : IResponse
+    public class ResponsePlayCard : IResponse
     {
-        private List<string> hand;
+        string _card;
 
-        public ResponseHand(List<string> cardList)
+        public ResponsePlayCard(string card)
         {
-            hand = cardList;
+            _card = card;
         }
 
         public void Execute(ICrusadeClient client)
         {
-            client.SetHand(hand);
+            Console.WriteLine(Environment.NewLine + "{0} was played.", _card);
         }
     }
 }

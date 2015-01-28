@@ -8,9 +8,11 @@ namespace ReqRspLib
 {
     public interface ICrusadeServer
     {
-        void GivePlayerHand(IGameClient client);
+        void GivePlayerHand(Guid clientId);
 
-        IGameClient GetMatchingClient(Guid id);
+        void GivePlayerGameboard(Guid clientId);
+
+        void PlayCard(Guid clientId, int cardNum);
 
         void WriteErrorToConsole(string error);
 

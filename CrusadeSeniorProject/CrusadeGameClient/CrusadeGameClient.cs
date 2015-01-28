@@ -30,10 +30,6 @@ namespace CrusadeGameClient
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
-
-            while (sw.ElapsedMilliseconds < 1500) ;
-            Console.WriteLine("Sending hand request...");
-            _serverConnection.RequestGameHand();
         }
 
         /// <summary>

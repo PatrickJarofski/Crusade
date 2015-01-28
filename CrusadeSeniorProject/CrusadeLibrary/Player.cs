@@ -8,17 +8,18 @@ namespace CrusadeLibrary
     public class Player : BaseGameObject
     {
         public enum PlayerNumber { PlayerOne, PlayerTwo, NotAPlayer };
-
-        public const string PLAYERONE = "PlayerOne";
-        public const string PLAYERTWO = "PlayerTwo";
-        public const string NOPLAYER = "NotPlaying";
-
         
-        #region Members
+        #region Fields
         private Deck _deck;
         private Hand _hand;
-        // Other properties
 
+        private int _actionPoints = 0;
+
+        #endregion
+
+
+        #region Properties
+        public int ActionPoints { get { return _actionPoints; } }
         #endregion
 
 
@@ -56,18 +57,12 @@ namespace CrusadeLibrary
             _deck.ShuffleDeck();
         }
 
+
         /// <summary>
-        /// (TODO) Play a card the player
-        /// has in their hand
+        /// Play a card from the hand.
         /// </summary>
-        /// <param name="cardToPlay">Name of the card to play</param>
-        public void PlayCard(string cardToPlay)
-        {
-            // TODO
-            throw new NotImplementedException();
-        }
-
-
+        /// <param name="cardSlotInHand">The index in the collection where the card resides.</param>
+        /// <returns></returns>
         public string PlayCard(int cardSlotInHand)
         {
             return _hand.RemoveCard(cardSlotInHand);
@@ -83,28 +78,6 @@ namespace CrusadeLibrary
         public List<string> GetHand()
         {
             return _hand.GetHand();
-        }
-
-
-        public static PlayerNumber ConvertStringToPlayerNumber(string input)
-        {
-            if (input == PLAYERONE)
-                return PlayerNumber.PlayerOne;
-            else if (input == PLAYERTWO)
-                return PlayerNumber.PlayerTwo;
-            else
-                return PlayerNumber.NotAPlayer;
-        }
-
-
-        public static string ConvertPlayerNumberToString(PlayerNumber pn)
-        {
-            if (pn == PlayerNumber.PlayerOne)
-                return PLAYERONE;
-            else if (pn == PlayerNumber.PlayerTwo)
-                return PLAYERTWO;
-            else
-                return NOPLAYER;
         }
 
         #endregion

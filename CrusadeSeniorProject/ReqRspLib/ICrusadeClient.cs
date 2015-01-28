@@ -9,7 +9,18 @@ namespace ReqRspLib
     public interface ICrusadeClient
     {
         Guid ID { get; }
+        
 
-        void DisplayHand(List<string> hand);
+        void SetHand(List<string> hand);
+
+        void SetGameboard(string[,] board);
+
+        void BeginGame();
+
+        void EndGame();
+
+        void BeginNextTurn(Guid turnPlayerID);
+
+        void GetPlayerDecision();
     }
 }

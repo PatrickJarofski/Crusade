@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 namespace ReqRspLib
 {
     [Serializable]
-    public class ResponseHand : IResponse
+    public class ResponseBeginNextTurn : IResponse
     {
-        private List<string> hand;
+        Guid _currentPlayerId;
 
-        public ResponseHand(List<string> cardList)
+        public ResponseBeginNextTurn(Guid currentPlayerId)
         {
-            hand = cardList;
+            _currentPlayerId = currentPlayerId;
         }
 
         public void Execute(ICrusadeClient client)
         {
-            client.SetHand(hand);
+            client.BeginNextTurn(_currentPlayerId);
         }
     }
 }

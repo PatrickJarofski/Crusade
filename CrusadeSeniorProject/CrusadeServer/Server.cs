@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using ReqRspLib;
+using System.Text;
 
 namespace CrusadeServer
 {
@@ -21,14 +22,13 @@ namespace CrusadeServer
 
         private CrusadeLibrary.CrusadeGame _game = null;
 
-        private Thread listenThread;
-        private Thread pollThread;
-
         private int ClientsConnected = 0;
 
 
         internal Server()
         {
+            Console.Title = "Server";
+
             binaryFormatter = new BinaryFormatter();
             _clientList = new List<GameClient>();
 
@@ -36,17 +36,14 @@ namespace CrusadeServer
             _tcpListener = new TcpListener(ep);
             _tcpListener.Start();
 
-            listenThread = new Thread(new ThreadStart(ListenForClients));
-            listenThread.Start();
-
-            pollThread = new Thread(new ThreadStart(PollClients));
-            pollThread.Start();
+            ThreadPool.QueueUserWorkItem(ListenForClients);
+           // ThreadPool.QueueUserWorkItem(PollClients);
 
             Console.WriteLine("Now listening for clients on port {0}.", _Port.ToString());
         }
 
 
-        private void PollClients()
+        private void PollClients(object obj)
         {
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
@@ -99,7 +96,7 @@ namespace CrusadeServer
         {
             try
             {                
-                client.PlayerNumber = CrusadeLibrary.Player.ConvertPlayerNumberToString(CrusadeLibrary.Player.PlayerNumber.NotAPlayer);
+                client.PlayerNumber = CrusadeLibrary.Player.PlayerNumber.NotAPlayer;
 
                 lock(_clientList)
                     _clientList.Remove(client);
@@ -116,7 +113,7 @@ namespace CrusadeServer
         }
  
 
-        private async void ListenForClients()
+        private async void ListenForClients(object obj)
         {
             while(shouldListen)
             {
@@ -139,6 +136,7 @@ namespace CrusadeServer
             }
         }
 
+
         private void HandleClientComm(object obj)
         {
             GameClient newClient = new GameClient((TcpClient)obj, Guid.NewGuid());
@@ -153,8 +151,8 @@ namespace CrusadeServer
             Console.WriteLine("ID assigned: {0}", newClient.ID.ToString());
 
             PrintNumberOfClients();
-            CheckIfNewGame();
             SendClientId(newClient);
+            CheckIfNewGame();           
 
             while(isConnected(newClient))
             {
@@ -167,6 +165,13 @@ namespace CrusadeServer
                 {
                     WriteErrorToConsole(ex.Message);
                     WriteErrorToLog(ex.Message);
+                    DisconnectClient(newClient);
+                }
+                catch(System.IO.IOException ex)
+                {
+                    WriteErrorToConsole(ex.Message);
+                    WriteErrorToLog(ex.Message);
+                    DisconnectClient(newClient);
                 }
             }            
         }
@@ -188,10 +193,24 @@ namespace CrusadeServer
         
         private void SendData(GameClient client, IResponse rsp)
         {
+            if (client == null || rsp == null)
+                return;
+
             try
             {
-                NetworkStream stream = client.TCPclient.GetStream();
-                binaryFormatter.Serialize(stream, rsp);
+                using(System.IO.MemoryStream ms = new System.IO.MemoryStream())
+                {
+                    binaryFormatter.Serialize(ms, rsp);
+                    byte[] rspBytes = ms.ToArray();                         // Get the bytes of the response
+                    short length = (short)rspBytes.Length;                  // Get how long the response is
+
+                    byte[] buffer = new byte[length + 2];                   // Have two extra bytes since the length will be prepended
+                    Array.Copy(BitConverter.GetBytes(length), buffer, 2);   // Put the length in the first two bytes
+                    Array.Copy(rspBytes, 0, buffer, 2, length);             // Put the response after the length
+                    
+                    NetworkStream stream = client.TCPclient.GetStream();    // Get the stream
+                    stream.Write(buffer, 0, buffer.Length);                 // Ship the object off
+                }
             }
             catch(SocketException ex)
             {
@@ -206,6 +225,13 @@ namespace CrusadeServer
         }
 
 
+        private void BroadcastToClients(IResponse rsp)
+        {
+            foreach (GameClient client in _clientList.ToArray())
+                SendData(client, rsp);
+        }
+
+
         private void CheckIfNewGame()
         {
             int count;
@@ -217,10 +243,19 @@ namespace CrusadeServer
                 lock (lockObject)
                     _game = new CrusadeLibrary.CrusadeGame();
 
-                _clientList[0].PlayerNumber = CrusadeLibrary.Player.ConvertPlayerNumberToString(CrusadeLibrary.Player.PlayerNumber.PlayerOne);
-                _clientList[1].PlayerNumber = CrusadeLibrary.Player.ConvertPlayerNumberToString(CrusadeLibrary.Player.PlayerNumber.PlayerTwo);
+                _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
+                _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
 
                 Console.WriteLine("Game started.");
+                BroadcastToClients(new ResponseStartGame());
+
+                foreach (GameClient client in _clientList)
+                {
+                    GivePlayerHand(client.ID);
+                    GivePlayerGameboard(client.ID);
+                }
+
+                BeginNextTurn();
             }
         }
 
@@ -230,6 +265,5 @@ namespace CrusadeServer
             lock(_clientList)
                 Console.WriteLine(Environment.NewLine + "Number of clients: {0}" + Environment.NewLine, _clientList.Count.ToString());
         }
-
     }
 }

@@ -6,7 +6,7 @@ using System.Net.Sockets;
 
 namespace CrusadeServer
 {
-    public class GameClient : ReqRspLib.IGameClient
+    public class GameClient
     {
         private readonly TcpClient _client;
         private CrusadeLibrary.Player.PlayerNumber _playerNumber;
@@ -29,10 +29,10 @@ namespace CrusadeServer
         }
 
 
-        public string PlayerNumber
+        public CrusadeLibrary.Player.PlayerNumber PlayerNumber
         {
-            get { return CrusadeLibrary.Player.ConvertPlayerNumberToString(_playerNumber); }
-            set { _playerNumber = CrusadeLibrary.Player.ConvertStringToPlayerNumber(value); }
+            get { return _playerNumber; }
+            set { _playerNumber = value; }
         }
 
 
