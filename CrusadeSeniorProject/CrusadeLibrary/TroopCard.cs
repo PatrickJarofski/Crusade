@@ -59,7 +59,7 @@ namespace CrusadeLibrary
         public TroopCard(string name)
             : base(name, CardType.Troop)
         {
-
+          
         }
 
         #endregion

@@ -8,6 +8,9 @@ namespace CrusadeLibrary
 {
     public interface GameObject
     {
+        /// <summary>
+        /// Gets the unique ID of the object.
+        /// </summary>
         Guid ID { get; }
     }
 
@@ -15,6 +18,9 @@ namespace CrusadeLibrary
     {
         private Guid _guid;
 
+        /// <summary>
+        /// Gets the unique ID of the object.
+        /// </summary>
         public Guid ID
         {
             get { return _guid; }
