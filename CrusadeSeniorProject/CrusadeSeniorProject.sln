@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrusadeServer", "CrusadeServer\CrusadeServer.csproj", "{78907635-3656-4AF8-AEF8-8C0386C5C785}"
 EndProject
@@ -10,8 +10,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrusadeGameClient", "CrusadeGameClient\CrusadeGameClient.csproj", "{47B75169-8BDD-4FBD-968F-0FBA672D2A8F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReqRspLib", "ReqRspLib\ReqRspLib.csproj", "{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{35DF69D3-DF51-4349-B039-88AC99BB3CE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

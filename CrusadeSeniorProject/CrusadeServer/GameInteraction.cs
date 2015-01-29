@@ -104,6 +104,12 @@ namespace CrusadeServer
 
             _game.BeginNextTurn();
 
+            foreach (GameClient client in _clientList.ToArray())
+            {
+                GivePlayerHand(client.ID);
+                GivePlayerGameboard(client.ID);
+            }
+
             ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(GetTurnPlayerId());
             BroadcastToClients(rsp);
         }

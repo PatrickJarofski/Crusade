@@ -18,6 +18,7 @@ namespace ReqRspLib
 
         public void Execute(ICrusadeClient client)
         {
+            Console.WriteLine("\n==== Setting Hand.\n");
             client.SetHand(hand);
         }
     }

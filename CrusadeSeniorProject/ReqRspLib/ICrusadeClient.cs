@@ -9,6 +9,7 @@ namespace ReqRspLib
     public interface ICrusadeClient
     {
         Guid ID { get; }
+        bool IsTurnPlayer { get; set; }
         
 
         void SetHand(List<string> hand);
@@ -19,7 +20,7 @@ namespace ReqRspLib
 
         void EndGame();
 
-        void BeginNextTurn(Guid turnPlayerID);
+        void BeginNextTurn();
 
         void GetPlayerDecision();
     }

@@ -12,24 +12,34 @@ namespace CrusadeGameClient
 {
     internal class ServerConnection : ReqRspLib.ICrusadeClient
     {
-        #region Fields and Properties
+        #region Fields
 
         private const int _port = 777;
         private readonly TcpClient _client;
 
         private BinaryFormatter binaryFormatter;
 
-        private bool shouldReceive = false;
-        private bool inAGame = false;
-        private bool isTurnPlayer = false;
+        private bool _shouldReceive = false;
+        private bool _inAGame = false;
+        private bool _isTurnPlayer = false;
 
-        private Guid clientId;
-        private object lockObject = new object();
+        private Guid _clientId;
+        private object _lockObject = new object();
 
         private List<string> _hand;
         private string[,] _gameboard;
 
-        public Guid ID { get { return clientId; } }
+        #endregion
+
+        #region Properties
+
+        public Guid ID { get { return _clientId; } }
+
+        public bool IsTurnPlayer
+        {
+            get { return _isTurnPlayer; }
+            set { _isTurnPlayer = value; }
+        }
 
         #endregion
 
@@ -54,9 +64,11 @@ namespace CrusadeGameClient
                 _client.ReceiveTimeout = 3000;
                 _client.Connect(ep);
 
-                shouldReceive = true;
-
+                _shouldReceive = true;
                 ThreadPool.QueueUserWorkItem(Receive);
+
+                _hand = new List<string>();
+                _gameboard = new string[1,1];
             }
             catch(SocketException ex)
             {
@@ -73,9 +85,9 @@ namespace CrusadeGameClient
         {
             try
             {
-                lock (lockObject)
+                lock (_lockObject)
                 {
-                    shouldReceive = false;
+                    _shouldReceive = false;
                     _client.Close();
                 }
             }
@@ -92,7 +104,7 @@ namespace CrusadeGameClient
         /// </summary>
         public void RequestGameHand()
         {
-            ReqRspLib.RequestHand req = new RequestHand(clientId);
+            ReqRspLib.RequestHand req = new RequestHand(_clientId);
             SendRequestToServer(req);
         }
 
@@ -188,9 +200,9 @@ namespace CrusadeGameClient
 
         public void BeginGame()
         {
-            if(!inAGame)
+            if(!_inAGame)
             {
-                inAGame = true;
+                _inAGame = true;
                 RequestGameHand();
             }
 
@@ -199,29 +211,15 @@ namespace CrusadeGameClient
 
         public void EndGame()
         {
-            inAGame = false;
+            _inAGame = false;
         }
 
 
-        public void BeginNextTurn(Guid turnPlayerID)
+        public void BeginNextTurn()
         {
-            RequestGameboard();
-            RequestGameHand();    
-
-            if (turnPlayerID == ID)
-            {
-                isTurnPlayer = true;
-                Console.WriteLine("It is your turn.");
-            }
-            else
-            {
-                isTurnPlayer = false;
-                Console.WriteLine("Your opponent's turn has begun.");
-            }
-
             DisplayGameboard();
 
-            if (isTurnPlayer)
+            if (_isTurnPlayer)
                 GetPlayerDecision();
 
             else
@@ -284,7 +282,7 @@ namespace CrusadeGameClient
         {
             using(NetworkStream stream = _client.GetStream())
             {
-                while(shouldReceive)
+                while(_shouldReceive)
                 {
                     byte[] length = new byte[2]; // Will hold how big the anticipated response is
 
@@ -335,7 +333,7 @@ namespace CrusadeGameClient
             if(serverResponse is ResponseClientID)
             {
                 ResponseClientID rsp = serverResponse as ResponseClientID;
-                clientId = rsp.ID;
+                _clientId = rsp.ID;
 
                 Console.WriteLine("ID assigned: {0}", rsp.ID.ToString());
                 Console.Title = "Client " + ID.ToString();
@@ -358,7 +356,7 @@ namespace CrusadeGameClient
         
         private void WriteErrorToLog(string error)
         {
-            lock (lockObject)
+            lock (_lockObject)
             {
                 string path = DateTime.Now.ToString("yyyy-MM-dd") + " Client " + ID.ToString("N");
                 string msg = DateTime.Now.ToString("hh:mm:ss ") + error + Environment.NewLine;
@@ -368,7 +366,7 @@ namespace CrusadeGameClient
 
         private void WriteErrorToConsole(string error)
         {
-            lock (lockObject)
+            lock (_lockObject)
             {
                 Console.WriteLine(Environment.NewLine);
                 Console.WriteLine("====================================================================");

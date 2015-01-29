@@ -19,7 +19,19 @@ namespace ReqRspLib
         public void Execute(ICrusadeClient client)
         {
             Console.WriteLine("Next turn player: " + _currentPlayerId.ToString());
-            client.BeginNextTurn(_currentPlayerId);
+
+            if(client.ID == _currentPlayerId)
+            {
+                client.IsTurnPlayer = true;
+                Console.WriteLine("It is your turn.");
+            }
+            else
+            {
+                client.IsTurnPlayer = false;
+                Console.WriteLine("It is your opponent's turn.");
+            }
+                
+            client.BeginNextTurn();
         }
     }
 }
