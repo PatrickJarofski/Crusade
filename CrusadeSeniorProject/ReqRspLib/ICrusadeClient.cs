@@ -10,9 +10,8 @@ namespace ReqRspLib
     {
         Guid ID { get; }
         bool IsTurnPlayer { get; set; }
-        
 
-        void SetHand(List<string> hand);
+        List<ICard> Hand { get; set; }
 
         void SetGameboard(string[,] board);
 

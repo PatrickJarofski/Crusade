@@ -97,7 +97,7 @@ namespace CrusadeLibrary
         }
 
 
-        public List<string> GetPlayerHand(Player.PlayerNumber player)
+        public List<Card> GetPlayerHand(Player.PlayerNumber player)
         {
             if (player == Player.PlayerNumber.NotAPlayer)
                 return null;
@@ -108,7 +108,6 @@ namespace CrusadeLibrary
             else
                 return _player2.GetHand();
         }
-
 
         public string PlayCard(Player.PlayerNumber player, int cardSlot)
         {

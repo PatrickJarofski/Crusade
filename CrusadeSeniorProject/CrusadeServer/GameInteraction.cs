@@ -29,9 +29,11 @@ namespace CrusadeServer
 
             try
             {
-                List<string> hand = _game.GetPlayerHand(client.PlayerNumber);
+                List<CrusadeLibrary.Card> hand = _game.GetPlayerHand(client.PlayerNumber);
+                Converter<CrusadeLibrary.ICard, ReqRspLib.ICard> con = new Converter<CrusadeLibrary.ICard, ReqRspLib.ICard>(ConvertToRspICard);
+                List<ReqRspLib.ICard> handToShip = hand.ConvertAll(con);
 
-                ResponseHand rsp = new ResponseHand(hand);
+                ResponseHand rsp = new ResponseHand(handToShip);
                 SendData(client, rsp);
             }
             catch(NullReferenceException ex)
@@ -53,23 +55,6 @@ namespace CrusadeServer
             SendData(GetMatchingClient(clientId), rsp);
         }
 
-        
-        /// <summary>
-        /// Gets the GameClient that matches the given Guid.
-        /// </summary>
-        /// <param name="ep">Guid to match</param>
-        /// <returns>GameClient whose Guid matches the given Guid.</returns>
-        private GameClient GetMatchingClient(Guid id)
-        {
-            foreach (GameClient client in _clientList)
-            {
-                if (client.ID == id)
-                    return client;
-            }
-
-            throw new NullReferenceException("The given ID does not match any GameClients.");
-        }
-
 
         /// <summary>
         /// Play a card that is in a Client's hand.
@@ -83,50 +68,6 @@ namespace CrusadeServer
             ResponsePlayCard rsp = new ResponsePlayCard(card);
             BroadcastToClients(rsp);
             BeginNextTurn();
-        }
-        
-
-        /// <summary>
-        /// Begins the next turn of the game, notifying clients of the change.
-        /// </summary>
-        private void BeginNextTurn()
-        {
-            lock(_clientList)
-            {
-                foreach(GameClient client in _clientList)
-                {
-                    if (client.isTurnPlayer == true)
-                        client.isTurnPlayer = false;
-                    else
-                        client.isTurnPlayer = true;
-                }
-            }
-
-            _game.BeginNextTurn();
-
-            foreach (GameClient client in _clientList.ToArray())
-            {
-                GivePlayerHand(client.ID);
-                GivePlayerGameboard(client.ID);
-            }
-
-            ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(GetTurnPlayerId());
-            BroadcastToClients(rsp);
-        }
-
-
-        /// <summary>
-        /// Finds the Client that is currently the turn player.
-        /// </summary>
-        /// <returns>The ID of the turn client.</returns>
-        private Guid GetTurnPlayerId()
-        {
-            foreach(GameClient client in _clientList.ToArray())
-            {
-                if (client.isTurnPlayer)
-                    return client.ID;
-            }
-            throw new ArgumentException("The player number specified does not exist.");
         }
 
 
@@ -162,6 +103,81 @@ namespace CrusadeServer
         }
 
 
+        /// <summary>
+        /// Gets the GameClient that matches the given Guid.
+        /// </summary>
+        /// <param name="ep">Guid to match</param>
+        /// <returns>GameClient whose Guid matches the given Guid.</returns>
+        private GameClient GetMatchingClient(Guid id)
+        {
+            foreach (GameClient client in _clientList)
+            {
+                if (client.ID == id)
+                    return client;
+            }
+
+            throw new NullReferenceException("The given ID does not match any GameClients.");
+        }
+
+
+        /// <summary>
+        /// Begins the next turn of the game, notifying clients of the change.
+        /// </summary>
+        private void BeginNextTurn()
+        {
+            lock (_clientList)
+            {
+                foreach (GameClient client in _clientList)
+                {
+                    if (client.isTurnPlayer == true)
+                        client.isTurnPlayer = false;
+                    else
+                        client.isTurnPlayer = true;
+                }
+            }
+
+            _game.BeginNextTurn();
+
+            foreach (GameClient client in _clientList.ToArray())
+            {
+                GivePlayerHand(client.ID);
+                GivePlayerGameboard(client.ID);
+            }
+
+            ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(GetTurnPlayerId());
+            BroadcastToClients(rsp);
+        }
+
+
+        /// <summary>
+        /// Finds the Client that is currently the turn player.
+        /// </summary>
+        /// <returns>The ID of the turn client.</returns>
+        private Guid GetTurnPlayerId()
+        {
+            foreach (GameClient client in _clientList.ToArray())
+            {
+                if (client.isTurnPlayer)
+                    return client.ID;
+            }
+            throw new ArgumentException("The player number specified does not exist.");
+        }
+
+
+
+        private ReqRspLib.ICard ConvertToRspICard(CrusadeLibrary.ICard card)
+        {
+            ReqRspLib.CardType newType;
+            if (card.Type == CrusadeLibrary.CardType.Troop)
+                newType = ReqRspLib.CardType.Troop;
+            else if
+                (card.Type == CrusadeLibrary.CardType.Equip)
+                newType = ReqRspLib.CardType.Equip;
+            else
+                newType = ReqRspLib.CardType.Field;
+
+            return new ReqRspLib.Card(card.Name, newType);
+        }
 
     }
 }

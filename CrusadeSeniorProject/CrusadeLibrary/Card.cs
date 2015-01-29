@@ -5,11 +5,7 @@ using System.Text;
 
 namespace CrusadeLibrary
 {
-    public enum CardLocation { NoLocation, Deck, Hand, Field, Grave };
-
-    public enum CardType { Troop, Equip, Field };
-
-    public abstract class Card : BaseGameObject
+    public abstract class Card : BaseGameObject, ICard
     {
         private string _name;
         private CardType _type;

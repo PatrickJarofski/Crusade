@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Card.cs" />
+    <Compile Include="ICard.cs" />
     <Compile Include="ICrusadeClient.cs" />
     <Compile Include="IRequest.cs" />
     <Compile Include="IResponse.cs" />

@@ -68,7 +68,7 @@ namespace CrusadeLibrary
             return _hand.RemoveCard(cardSlotInHand);
         }
 
-        public List<string> GetHand()
+        public List<Card> GetHand()
         {
             return _hand.GetHand();
         }

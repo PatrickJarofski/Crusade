@@ -18,8 +18,6 @@ namespace ReqRspLib
 
         public void Execute(ICrusadeClient client)
         {
-            Console.WriteLine("Next turn player: " + _currentPlayerId.ToString());
-
             if(client.ID == _currentPlayerId)
             {
                 client.IsTurnPlayer = true;

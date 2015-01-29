@@ -46,13 +46,14 @@ namespace CrusadeLibrary
         /// Gets the cards currently in the Hand
         /// </summary>
         /// <returns>List of type Card</returns>
-        public List<string> GetHand()
+        public List<Card> GetHand()
         {
-            List<string> list = new List<string>();
-            foreach (Card card in _cardList.ToArray())
-                list.Add(card.Name);
+            return _cardList;
+        }
 
-            return list;
+        public List<Card> GetHand2()
+        {
+            return _cardList;
         }
         
 

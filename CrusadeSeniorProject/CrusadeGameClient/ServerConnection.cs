@@ -26,7 +26,6 @@ namespace CrusadeGameClient
         private Guid _clientId;
         private object _lockObject = new object();
 
-        private List<string> _hand;
         private string[,] _gameboard;
 
         #endregion
@@ -41,6 +40,9 @@ namespace CrusadeGameClient
             get { return _isTurnPlayer; }
             set { _isTurnPlayer = value; }
         }
+
+        public List<ReqRspLib.ICard> Hand { get; set; }
+
 
         #endregion
 
@@ -68,7 +70,7 @@ namespace CrusadeGameClient
                 _shouldReceive = true;
                 ThreadPool.QueueUserWorkItem(Receive);
 
-                _hand = new List<string>();
+                Hand = new List<ReqRspLib.ICard>();
                 _gameboard = new string[1,1];
             }
             catch(SocketException ex)
@@ -119,18 +121,6 @@ namespace CrusadeGameClient
             SendRequestToServer(rsp);
         }
 
-
-        /// <summary>
-        /// Sets the client's hand so that the client can display it later.
-        /// </summary>
-        /// <param name="hand">New hand to pass to the client.</param>
-        public void SetHand(List<string> hand)
-        {
-            lock(_hand)
-                _hand = hand;
-        }
-
-
         /// <summary>
         /// Updates the client's stored gameboard.
         /// </summary>
@@ -147,11 +137,11 @@ namespace CrusadeGameClient
         /// </summary>
         public void DisplayHand()
         {
-            lock (_hand)
+            lock (Hand)
             {
                 Console.WriteLine(Environment.NewLine + "Hand:");
-                for (int i = 0; i < _hand.Count; ++i)
-                    Console.WriteLine("{0}: {1}", (i + 1).ToString(), _hand[i]);
+                for (int i = 0; i < Hand.Count; ++i)
+                    Console.WriteLine("{0}: {1}", (i + 1).ToString(), Hand[i].Name);
 
                 Console.WriteLine(Environment.NewLine);
             }
@@ -186,7 +176,7 @@ namespace CrusadeGameClient
             {
                 option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
 
-                if ((option - 1) < _hand.Count && (option - 1) > -1)
+                if ((option - 1) < Hand.Count && (option - 1) > -1)
                 {
                     validChoice = true;
                     RequestPlayCard rsp = new RequestPlayCard(ID, (option - 1));
