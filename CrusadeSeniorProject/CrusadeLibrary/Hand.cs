@@ -84,12 +84,12 @@ namespace CrusadeLibrary
         /// Removes a specific card from the hand
         /// </summary>
         /// <param name="cardToRemove">Index of the card to remove</param>
-        public string RemoveCard(int cardSlotToRemove)
+        public ICard RemoveCard(int cardSlotToRemove)
         {
             if (cardSlotToRemove >= _cardList.Count)
-                return "Invalid Card.";
+                return new InvalidCard("Invalid Card.");
 
-            string card = _cardList[cardSlotToRemove].Name;            
+            ICard card = _cardList[cardSlotToRemove];         
             _cardList.RemoveAt(cardSlotToRemove);
             return card;
         }

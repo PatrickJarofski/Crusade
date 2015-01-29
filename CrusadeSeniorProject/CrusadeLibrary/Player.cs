@@ -63,7 +63,7 @@ namespace CrusadeLibrary
         /// </summary>
         /// <param name="cardSlotInHand">The index in the collection where the card resides.</param>
         /// <returns></returns>
-        public string PlayCard(int cardSlotInHand)
+        public ICard PlayCard(int cardSlotInHand)
         {
             return _hand.RemoveCard(cardSlotInHand);
         }

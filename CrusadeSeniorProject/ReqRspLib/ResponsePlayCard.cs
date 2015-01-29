@@ -9,16 +9,18 @@ namespace ReqRspLib
     [Serializable]
     public class ResponsePlayCard : IResponse
     {
-        string _card;
+        ICard _card;
 
-        public ResponsePlayCard(string card)
+        public ResponsePlayCard(ICard card)
         {
             _card = card;
         }
 
         public void Execute(ICrusadeClient client)
         {
-            Console.WriteLine(Environment.NewLine + "{0} was played.", _card);
+            Console.WriteLine(Environment.NewLine);
+            Console.WriteLine("==== {0} was played. ====", _card.Name);
+            Console.WriteLine(Environment.NewLine);
         }
     }
 }

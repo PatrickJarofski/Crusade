@@ -109,7 +109,7 @@ namespace CrusadeLibrary
                 return _player2.GetHand();
         }
 
-        public string PlayCard(Player.PlayerNumber player, int cardSlot)
+        public ICard PlayCard(Player.PlayerNumber player, int cardSlot)
         {
             if (player == Player.PlayerNumber.PlayerOne)
                return _player1.PlayCard(cardSlot);

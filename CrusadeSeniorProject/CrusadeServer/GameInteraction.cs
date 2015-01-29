@@ -63,9 +63,9 @@ namespace CrusadeServer
         /// <param name="cardNum">The index of the card in the hand.</param>
         public void PlayCard(Guid clientId, int cardNum)
         {
-            string card = _game.PlayCard((GetMatchingClient(clientId).PlayerNumber), cardNum);
+            CrusadeLibrary.ICard card = _game.PlayCard((GetMatchingClient(clientId).PlayerNumber), cardNum);
 
-            ResponsePlayCard rsp = new ResponsePlayCard(card);
+            ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(card));
             BroadcastToClients(rsp);
             BeginNextTurn();
         }
