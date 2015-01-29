@@ -243,8 +243,22 @@ namespace CrusadeServer
                 lock (lockObject)
                     _game = new CrusadeLibrary.CrusadeGame();
 
-                _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
-                _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
+                int num = CrusadeLibrary.CrusadeGame.RNG.Next() % 1;
+
+                if(num == 0)
+                {
+                    _clientList[0].isTurnPlayer = true;
+                    _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
+                    _clientList[1].isTurnPlayer = false;
+                    _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
+                }
+                else
+                {
+                    _clientList[1].isTurnPlayer = true;
+                    _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
+                    _clientList[0].isTurnPlayer = false;
+                    _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
+                }
 
                 Console.WriteLine("Game started.");
                 BroadcastToClients(new ResponseStartGame());

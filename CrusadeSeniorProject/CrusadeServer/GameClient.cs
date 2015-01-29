@@ -12,7 +12,9 @@ namespace CrusadeServer
         private CrusadeLibrary.Player.PlayerNumber _playerNumber;
         private Guid _id;
 
-        public Guid ID { get { return _id; } } 
+        public Guid ID { get { return _id; } }
+
+        public bool isTurnPlayer { get; set; }
 
 
         internal GameClient(TcpClient client, Guid id)
