@@ -32,10 +32,5 @@ namespace CrusadeLibrary
         {
             return new Tuple<int, int>(_xCoordinate, _yCoordinate);
         }
-
-        public override void Execute()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

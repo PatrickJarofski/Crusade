@@ -68,13 +68,6 @@ namespace CrusadeLibrary
             return _hand.RemoveCard(cardSlotInHand);
         }
 
-
-        public override void Execute()
-        {
-            return;
-        }
-
-
         public List<string> GetHand()
         {
             return _hand.GetHand();

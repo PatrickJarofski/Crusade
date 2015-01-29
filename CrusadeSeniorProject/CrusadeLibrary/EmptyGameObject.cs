@@ -17,10 +17,5 @@ namespace CrusadeLibrary
         {
             get { return String.Empty; }
         }
-
-        public void Execute()
-        {
-            return;
-        }
     }
 }

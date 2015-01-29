@@ -52,11 +52,5 @@ namespace CrusadeLibrary
             else
                 return false;
         }
-
-
-        public override void Execute()
-        {
-            return;
-        }
     }
 }

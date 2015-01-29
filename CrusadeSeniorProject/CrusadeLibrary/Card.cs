@@ -7,17 +7,17 @@ namespace CrusadeLibrary
 {
     public enum CardLocation { NoLocation, Deck, Hand, Field, Grave };
 
+    public enum CardType { Troop, Equip, Field };
+
     public abstract class Card : BaseGameObject
     {
         private string _name;
-        private CardLocation _cardLocation;
+        private CardType _type;
 
         #region Properties
-        public CardLocation Location
-        {
-            get { return _cardLocation; }
-            set { _cardLocation = value; }
-        }
+        public CardLocation Location { get; set; }
+
+        public CardType Type { get { return _type; } }
 
         public string Name
         {
@@ -25,9 +25,10 @@ namespace CrusadeLibrary
         }
         #endregion
 
-        public Card(string name)
+        public Card(string name, CardType type)
         {
             _name = name;
+            _type = type;
         }
     }
 }

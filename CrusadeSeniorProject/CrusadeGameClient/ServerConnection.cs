@@ -31,6 +31,7 @@ namespace CrusadeGameClient
 
         #endregion
 
+
         #region Properties
 
         public Guid ID { get { return _clientId; } }

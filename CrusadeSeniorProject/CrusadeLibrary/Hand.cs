@@ -131,12 +131,6 @@ namespace CrusadeLibrary
             return discardList;
         }
 
-
-        public override void Execute()
-        {
-            throw new NotImplementedException();
-        }
-
         #endregion
     }
 }

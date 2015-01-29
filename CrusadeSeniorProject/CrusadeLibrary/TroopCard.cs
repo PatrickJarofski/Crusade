@@ -57,16 +57,11 @@ namespace CrusadeLibrary
 
         #region Methods
         public TroopCard(string name)
-            : base(name)
+            : base(name, CardType.Troop)
         {
 
         }
 
-
-        public override void Execute()
-        {
-            throw new NotImplementedException();
-        }
         #endregion
     }
 }

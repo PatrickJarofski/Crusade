@@ -10,14 +10,9 @@ namespace CrusadeLibrary
     {
         #region Methods
         public FieldCard(string name)
-            : base(name)
+            : base(name, CardType.Field)
         {
-
-        }
-
-        public override void Execute()
-        {
-            throw new NotImplementedException();
+           
         }
         #endregion
 

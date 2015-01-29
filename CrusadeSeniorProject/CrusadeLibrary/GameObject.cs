@@ -9,8 +9,6 @@ namespace CrusadeLibrary
     public interface GameObject
     {
         Guid ID { get; }
-
-        void Execute();
     }
 
     public abstract class BaseGameObject : GameObject
@@ -26,8 +24,5 @@ namespace CrusadeLibrary
         {
             _guid = Guid.NewGuid();
         }
-
-
-        abstract public void Execute();
     }
 }

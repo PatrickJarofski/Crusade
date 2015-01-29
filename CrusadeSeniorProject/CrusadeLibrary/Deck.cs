@@ -95,11 +95,5 @@ namespace CrusadeLibrary
                 _cardDeck.Add(card);
         }
         #endregion
-
-
-        public override void Execute()
-        {
-            return;
-        }
     }
 }

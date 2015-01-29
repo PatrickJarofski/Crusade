@@ -10,14 +10,9 @@ namespace CrusadeLibrary
     {
         #region Methods
         public EquipCard(string name)
-            : base(name)
+            : base(name, CardType.Equip)
         {
-
-        }
-
-        public override void Execute()
-        {
-            throw new NotImplementedException();
+            
         }
         #endregion
 
