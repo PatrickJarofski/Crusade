@@ -113,7 +113,8 @@ namespace CrusadeGameClient
         /// <param name="hand">New hand to pass to the client.</param>
         public void SetHand(List<string> hand)
         {
-            _hand = hand;
+            lock(_hand)
+                _hand = hand;
         }
 
 
@@ -123,7 +124,8 @@ namespace CrusadeGameClient
         /// <param name="newBoard">New gameboard state.</param>
         public void SetGameboard(string[,] newBoard)
         {
-            _gameboard = newBoard;
+            lock(_gameboard)
+                _gameboard = newBoard;
         }
 
 
@@ -132,11 +134,14 @@ namespace CrusadeGameClient
         /// </summary>
         public void DisplayHand()
         {
-            Console.WriteLine(Environment.NewLine + "Hand:");
-            for (int i = 0; i < _hand.Count; ++i)
-                Console.WriteLine("{0}: {1}", (i+1).ToString(), _hand[i]);            
+            lock (_hand)
+            {
+                Console.WriteLine(Environment.NewLine + "Hand:");
+                for (int i = 0; i < _hand.Count; ++i)
+                    Console.WriteLine("{0}: {1}", (i + 1).ToString(), _hand[i]);
 
-            Console.WriteLine(Environment.NewLine);
+                Console.WriteLine(Environment.NewLine);
+            }
         }
 
 
@@ -147,9 +152,12 @@ namespace CrusadeGameClient
         {
             Console.WriteLine("Gameboard State:" + Environment.NewLine);
 
-            foreach(string item in _gameboard)
+            lock (_gameboard)
             {
-                Console.Write(item);
+                foreach (string item in _gameboard)
+                {
+                    Console.Write(item);
+                }
             }
         }
 
