@@ -10,7 +10,7 @@ namespace CrusadeLibrary
         public const int BOARD_WIDTH = 5;
         public const int BOARD_HEIGHT = 5;
 
-        private GamePiece[,] _board;
+        private IGamePiece[,] _board;
 
 
         /// <summary>
@@ -18,7 +18,7 @@ namespace CrusadeLibrary
         /// </summary>
         public Gameboard()
         {
-            _board = new GamePiece[BOARD_WIDTH, BOARD_HEIGHT];
+            _board = new IGamePiece[BOARD_WIDTH, BOARD_HEIGHT];
         }
 
 
@@ -26,7 +26,7 @@ namespace CrusadeLibrary
         /// Place a game piece on the board
         /// </summary>
         /// <param name="piece">GamePiece to place</param>
-        public void PlaceGamePiece(GamePiece piece)
+        public void PlaceGamePiece(IGamePiece piece)
         {
             Tuple<int, int> coordinates = piece.GetCoordinates();
             _board[coordinates.Item1, coordinates.Item2] = piece;

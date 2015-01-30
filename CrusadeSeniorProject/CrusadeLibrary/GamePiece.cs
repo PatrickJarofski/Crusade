@@ -5,22 +5,39 @@ using System.Text;
 
 namespace CrusadeLibrary
 {
-    public class GamePiece : BaseGameObject
+    public abstract class GamePiece : BaseGameObject, IGamePiece
     {
         private int _xCoordinate;
         private int _yCoordinate;
+        private GamePieceType _type;
 
-        // Type of Piece here
+        public int XCoordinate
+        {
+            get { return _xCoordinate; }
+            set { _xCoordinate = value; }
+        }
+
+        public int YCoordinate
+        {
+            get { return _yCoordinate; }
+            set { _yCoordinate = value; }
+        }
+
+        public GamePieceType Type 
+        { 
+            get { return _type; } 
+        }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="x">Starting x coordinate</param>
         /// <param name="y">Starting y coordinate</param>
-        public GamePiece(int x, int y)
+        public GamePiece(int x, int y, GamePieceType type)
         {
             _xCoordinate = x;
             _yCoordinate = y;
+            _type = type;
         }
 
         /// <summary>

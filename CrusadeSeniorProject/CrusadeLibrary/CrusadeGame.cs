@@ -27,7 +27,6 @@ namespace CrusadeLibrary
 
 
         #region Public Methods
-        // Eventually take in two clients as parameters??
         public CrusadeGame()
         {
             _board = new Gameboard();
@@ -109,6 +108,7 @@ namespace CrusadeLibrary
                 return _player2.GetHand();
         }
 
+
         public ICard PlayCard(Player.PlayerNumber player, int cardSlot)
         {
             if (player == Player.PlayerNumber.PlayerOne)
@@ -135,8 +135,8 @@ namespace CrusadeLibrary
 
         private void CreateDebugPieces()
         {
-            GamePiece debug1 = new GamePiece(0, 2);
-            GamePiece debug2 = new GamePiece(4, 2);
+            TroopPiece debug1 = new TroopPiece(0, 2);
+            TroopPiece debug2 = new TroopPiece(4, 2);
             _board.PlaceGamePiece(debug1);
             _board.PlaceGamePiece(debug2);
         }

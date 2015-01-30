@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace CrusadeLibrary
 {
-    public class TroopCard : Card
+    public class TroopCard : Card, ICard
     {
         #region Members
-        private CardLocation _cardLocation;
         private int _currentHP;
         private int _attack;
         private int _defense;
@@ -59,9 +58,11 @@ namespace CrusadeLibrary
         public TroopCard(string name)
             : base(name, CardType.Troop)
         {
-          
+            // Debug values
+            _maxAttackRange = 1;
+            _minAttackRange = 1;
+            _moveRange = 3;
         }
-
         #endregion
     }
 }
