@@ -179,7 +179,16 @@ namespace CrusadeGameClient
                 if ((option - 1) < Hand.Count && (option - 1) > -1)
                 {
                     validChoice = true;
-                    RequestPlayCard rsp = new RequestPlayCard(ID, (option - 1));
+                    RequestPlayCard rsp;
+
+                    if (Hand[option - 1].Type == CardType.Troop)
+                    {
+                        Tuple<int, int> coords = GetDeployCoordinates();
+                        rsp = new RequestPlayCard(ID, (option - 1), (coords.Item1), (coords.Item2));
+                    }
+                    else                    
+                        rsp = new RequestPlayCard(ID, (option - 1));                        
+                    
                     SendRequestToServer(rsp);
                 }
                 else
@@ -332,6 +341,44 @@ namespace CrusadeGameClient
          
             else
                 serverResponse.Execute(this);
+        }
+
+
+        private Tuple<int, int> GetDeployCoordinates()
+        {
+            bool valid = false;
+            int row = -1;
+            int col = -1;
+            string line;
+
+            Tuple<int, int> coords = null;
+
+            while(!valid)
+            {
+                Console.WriteLine("{0} Please select where to deploy the troop (row col): ", Environment.NewLine);
+
+                line = Console.ReadLine();
+
+                if (line.Length == 3)
+                {
+                    row = (Convert.ToInt32(line[0]) - 48) - 1;
+                    col = (Convert.ToInt32(line[2]) - 48) - 1;
+
+                    if (row <= _gameboard.GetUpperBound(0) && col <= _gameboard.GetUpperBound(1) && row > -1 && col > -1)
+                    {
+                        coords = new Tuple<int, int>(row, col);
+                        valid = true;
+                    }
+                    else                    
+                        Console.WriteLine("Invalid coordinates.");                    
+                }
+                else
+                {
+                    Console.WriteLine("Invalid coordinates.");
+                }
+            }
+
+            return coords;
         }
 
 

@@ -46,21 +46,21 @@ namespace CrusadeLibrary
 
         public string[,] GetBoardState()
         {
-            string[,] board = new string[Gameboard.BOARD_WIDTH, Gameboard.BOARD_HEIGHT];
-            for (int i = 0; i < Gameboard.BOARD_WIDTH; ++i)
+            string[,] board = new string[Gameboard.BOARD_ROW, Gameboard.BOARD_COL];
+            for (int row = 0; row < Gameboard.BOARD_ROW; ++row)
             {
-                for (int j = 0; j < Gameboard.BOARD_HEIGHT; ++j)
+                for (int col = 0; col < Gameboard.BOARD_COL; ++col)
                 {
-                    if (_board.CellOccupied(i, j))
-                        board[i, j] = "O";
+                    if (_board.CellOccupied(row, col))
+                        board[row, col] = "O";
 
                     else
-                        board[i, j] = "E";
+                        board[row, col] = "E";
                 }
-                if (board[i, Gameboard.BOARD_WIDTH - 1] == "E")
-                    board[i, Gameboard.BOARD_WIDTH - 1] = "E\n";
+                if (board[row, Gameboard.BOARD_COL - 1] == "E")
+                    board[row, Gameboard.BOARD_COL - 1] = "E\n";
                 else
-                    board[i, Gameboard.BOARD_WIDTH - 1] = "O\n";
+                    board[row, Gameboard.BOARD_COL - 1] = "O\n";
                 
             }
 
@@ -70,7 +70,7 @@ namespace CrusadeLibrary
 
         public Tuple<int, int> GetBoardDimensions()
         {
-            Tuple<int, int> boardSize = new Tuple<int, int>(Gameboard.BOARD_HEIGHT, Gameboard.BOARD_HEIGHT);
+            Tuple<int, int> boardSize = new Tuple<int, int>(Gameboard.BOARD_ROW, Gameboard.BOARD_COL);
             return boardSize;
         }
 
@@ -116,6 +116,25 @@ namespace CrusadeLibrary
 
             else if (player == Player.PlayerNumber.PlayerTwo)
               return _player2.PlayCard(cardSlot);
+
+            else
+                throw new FormatException("An invalid player number was encountered.");
+        }
+
+
+        public ICard PlayCard(Player.PlayerNumber player, int cardSlot, int row, int col)
+        {
+            if (player == Player.PlayerNumber.PlayerOne)
+            {
+                _board.PlaceGamePiece(new TroopPiece(row, col));
+                return _player1.PlayCard(cardSlot);
+            }
+
+            else if (player == Player.PlayerNumber.PlayerTwo)
+            {
+                _board.PlaceGamePiece(new TroopPiece(row, col));
+                return _player2.PlayCard(cardSlot);
+            }
 
             else
                 throw new FormatException("An invalid player number was encountered.");

@@ -7,8 +7,8 @@ namespace CrusadeLibrary
 {
     public class Gameboard : BaseGameObject
     {
-        public const int BOARD_WIDTH = 5;
-        public const int BOARD_HEIGHT = 5;
+        public const int BOARD_COL = 5;
+        public const int BOARD_ROW = 5;
 
         private IGamePiece[,] _board;
 
@@ -18,7 +18,7 @@ namespace CrusadeLibrary
         /// </summary>
         public Gameboard()
         {
-            _board = new IGamePiece[BOARD_WIDTH, BOARD_HEIGHT];
+            _board = new IGamePiece[BOARD_ROW, BOARD_COL];
         }
 
 
@@ -29,24 +29,25 @@ namespace CrusadeLibrary
         public void PlaceGamePiece(IGamePiece piece)
         {
             Tuple<int, int> coordinates = piece.GetCoordinates();
-            _board[coordinates.Item1, coordinates.Item2] = piece;
+            if(!CellOccupied(coordinates.Item1, coordinates.Item2))
+                _board[coordinates.Item1, coordinates.Item2] = piece;
         }
 
 
         /// <summary>
         /// Remove a game piece from specified coordinates
         /// </summary>
-        /// <param name="x">X coordinate</param>
-        /// <param name="y">Y coordinate</param>
-        public void RemoveGamePiece(int x, int y)
+        /// <param name="row">Row coordinate</param>
+        /// <param name="col">Column coordinate</param>
+        public void RemoveGamePiece(int row, int col)
         {
-            _board[x, y] = null;
+            _board[row, col] = null;
         }
 
 
-        public bool CellOccupied(int x, int y)
+        public bool CellOccupied(int row, int col)
         {
-            if (_board[x, y] != null)
+            if (_board[row, col] != null)
                 return true;
 
             else

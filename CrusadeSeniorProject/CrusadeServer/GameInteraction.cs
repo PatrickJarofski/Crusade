@@ -70,6 +70,22 @@ namespace CrusadeServer
             BeginNextTurn();
         }
 
+        /// <summary>
+        /// Play a card that is in a Client's hand.
+        /// </summary>
+        /// <param name="clientId">The Client playing the card.</param>
+        /// <param name="cardNum">The index of the card in the hand.</param>
+        /// <param name="x">Target X Coordinate for the card.</param>
+        /// <param name="y">Target Y Coordinate for the card.</param>
+        public void PlayCard(Guid clientId, int cardNum, int x, int y)
+        {
+            CrusadeLibrary.ICard card = _game.PlayCard((GetMatchingClient(clientId).PlayerNumber), cardNum, x, y);
+
+            ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(card), x, y);
+            BroadcastToClients(rsp);
+            BeginNextTurn();
+        }
+
 
         /// <summary>
         /// Writes the given string to the server's error log.

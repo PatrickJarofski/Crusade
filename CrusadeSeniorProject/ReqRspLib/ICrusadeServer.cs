@@ -14,6 +14,8 @@ namespace ReqRspLib
 
         void PlayCard(Guid clientId, int cardNum);
 
+        void PlayCard(Guid clientId, int cardNum, int x, int y);
+
         void WriteErrorToConsole(string error);
 
         void WriteErrorToLog(string error);
