@@ -77,11 +77,11 @@ namespace CrusadeServer
         /// <param name="cardNum">The index of the card in the hand.</param>
         /// <param name="x">Target X Coordinate for the card.</param>
         /// <param name="y">Target Y Coordinate for the card.</param>
-        public void PlayCard(Guid clientId, int cardNum, int x, int y)
+        public void PlayCard(Guid clientId, int cardNum, int row, int col)
         {
-            CrusadeLibrary.ICard card = _game.PlayCard((GetMatchingClient(clientId).PlayerNumber), cardNum, x, y);
+            CrusadeLibrary.ICard card = _game.PlayCard((GetMatchingClient(clientId).PlayerNumber), cardNum, row, col);
 
-            ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(card), x, y);
+            ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(card), row + 1, col + 1); // +1 Since user expects one based coordinates
             BroadcastToClients(rsp);
             BeginNextTurn();
         }

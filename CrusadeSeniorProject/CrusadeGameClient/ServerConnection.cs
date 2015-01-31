@@ -57,8 +57,8 @@ namespace CrusadeGameClient
             try
             {
                 binaryFormatter = new BinaryFormatter();
-               // IPAddress[] hosts = Dns.GetHostAddresses("primefusion.ddns.net");
-                IPAddress[] hosts = Dns.GetHostAddresses("127.0.0.1");
+                IPAddress[] hosts = Dns.GetHostAddresses("primefusion.ddns.net");
+                //IPAddress[] hosts = Dns.GetHostAddresses("127.0.0.1");
                 IPAddress serverIP = hosts[0];
                 IPEndPoint ep = new IPEndPoint(serverIP, _port);
 
