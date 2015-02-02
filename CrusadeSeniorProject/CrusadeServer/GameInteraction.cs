@@ -183,14 +183,13 @@ namespace CrusadeServer
 
         private ReqRspLib.ICard ConvertToRspICard(CrusadeLibrary.ICard card)
         {
-            ReqRspLib.CardType newType;
+            byte newType;
             if (card.Type == CrusadeLibrary.CardType.Troop)
-                newType = ReqRspLib.CardType.Troop;
-            else if
-                (card.Type == CrusadeLibrary.CardType.Equip)
-                newType = ReqRspLib.CardType.Equip;
+                newType = ReqRspLib.Constants.TYPE_TROOP;
+            else if (card.Type == CrusadeLibrary.CardType.Equip)
+                newType = ReqRspLib.Constants.TYPE_EQUIP;
             else
-                newType = ReqRspLib.CardType.Field;
+                newType = ReqRspLib.Constants.TYPE_FIELD;
 
             return new ReqRspLib.Card(card.Name, newType);
         }

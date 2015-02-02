@@ -23,12 +23,12 @@ namespace ReqRspLib
         /// <summary>
         /// Gets the location of the card (Deck, Hand, Field, etc.)
         /// </summary>
-        CardLocation Location { get; set; }
+        byte Location { get; set; }
 
         /// <summary>
         /// Gets the type of card the object is (Troop, Equip, or Field).
         /// </summary>
-        CardType Type { get; }
+        byte Type { get; }
 
         // TODO
         // List<string> GetInformation();

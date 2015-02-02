@@ -181,7 +181,7 @@ namespace CrusadeGameClient
                     validChoice = true;
                     RequestPlayCard rsp;
 
-                    if (Hand[option - 1].Type == CardType.Troop)
+                    if (Hand[option - 1].Type == ReqRspLib.Constants.TYPE_TROOP)
                     {
                         Tuple<int, int> coords = GetDeployCoordinates();
                         rsp = new RequestPlayCard(ID, (option - 1), (coords.Item1), (coords.Item2));
