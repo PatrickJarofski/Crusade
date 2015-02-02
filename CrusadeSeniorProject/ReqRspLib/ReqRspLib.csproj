@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Card.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="ICard.cs" />
     <Compile Include="ICrusadeClient.cs" />
     <Compile Include="IRequest.cs" />
