@@ -6,13 +6,6 @@ using System.Threading.Tasks;
 
 namespace ReqRspLib
 {
-    [Serializable]
-    public enum CardLocation { NoLocation, Deck, Hand, Field, Grave };
-     
-    [Serializable]
-    public enum CardType { Troop, Equip, Field };
-
-
     public interface ICard
     {
         /// <summary>

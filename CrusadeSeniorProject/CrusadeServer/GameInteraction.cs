@@ -239,7 +239,7 @@ namespace CrusadeServer
             switch (type)
             {
                 case CrusadeLibrary.GamePieceType.Troop:
-                    return new ReqRspLib.TroopGamePiece(Constants.CARD_TYPE_TROOP, piece.RowCoordinate, piece.ColCoordinate);
+                    return new ReqRspLib.TroopGamePiece("Troop", piece.RowCoordinate, piece.ColCoordinate);
                 default:
                     return new ReqRspLib.BadGamePiece();
             }

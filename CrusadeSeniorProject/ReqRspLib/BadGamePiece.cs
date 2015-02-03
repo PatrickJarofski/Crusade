@@ -9,24 +9,19 @@ namespace ReqRspLib
     [Serializable]
     public class BadGamePiece : IGamePiece
     {
-        private byte _type;
+        private string _type;
 
         public BadGamePiece()
         {
             RowCoordinate = -1;
             ColCoordinate = -1;
-            _type = Constants.BAD_ATTRIBUTE;
+            _type = "Empty";
         }
 
         public int RowCoordinate { get; set; }
 
         public int ColCoordinate { get; set; }
 
-        public byte Type { get { return _type; } }
-
-        public Tuple<int, int> GetCoordinates()
-        {
-            return new Tuple<int, int>(RowCoordinate, ColCoordinate);
-        }
+        public string Type { get { return _type; } }
     }
 }

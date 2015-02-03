@@ -12,8 +12,7 @@ namespace ReqRspLib
 
         int ColCoordinate { get; set; }
 
-        byte Type { get; }
+        string Type { get; }
 
-        Tuple<int, int> GetCoordinates();
     }
 }

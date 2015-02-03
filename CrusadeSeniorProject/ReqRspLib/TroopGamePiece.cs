@@ -9,9 +9,9 @@ namespace ReqRspLib
     [Serializable]
     public class TroopGamePiece : IGamePiece
     {
-        private byte _type;
+        private string _type;
 
-        public TroopGamePiece(byte type, int row, int col)
+        public TroopGamePiece(string type, int row, int col)
         {
             _type = type;
             RowCoordinate = row;
@@ -22,11 +22,6 @@ namespace ReqRspLib
 
         public int ColCoordinate { get; set; }
 
-        public byte Type { get { return _type; } }
-
-        public Tuple<int, int> GetCoordinates()
-        {
-            return new Tuple<int, int>(RowCoordinate, ColCoordinate);
-        }
+        public string Type { get { return _type; } }
     }
 }

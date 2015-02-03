@@ -377,6 +377,8 @@ namespace CrusadeGameClient
             bool valid = false;
             int row = -1;
             int col = -1;
+            int boardRows = _gameboard.GetUpperBound(0) + 1;
+            int boardCols = _gameboard.GetUpperBound(1) + 1;
             string line;
 
             Tuple<int, int> coords = null;
@@ -392,7 +394,7 @@ namespace CrusadeGameClient
                     row = (Convert.ToInt32(line[0]) - 48) - 1;
                     col = (Convert.ToInt32(line[2]) - 48) - 1;
 
-                    if (row <= _gameboard.GetUpperBound(0) && col <= _gameboard.GetUpperBound(1) && row > -1 && col > -1)
+                    if (row <= boardRows && col <= boardCols && row > -1 && col > -1)
                     {
                         coords = new Tuple<int, int>(row, col);
                         valid = true;
@@ -403,6 +405,8 @@ namespace CrusadeGameClient
                 else
                 {
                     Console.WriteLine("Invalid coordinates.");
+                    while (Console.KeyAvailable)    // "flush" input stream
+                        Console.ReadKey(true);
                 }
             }
 
