@@ -39,10 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BadGamePiece.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ICard.cs" />
     <Compile Include="ICrusadeClient.cs" />
+    <Compile Include="IGamePiece.cs" />
     <Compile Include="IRequest.cs" />
     <Compile Include="IResponse.cs" />
     <Compile Include="ICrusadeServer.cs" />
@@ -52,11 +54,13 @@
     <Compile Include="RequestPlayCard.cs" />
     <Compile Include="ResponseBeginNextTurn.cs" />
     <Compile Include="ResponseClientID.cs" />
+    <Compile Include="ResponseGameboardNew.cs" />
     <Compile Include="ResponseGameboard.cs" />
     <Compile Include="ResponseGetPlayerMove.cs" />
     <Compile Include="ResponseHand.cs" />
     <Compile Include="ResponsePlayCard.cs" />
     <Compile Include="ResponseStartGame.cs" />
+    <Compile Include="TroopGamePiece.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

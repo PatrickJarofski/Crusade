@@ -190,6 +190,12 @@ namespace CrusadeServer
             request.Execute(this);
         }
 
+
+        private void SendData(Guid clientId, IResponse rsp)
+        {
+            SendData(GetMatchingClient(clientId), rsp);
+        }
+
         
         private void SendData(GameClient client, IResponse rsp)
         {

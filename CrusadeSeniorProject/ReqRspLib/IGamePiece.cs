@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrusadeLibrary
+namespace ReqRspLib
 {
-    public enum GamePieceType { NoType, Troop, Equip, Field };
-
     public interface IGamePiece
     {
         int RowCoordinate { get; set; }
+
         int ColCoordinate { get; set; }
 
-        GamePieceType Type { get; }
+        byte Type { get; }
 
         Tuple<int, int> GetCoordinates();
     }

@@ -7,20 +7,20 @@ namespace CrusadeLibrary
 {
     public abstract class GamePiece : BaseGameObject, IGamePiece
     {
-        private int _xCoordinate;
-        private int _yCoordinate;
+        private int _rowCoordinate;
+        private int _colCoordinate;
         private GamePieceType _type;
 
-        public int XCoordinate
+        public int RowCoordinate
         {
-            get { return _xCoordinate; }
-            set { _xCoordinate = value; }
+            get { return _rowCoordinate; }
+            set { _rowCoordinate = value; }
         }
 
-        public int YCoordinate
+        public int ColCoordinate
         {
-            get { return _yCoordinate; }
-            set { _yCoordinate = value; }
+            get { return _colCoordinate; }
+            set { _colCoordinate = value; }
         }
 
         public GamePieceType Type 
@@ -31,12 +31,12 @@ namespace CrusadeLibrary
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="x">Starting x coordinate</param>
-        /// <param name="y">Starting y coordinate</param>
-        public GamePiece(int x, int y, GamePieceType type)
+        /// <param name="row">Starting row coordinate</param>
+        /// <param name="col">Starting column coordinate</param>
+        public GamePiece(int row, int col, GamePieceType type)
         {
-            _xCoordinate = x;
-            _yCoordinate = y;
+            _rowCoordinate = row;
+            _colCoordinate = col;
             _type = type;
         }
 
@@ -47,7 +47,7 @@ namespace CrusadeLibrary
         /// int is the x coordinate and the second is the y.</returns>
         public Tuple<int, int> GetCoordinates()
         {
-            return new Tuple<int, int>(_xCoordinate, _yCoordinate);
+            return new Tuple<int, int>(_rowCoordinate, _colCoordinate);
         }
     }
 }

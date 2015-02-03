@@ -67,6 +67,25 @@ namespace CrusadeLibrary
             return board;
         }
 
+        public IGamePiece[,] GetBoardStateNew()
+        {
+            IGamePiece[,] board = new IGamePiece[Gameboard.BOARD_ROW, Gameboard.BOARD_COL];
+
+            for (int row = 0; row < Gameboard.BOARD_ROW; ++row)
+            {
+                for(int col = 0; col < Gameboard.BOARD_COL; ++col)
+                {
+                    if (_board.CellOccupied(row, col))
+                        board[row, col] = _board.GetPiece(row, col);
+
+                    else
+                        board[row, col] = null;
+                }
+            }
+
+            return board;
+        }
+
 
         public Tuple<int, int> GetBoardDimensions()
         {

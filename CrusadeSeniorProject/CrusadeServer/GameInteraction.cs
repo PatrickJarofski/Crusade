@@ -36,7 +36,7 @@ namespace CrusadeServer
                 ResponseHand rsp = new ResponseHand(handToShip);
                 SendData(client, rsp);
             }
-            catch(NullReferenceException ex)
+            catch (NullReferenceException ex)
             {
                 WriteErrorToConsole("Give Player Hand error: " + ex.Message);
                 WriteErrorToLog("Give Player Hand error: " + ex.Message);
@@ -50,9 +50,33 @@ namespace CrusadeServer
         /// <param name="clientId">Id of the player/client.</param>
         public void GivePlayerGameboard(Guid clientId)
         {
+            GivePlayerGameboardNew(clientId);
+            /*
             string[,] board = _game.GetBoardState();
             ResponseGameboard rsp = new ResponseGameboard(board);
             SendData(GetMatchingClient(clientId), rsp);
+            */
+        }
+
+
+        public void GivePlayerGameboardNew(Guid clientId)
+        {
+            CrusadeLibrary.IGamePiece[,] board = _game.GetBoardStateNew();
+
+            int numRows = board.GetUpperBound(0) + 1; // GetUpperBound() returns the highest # index
+            int numCols = board.GetUpperBound(1) + 1; // for the dimension specified. +1 to it make one-based
+
+            ReqRspLib.IGamePiece[,] convertedBoard = new IGamePiece[numRows, numCols];
+            for(int row = 0; row < numRows; ++row)
+            {
+                for(int col = 0; col < numCols; ++col)
+                {
+                    convertedBoard[row, col] = ConvertToRspIGamePiece(board[row, col]);
+                }
+            }
+
+            ResponseGameboardNew rsp = new ResponseGameboardNew(convertedBoard);
+            SendData(clientId, rsp);
         }
 
 
@@ -69,6 +93,7 @@ namespace CrusadeServer
             BroadcastToClients(rsp);
             BeginNextTurn();
         }
+
 
         /// <summary>
         /// Play a card that is in a Client's hand.
@@ -178,21 +203,47 @@ namespace CrusadeServer
             }
             throw new ArgumentException("The player number specified does not exist.");
         }
+        
 
-
-
+        /// <summary>
+        /// Convert a CrusadeLibrary.ICard to a ReqRspLib.ICard
+        /// </summary>
+        /// <param name="card">ICard to convert.</param>
+        /// <returns></returns>
         private ReqRspLib.ICard ConvertToRspICard(CrusadeLibrary.ICard card)
         {
             byte newType;
             if (card.Type == CrusadeLibrary.CardType.Troop)
-                newType = ReqRspLib.Constants.TYPE_TROOP;
+                newType = ReqRspLib.Constants.CARD_TYPE_TROOP;
             else if (card.Type == CrusadeLibrary.CardType.Equip)
-                newType = ReqRspLib.Constants.TYPE_EQUIP;
+                newType = ReqRspLib.Constants.CARD_TYPE_EQUIP;
             else
-                newType = ReqRspLib.Constants.TYPE_FIELD;
+                newType = ReqRspLib.Constants.CARD_TYPE_FIELD;
 
             return new ReqRspLib.Card(card.Name, newType);
         }
 
+
+        /// <summary>
+        /// Convert a CrusadeLibrary.IGamePiece to a ReqRspLib.IGamePiece
+        /// </summary>
+        /// <param name="piece">IGamePiece to convert.</param>
+        /// <returns></returns>
+        private ReqRspLib.IGamePiece ConvertToRspIGamePiece(CrusadeLibrary.IGamePiece piece)
+        {
+            if (piece == null)
+                return new ReqRspLib.BadGamePiece();
+
+            CrusadeLibrary.GamePieceType type = piece.Type;
+
+            switch (type)
+            {
+                case CrusadeLibrary.GamePieceType.Troop:
+                    return new ReqRspLib.TroopGamePiece(Constants.CARD_TYPE_TROOP, piece.RowCoordinate, piece.ColCoordinate);
+                default:
+                    return new ReqRspLib.BadGamePiece();
+            }
+
+        }
     }
 }

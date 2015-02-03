@@ -15,6 +15,8 @@ namespace ReqRspLib
 
         void SetGameboard(string[,] board);
 
+        void SetGameboard(IGamePiece[,] board);
+
         void BeginGame();
 
         void EndGame();

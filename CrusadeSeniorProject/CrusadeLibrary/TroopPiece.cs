@@ -8,8 +8,8 @@ namespace CrusadeLibrary
 {
     public class TroopPiece : GamePiece, IGamePiece
     {
-        public TroopPiece(int x, int y)
-            :base(x, y, GamePieceType.Troop)
+        public TroopPiece(int row, int col)
+            :base(row, col, GamePieceType.Troop)
         {
 
         }
