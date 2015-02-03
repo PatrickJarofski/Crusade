@@ -53,5 +53,18 @@ namespace CrusadeLibrary
             else
                 return false;
         }
+
+
+        public IGamePiece GetPiece(int row, int col)
+        {
+            try
+            {
+                return _board[row, col];
+            }
+            catch
+            {
+                return new InvalidPiece(0, 0);
+            }
+        }
     }
 }
