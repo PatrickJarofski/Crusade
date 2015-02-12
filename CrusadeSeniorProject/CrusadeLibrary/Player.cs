@@ -7,19 +7,19 @@ namespace CrusadeLibrary
 {
     public class Player : BaseGameObject
     {
+        public const int DEFAULT_ACTION_POINTS = 3;
+
         public enum PlayerNumber { PlayerOne, PlayerTwo, NotAPlayer };
         
         #region Fields
         private Deck _deck;
         private Hand _hand;
 
-        private int _actionPoints = 0;
-
         #endregion
 
 
         #region Properties
-        public int ActionPoints { get { return _actionPoints; } }
+        public int ActionPoints { get; set; }
         #endregion
 
 

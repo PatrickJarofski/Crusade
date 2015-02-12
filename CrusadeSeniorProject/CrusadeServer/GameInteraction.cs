@@ -61,7 +61,7 @@ namespace CrusadeServer
 
         public void GivePlayerGameboardNew(Guid clientId)
         {
-            CrusadeLibrary.IGamePiece[,] board = _game.GetBoardStateNew();
+            CrusadeLibrary.IGamePiece[,] board = _game.GetBoardState();
 
             int numRows = board.GetUpperBound(0) + 1; // GetUpperBound() returns the highest # index
             int numCols = board.GetUpperBound(1) + 1; // for the dimension specified. +1 to it make one-based

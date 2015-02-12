@@ -13,15 +13,14 @@ namespace CrusadeLibrary
 
         #region Members
 
-        private Player _player1;
-        private Player _player2;
+        internal Player Player1 { get; set; }
+        internal Player Player2 { get; set; }
 
-        private Player currentPlayer;
+        internal Player CurrentPlayer { get; set; }
 
-        private Gameboard _board;
+        internal Gameboard _board;
 
-        private System.Timers.Timer debugTimer;
-        private System.Timers.Timer timerToStartDebugTimer;
+        private State _currentState;
 
         #endregion
 
@@ -30,44 +29,21 @@ namespace CrusadeLibrary
         public CrusadeGame()
         {
             _board = new Gameboard();
+            Player1 = new Player();
+            Player2 = new Player();
 
-            _player1 = new Player();
-            _player2 = new Player();
-
-            currentPlayer = _player1;
-
-            DealStartingHand(_player1);
-            DealStartingHand(_player2);
-
-            CreateDebugPieces();
+            _currentState = new StateNewGame().performAction(this, null);
         }
 
 
-
-        public string[,] GetBoardState()
+        public object performAction(object obj)
         {
-            string[,] board = new string[Gameboard.BOARD_ROW, Gameboard.BOARD_COL];
-            for (int row = 0; row < Gameboard.BOARD_ROW; ++row)
-            {
-                for (int col = 0; col < Gameboard.BOARD_COL; ++col)
-                {
-                    if (_board.CellOccupied(row, col))
-                        board[row, col] = "O";
-
-                    else
-                        board[row, col] = "E";
-                }
-                if (board[row, Gameboard.BOARD_COL - 1] == "E")
-                    board[row, Gameboard.BOARD_COL - 1] = "E\n";
-                else
-                    board[row, Gameboard.BOARD_COL - 1] = "O\n";
-                
-            }
-
-            return board;
+            _currentState = _currentState.performAction(this, obj);
+            return null; // Dunno
         }
 
-        public IGamePiece[,] GetBoardStateNew()
+
+        public IGamePiece[,] GetBoardState()
         {
             IGamePiece[,] board = new IGamePiece[Gameboard.BOARD_ROW, Gameboard.BOARD_COL];
 
@@ -96,19 +72,19 @@ namespace CrusadeLibrary
 
         public void BeginNextTurn()
         {
-            if (currentPlayer == _player1)
-                currentPlayer = _player2;
+            if (CurrentPlayer == Player1)
+                CurrentPlayer = Player2;
 
             else // currentPlayer == _player2
-                currentPlayer = _player1;
+                CurrentPlayer = Player1;
 
-            currentPlayer.DrawFromDeck();
+            CurrentPlayer.DrawFromDeck();
         }
 
 
         public Player.PlayerNumber GetCurrentPlayer()
         {
-            if (currentPlayer == _player1)
+            if (CurrentPlayer == Player1)
                 return Player.PlayerNumber.PlayerOne;
             else
                 return Player.PlayerNumber.PlayerTwo;
@@ -121,20 +97,20 @@ namespace CrusadeLibrary
                 return null;
 
             if (player == Player.PlayerNumber.PlayerOne)
-                return _player1.GetHand();
+                return Player1.GetHand();
 
             else
-                return _player2.GetHand();
+                return Player2.GetHand();
         }
 
 
         public ICard PlayCard(Player.PlayerNumber player, int cardSlot)
         {
             if (player == Player.PlayerNumber.PlayerOne)
-               return _player1.PlayCard(cardSlot);
+               return Player1.PlayCard(cardSlot);
 
             else if (player == Player.PlayerNumber.PlayerTwo)
-              return _player2.PlayCard(cardSlot);
+              return Player2.PlayCard(cardSlot);
 
             else
                 throw new FormatException("An invalid player number was encountered.");
@@ -146,38 +122,19 @@ namespace CrusadeLibrary
             if (player == Player.PlayerNumber.PlayerOne)
             {
                 _board.PlaceGamePiece(new TroopPiece(row, col));
-                return _player1.PlayCard(cardSlot);
+                return Player1.PlayCard(cardSlot);
             }
 
             else if (player == Player.PlayerNumber.PlayerTwo)
             {
                 _board.PlaceGamePiece(new TroopPiece(row, col));
-                return _player2.PlayCard(cardSlot);
+                return Player2.PlayCard(cardSlot);
             }
 
             else
                 throw new FormatException("An invalid player number was encountered.");
         }
 
-
-        #endregion
-
-
-        #region Private Methods
-        private void DealStartingHand(Player player)
-        {
-            for (int i = 0; i < Hand.STARTING_HAND_SIZE; ++i)
-                player.DrawFromDeck();
-        }
-
-
-        private void CreateDebugPieces()
-        {
-            TroopPiece debug1 = new TroopPiece(0, 2);
-            TroopPiece debug2 = new TroopPiece(4, 2);
-            _board.PlaceGamePiece(debug1);
-            _board.PlaceGamePiece(debug2);
-        }
 
         #endregion
     }
