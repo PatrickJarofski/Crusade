@@ -246,9 +246,6 @@ namespace CrusadeServer
 
             if (count == 2)
             {
-                lock (lockObject)
-                    _game = new CrusadeLibrary.CrusadeGame();
-
                 int num = CrusadeLibrary.CrusadeGame.RNG.Next() % 1;
 
                 if(num == 0)
@@ -257,6 +254,9 @@ namespace CrusadeServer
                     _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
                     _clientList[1].isTurnPlayer = false;
                     _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
+
+                    lock (lockObject)
+                        _game = new CrusadeLibrary.CrusadeGame(_clientList[0].ID, _clientList[1].ID);
                 }
                 else
                 {
@@ -264,6 +264,9 @@ namespace CrusadeServer
                     _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
                     _clientList[0].isTurnPlayer = false;
                     _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
+
+                    lock (lockObject)
+                        _game = new CrusadeLibrary.CrusadeGame(_clientList[1].ID, _clientList[0].ID);
                 }
 
                 Console.WriteLine("Game started.");

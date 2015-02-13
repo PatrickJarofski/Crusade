@@ -8,6 +8,15 @@ namespace CrusadeLibrary
 {
     public class StateNextPlayerTurn : State
     {
+        private string _name;
+
+        public override string Name { get { return _name; } }
+
+        public StateNextPlayerTurn()
+        {
+            _name = "Next Turn";
+        }
+
         private void setCurrentPlayer(CrusadeGame game)
         {
             if (game.CurrentPlayer == game.Player1)
@@ -17,7 +26,7 @@ namespace CrusadeLibrary
         }
 
 
-        public override State performAction(CrusadeGame game, object obj)
+        public override State entry(CrusadeGame game, object obj)
         {
             if (obj != null)
                 throw new GameStateException("Invalid Action requested. Game is currently in a Next Player Turn state.");
@@ -25,7 +34,7 @@ namespace CrusadeLibrary
             setCurrentPlayer(game);
             game.CurrentPlayer.ActionPoints = Player.DEFAULT_ACTION_POINTS; // Replenish Action Points (AP)
 
-            return new StateDrawCard().performAction(game, obj);
+            return new StateDrawCard().entry(game, obj);
         }
     }
 }

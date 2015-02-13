@@ -9,6 +9,13 @@ namespace CrusadeServer
 {
     public partial class Server : ReqRspLib.ICrusadeServer
     {
+
+        public void performAction(object obj)
+        {
+
+        }
+
+
         /// <summary>
         /// Obtains the hand of the given GameClient, then sends
         /// a response back to the client with that hand's information.
@@ -87,7 +94,7 @@ namespace CrusadeServer
         /// <param name="cardNum">The index of the card in the hand.</param>
         public void PlayCard(Guid clientId, int cardNum)
         {
-            CrusadeLibrary.ICard card = _game.PlayCard((GetMatchingClient(clientId).PlayerNumber), cardNum);
+            CrusadeLibrary.ICard card = _game.PlayCard(clientId, cardNum);
 
             ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(card));
             BroadcastToClients(rsp);
@@ -104,7 +111,7 @@ namespace CrusadeServer
         /// <param name="y">Target Y Coordinate for the card.</param>
         public void PlayCard(Guid clientId, int cardNum, int row, int col)
         {
-            CrusadeLibrary.ICard card = _game.PlayCard((GetMatchingClient(clientId).PlayerNumber), cardNum, row, col);
+            CrusadeLibrary.ICard card = _game.PlayCard(clientId, cardNum, row, col);
 
             ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(card), row + 1, col + 1); // +1 Since user expects one based coordinates
             BroadcastToClients(rsp);

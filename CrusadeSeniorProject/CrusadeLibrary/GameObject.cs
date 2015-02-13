@@ -30,5 +30,10 @@ namespace CrusadeLibrary
         {
             _guid = Guid.NewGuid();
         }
+
+        public BaseGameObject(Guid id)
+        {
+            _guid = id;
+        }
     }
 }

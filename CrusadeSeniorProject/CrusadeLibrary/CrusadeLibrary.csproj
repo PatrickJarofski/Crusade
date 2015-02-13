@@ -46,6 +46,7 @@
     <Compile Include="EquipCard.cs" />
     <Compile Include="GameStateException.cs" />
     <Compile Include="IGamePhase.cs" />
+    <Compile Include="IllegalActionException.cs" />
     <Compile Include="InvalidPiece.cs" />
     <Compile Include="FieldPiece.cs" />
     <Compile Include="FieldCard.cs" />

@@ -8,14 +8,25 @@ namespace CrusadeLibrary
 {
     public class StateDrawCard : State
     {
-        public override State performAction(CrusadeGame game, object obj)
+        private string _name;
+
+        public StateDrawCard()
+        {
+            _name = "Draw Card";
+        }
+
+        public override string Name { get { return _name; } }
+
+        public override State entry(CrusadeGame game, object obj)
         {
             if (obj != null)
                 throw new GameStateException("Invalid Action requested. Game is currently in a Draw Card state.");
 
             // Draw card for _currentPlayer
             // return new StateAwaitAction();
-            return new StateAwaitAction().performAction(game, obj);
+            return new StateAwaitAction().entry(game, obj);
         }
+
+
     }
 }

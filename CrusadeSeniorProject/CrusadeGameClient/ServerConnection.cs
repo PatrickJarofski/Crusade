@@ -58,8 +58,8 @@ namespace CrusadeGameClient
             try
             {
                 binaryFormatter = new BinaryFormatter();
-                IPAddress[] hosts = Dns.GetHostAddresses("primefusion.ddns.net");
-                //IPAddress[] hosts = Dns.GetHostAddresses("127.0.0.1");
+                //IPAddress[] hosts = Dns.GetHostAddresses("primefusion.ddns.net");
+                IPAddress[] hosts = Dns.GetHostAddresses("127.0.0.1");
                 IPAddress serverIP = hosts[0];
                 IPEndPoint ep = new IPEndPoint(serverIP, _port);
 
@@ -220,7 +220,9 @@ namespace CrusadeGameClient
                     SendRequestToServer(rsp);
                 }
                 else
+                { 
                     Console.WriteLine("Invalid Option\n");
+                }
             }
 
         }
@@ -377,8 +379,8 @@ namespace CrusadeGameClient
             bool valid = false;
             int row = -1;
             int col = -1;
-            int boardRows = _gameboard.GetUpperBound(0) + 1;
-            int boardCols = _gameboard.GetUpperBound(1) + 1;
+            int boardRows = _newGameboard.GetUpperBound(0) + 1;
+            int boardCols = _newGameboard.GetUpperBound(1) + 1;
             string line;
 
             Tuple<int, int> coords = null;
@@ -399,8 +401,12 @@ namespace CrusadeGameClient
                         coords = new Tuple<int, int>(row, col);
                         valid = true;
                     }
-                    else                    
-                        Console.WriteLine("Invalid coordinates.");                    
+                    else
+                    {
+                        Console.WriteLine("Invalid coordinates.");
+                        while (Console.KeyAvailable)    // "flush" input stream
+                            Console.ReadKey(true);
+                    }
                 }
                 else
                 {

@@ -12,15 +12,24 @@ namespace CrusadeLibrary
 
 
         #region Members
+        private Player _player1;
+        private Player _player2;
 
-        internal Player Player1 { get; set; }
-        internal Player Player2 { get; set; }
+        private Gameboard _board;
+
+        #endregion
+
+
+        #region Properties
+
+        internal Gameboard Board { get { return _board; } }
+
+        internal Player Player1 { get { return _player1; } }
+        internal Player Player2 { get { return _player2; } }
 
         internal Player CurrentPlayer { get; set; }
 
-        internal Gameboard _board;
-
-        private State _currentState;
+        internal State CurrentState { get; set; }
 
         #endregion
 
@@ -29,16 +38,25 @@ namespace CrusadeLibrary
         public CrusadeGame()
         {
             _board = new Gameboard();
-            Player1 = new Player();
-            Player2 = new Player();
+            _player1 = new Player();
+            _player2 = new Player();
 
-            _currentState = new StateNewGame().performAction(this, null);
+            CurrentState = new StateNewGame().entry(this, null);
+        }
+
+        public CrusadeGame(Guid player1Id, Guid player2Id)
+        {
+            _board = new Gameboard();
+            _player1 = new Player(player1Id);
+            _player2 = new Player(player2Id);
+
+            CurrentState = new StateNewGame().entry(this, null);
         }
 
 
         public object performAction(object obj)
         {
-            _currentState = _currentState.performAction(this, obj);
+            CurrentState = CurrentState.entry(this, obj);
             return null; // Dunno
         }
 
@@ -104,35 +122,33 @@ namespace CrusadeLibrary
         }
 
 
-        public ICard PlayCard(Player.PlayerNumber player, int cardSlot)
+        public ICard PlayCard(Guid playerId, int cardSlot)
         {
-            if (player == Player.PlayerNumber.PlayerOne)
-               return Player1.PlayCard(cardSlot);
-
-            else if (player == Player.PlayerNumber.PlayerTwo)
-              return Player2.PlayCard(cardSlot);
-
-            else
-                throw new FormatException("An invalid player number was encountered.");
+            try
+            {
+                return CurrentState.PlayCard(this, playerId, cardSlot);
+            }
+            catch(CrusadeLibrary.GameStateException ex)
+            {
+                throw new FormatException(ex.Message);
+            }
+            catch(CrusadeLibrary.IllegalActionException ex)
+            {
+                throw new IllegalActionException(ex.Message);
+            }
         }
 
 
-        public ICard PlayCard(Player.PlayerNumber player, int cardSlot, int row, int col)
+        public ICard PlayCard(Guid playerId, int cardSlot, int row, int col)
         {
-            if (player == Player.PlayerNumber.PlayerOne)
+            try
             {
-                _board.PlaceGamePiece(new TroopPiece(row, col));
-                return Player1.PlayCard(cardSlot);
+                return CurrentState.PlayCard(this, playerId, cardSlot, row, col);
             }
-
-            else if (player == Player.PlayerNumber.PlayerTwo)
+            catch (CrusadeLibrary.GameStateException ex)
             {
-                _board.PlaceGamePiece(new TroopPiece(row, col));
-                return Player2.PlayCard(cardSlot);
+                throw new FormatException(ex.Message);
             }
-
-            else
-                throw new FormatException("An invalid player number was encountered.");
         }
 
 

@@ -8,6 +8,23 @@ namespace CrusadeLibrary
 {
     public abstract class State
     {
-        public abstract State performAction(CrusadeGame game, object obj);
+        public abstract string Name { get; }
+
+        public abstract State entry(CrusadeGame game, object obj);
+
+        public virtual void BeginNextTurn()
+        {
+            throw new GameStateException("Invalid Action: Begin Next Turn. Game is currently in a " + Name + " state.");
+        }
+
+        public virtual ICard PlayCard(CrusadeGame game, Guid playerId, int cardSlot)
+        {
+            throw new GameStateException("Invalid Action: Play Card(player, slot). Game is currently in a " + Name + " state.");
+        }
+
+        public virtual ICard PlayCard(CrusadeGame game, Guid playerId, int cardSlot, int row, int col)
+        {
+            throw new GameStateException("Invalid Action: Play Card(player, slot, row, col). Game is currently in a " + Name + " state.");
+        }
     }
 }

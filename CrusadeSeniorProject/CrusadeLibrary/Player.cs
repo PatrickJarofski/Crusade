@@ -34,6 +34,13 @@ namespace CrusadeLibrary
             _hand = new Hand();
         }
 
+        public Player(Guid id)
+            :base(id)
+        {
+            _deck = new Deck();
+            _hand = new Hand();
+        }
+
 
         /// <summary>
         /// Draw a card from the deck and
