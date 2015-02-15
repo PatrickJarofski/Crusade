@@ -9,7 +9,6 @@ namespace CrusadeLibrary
     public class TroopCard : Card, ICard
     {
         #region Members
-        private int _currentHP;
         private int _attack;
         private int _defense;
         private int _minAttackRange;
@@ -19,12 +18,6 @@ namespace CrusadeLibrary
 
 
         #region Properites
-        public int CurrentHP
-        {
-            get { return _currentHP; }
-            set { _currentHP = value; }
-        }
-
         public int Attack
         {
             get { return _attack; }
@@ -59,6 +52,8 @@ namespace CrusadeLibrary
             : base(name, CardType.Troop)
         {
             // Debug values
+            _attack = 1;
+            _defense = 1;
             _maxAttackRange = 1;
             _minAttackRange = 1;
             _moveRange = 3;

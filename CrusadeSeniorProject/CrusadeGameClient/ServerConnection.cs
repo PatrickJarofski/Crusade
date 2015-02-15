@@ -193,7 +193,7 @@ namespace CrusadeGameClient
         }
 
 
-        public void GetPlayerDecision()
+        public void GetCardToPlay()
         {
             Console.WriteLine("Select a card to play.");
             DisplayHand();
@@ -250,7 +250,7 @@ namespace CrusadeGameClient
             DisplayGameboard();
 
             if (_isTurnPlayer)
-                GetPlayerDecision();
+                GetCardToPlay();
 
             else
                 DisplayHand();
@@ -360,7 +360,8 @@ namespace CrusadeGameClient
 
         private void ProcessResponse(IResponse serverResponse)
         {
-            if(serverResponse is ResponseClientID)
+            if (serverResponse is ResponseClientID) // The only response that needs special handling
+                                                    // is if we're getting assigned an ID
             {
                 ResponseClientID rsp = serverResponse as ResponseClientID;
                 _clientId = rsp.ID;

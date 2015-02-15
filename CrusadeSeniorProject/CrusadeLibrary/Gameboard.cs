@@ -29,8 +29,10 @@ namespace CrusadeLibrary
         public void PlaceGamePiece(IGamePiece piece)
         {
             Tuple<int, int> coordinates = piece.GetCoordinates();
-            if(!CellOccupied(coordinates.Item1, coordinates.Item2))
+            if (!CellOccupied(coordinates.Item1, coordinates.Item2))
                 _board[coordinates.Item1, coordinates.Item2] = piece;
+            else
+                throw new IllegalActionException("Selected cell is already occupied.");
         }
 
 

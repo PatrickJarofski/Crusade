@@ -26,5 +26,10 @@ namespace CrusadeLibrary
         {
             throw new GameStateException("Invalid Action: Play Card(player, slot, row, col). Game is currently in a " + Name + " state.");
         }
+
+        public virtual State GetNextState(CrusadeGame game)
+        {
+            return this;
+        }
     }
 }

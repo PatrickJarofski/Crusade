@@ -23,6 +23,6 @@ namespace ReqRspLib
 
         void BeginNextTurn();
 
-        void GetPlayerDecision();
+        void GetCardToPlay();
     }
 }

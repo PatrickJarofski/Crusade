@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ReqRspLib
 {
     [Serializable]
     public class ResponseGameboard : IResponse
     {
-        string[,] _board;
+        IGamePiece[,] _board;
 
-        public ResponseGameboard(string[,] board)
+        public ResponseGameboard(IGamePiece[,] board)
         {
             _board = board;
         }

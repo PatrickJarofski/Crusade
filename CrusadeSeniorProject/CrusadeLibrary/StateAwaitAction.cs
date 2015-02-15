@@ -29,9 +29,8 @@ namespace CrusadeLibrary
             if (game.CurrentPlayer.ID != playerId)
                 throw new IllegalActionException("It is not your turn.");
             else
-                return game.CurrentPlayer.PlayCard(cardSlot);
+                throw new NotImplementedException("Non-Troop cards are currently not supported.");
         }
-
 
 
         public override ICard PlayCard(CrusadeGame game, Guid playerId, int cardSlot, int row, int col)
@@ -40,9 +39,32 @@ namespace CrusadeLibrary
                 throw new IllegalActionException("It is not your turn.");
             else
             {
-                game.Board.PlaceGamePiece(new TroopPiece(row, col));
-                return game.CurrentPlayer.PlayCard(cardSlot);
+                try
+                {
+                    List<Card> hand = game.CurrentPlayer.GetHand();
+                    if (hand[cardSlot].Type != CardType.Troop)
+                        throw new NotImplementedException("Non-Troop cards are currently not supported.");
+
+                    game.Board.PlaceGamePiece(new TroopPiece(row, col, playerId, hand[cardSlot].Name));
+
+                    --game.CurrentPlayer.ActionPoints;
+
+                    return game.CurrentPlayer.PlayCard(cardSlot);
+                }
+                catch(IndexOutOfRangeException)
+                {
+                    throw new IllegalActionException("Game does not recognize card chosen (Out of range).");
+                }
+                catch(ArgumentOutOfRangeException)
+                {
+                    throw new IllegalActionException("Game does not recognize card chosen (Out of range).");
+                }
             }
+        }
+
+        public override State GetNextState(CrusadeGame game)
+        {
+            return new StateNextPlayerTurn().entry(game, null);
         }
     }
 }

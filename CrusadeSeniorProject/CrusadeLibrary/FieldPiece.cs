@@ -8,8 +8,8 @@ namespace CrusadeLibrary
 {
     public class FieldPiece : GamePiece, IGamePiece
     {
-        public FieldPiece(int x, int y)
-            :base(x, y, GamePieceType.Field)
+        public FieldPiece(int x, int y, Guid ownerId, string name)
+            :base(x, y, GamePieceType.Field, ownerId, name)
         {
 
         }

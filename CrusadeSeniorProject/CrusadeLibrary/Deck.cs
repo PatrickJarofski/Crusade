@@ -37,15 +37,14 @@ namespace CrusadeLibrary
         private void AddDebugCards()
         {            
             AddCardToDeck(new TroopCard("Swordsman"));
-            AddCardToDeck(new EquipCard("Longsword"));
-            AddCardToDeck(new FieldCard("Second Wind"));
             AddCardToDeck(new TroopCard("Archer"));
-            AddCardToDeck(new EquipCard("Composite Bow"));
             AddCardToDeck(new TroopCard("Knight"));
-            AddCardToDeck(new FieldCard("Battle Standard"));
+            AddCardToDeck(new FieldCard("Second Wind"));
             AddCardToDeck(new TroopCard("Catapult"));
-            AddCardToDeck(new EquipCard("Plate Armor"));
             AddCardToDeck(new TroopCard("Crusader"));
+            AddCardToDeck(new TroopCard("Crossbowman"));
+            AddCardToDeck(new TroopCard("Juggernaut"));
+            AddCardToDeck(new TroopCard("Saboteur"));
             ShuffleDeck();
         }
 

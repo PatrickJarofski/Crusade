@@ -3,19 +3,13 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using ReqRspLib;
 
 namespace CrusadeServer
 {
     public partial class Server : ReqRspLib.ICrusadeServer
     {
-
-        public void performAction(object obj)
-        {
-
-        }
-
-
         /// <summary>
         /// Obtains the hand of the given GameClient, then sends
         /// a response back to the client with that hand's information.
@@ -51,22 +45,7 @@ namespace CrusadeServer
         }
 
 
-        /// <summary>
-        /// Give the client the state of the gameboard
-        /// </summary>
-        /// <param name="clientId">Id of the player/client.</param>
         public void GivePlayerGameboard(Guid clientId)
-        {
-            GivePlayerGameboardNew(clientId);
-            /*
-            string[,] board = _game.GetBoardState();
-            ResponseGameboard rsp = new ResponseGameboard(board);
-            SendData(GetMatchingClient(clientId), rsp);
-            */
-        }
-
-
-        public void GivePlayerGameboardNew(Guid clientId)
         {
             CrusadeLibrary.IGamePiece[,] board = _game.GetBoardState();
 
@@ -82,7 +61,7 @@ namespace CrusadeServer
                 }
             }
 
-            ResponseGameboardNew rsp = new ResponseGameboardNew(convertedBoard);
+            ResponseGameboard rsp = new ResponseGameboard(convertedBoard);
             SendData(clientId, rsp);
         }
 
@@ -94,11 +73,27 @@ namespace CrusadeServer
         /// <param name="cardNum">The index of the card in the hand.</param>
         public void PlayCard(Guid clientId, int cardNum)
         {
-            CrusadeLibrary.ICard card = _game.PlayCard(clientId, cardNum);
+            try
+            {
+                Tuple<CrusadeLibrary.ICard, bool> value = _game.PlayCard(clientId, cardNum);
 
-            ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(card));
-            BroadcastToClients(rsp);
-            BeginNextTurn();
+                ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(value.Item1));
+                BroadcastToClients(rsp);
+
+                if(value.Item2)
+                    BeginNextTurn();
+                else
+                    GetNextPlayerAction(clientId);
+                
+            }
+            catch(NotImplementedException ex)
+            {
+                SendBadCardChoiceError(ex.Message, clientId);
+            }
+            catch(CrusadeLibrary.IllegalActionException ex)
+            {
+                SendBadCardChoiceError(ex.Message, clientId);
+            }
         }
 
 
@@ -111,12 +106,40 @@ namespace CrusadeServer
         /// <param name="y">Target Y Coordinate for the card.</param>
         public void PlayCard(Guid clientId, int cardNum, int row, int col)
         {
-            CrusadeLibrary.ICard card = _game.PlayCard(clientId, cardNum, row, col);
+            try
+            {
+                Tuple<CrusadeLibrary.ICard, bool> value = _game.PlayCard(clientId, cardNum, row, col);
 
-            ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(card), row + 1, col + 1); // +1 Since user expects one based coordinates
-            BroadcastToClients(rsp);
-            BeginNextTurn();
+                string jsonString;
+                ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(value.Item1), row + 1, col + 1); // +1 Since user expects one based coordinates
+                BroadcastToClients(rsp);
+
+                if (value.Item2)
+                    BeginNextTurn();
+                else
+                    GetNextPlayerAction(clientId);
+            }
+            catch(CrusadeLibrary.IllegalActionException ex)
+            {
+                SendBadCardChoiceError(ex.Message, clientId);
+            }
+            catch(NotImplementedException ex)
+            {
+                SendBadCardChoiceError(ex.Message, clientId);
+            }
         }
+
+        private void GetNextPlayerAction(Guid clientId)
+        {
+            GivePlayerHand(clientId);
+            GivePlayerGameboard(clientId);
+            ResponseMessage msg = new ResponseMessage("Remaining Action Points: " + _game.CurrentPlayerAP.ToString());
+            SendData(clientId, msg);
+
+            ResponseGetCardToPlay rspGetMove = new ResponseGetCardToPlay();
+            SendData(clientId, rspGetMove);
+        }
+
 
 
         /// <summary>
@@ -184,7 +207,7 @@ namespace CrusadeServer
                 }
             }
 
-            _game.BeginNextTurn();
+            //_game.BeginNextTurn();
 
             foreach (GameClient client in _clientList.ToArray())
             {
@@ -192,25 +215,9 @@ namespace CrusadeServer
                 GivePlayerGameboard(client.ID);
             }
 
-            ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(GetTurnPlayerId());
+            ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(_game.CurrentPlayerId);
             BroadcastToClients(rsp);
-        }
-
-
-        /// <summary>
-        /// Finds the Client that is currently the turn player.
-        /// </summary>
-        /// <returns>The ID of the turn client.</returns>
-        private Guid GetTurnPlayerId()
-        {
-            foreach (GameClient client in _clientList.ToArray())
-            {
-                if (client.isTurnPlayer)
-                    return client.ID;
-            }
-            throw new ArgumentException("The player number specified does not exist.");
-        }
-        
+        }       
 
         /// <summary>
         /// Convert a CrusadeLibrary.ICard to a ReqRspLib.ICard
@@ -251,6 +258,16 @@ namespace CrusadeServer
                     return new ReqRspLib.BadGamePiece();
             }
 
+        }
+
+
+        private void SendBadCardChoiceError(string er, Guid clientId)
+        {
+            ResponseBadMove rsp = new ResponseBadMove(er);
+            SendData(clientId, rsp);
+
+            ResponseGetCardToPlay rsp2 = new ResponseGetCardToPlay(); // Resend the request since the last one failed.
+            SendData(clientId, rsp2);
         }
     }
 }

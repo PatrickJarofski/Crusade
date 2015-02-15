@@ -10,6 +10,13 @@ namespace CrusadeLibrary
         private int _rowCoordinate;
         private int _colCoordinate;
         private GamePieceType _type;
+        private Guid _ownerId;
+        private string _name;
+
+        public Guid OwnerID { get { return _ownerId; } }
+
+        public string Name { get { return _name; } }
+
 
         public int RowCoordinate
         {
@@ -33,8 +40,10 @@ namespace CrusadeLibrary
         /// </summary>
         /// <param name="row">Starting row coordinate</param>
         /// <param name="col">Starting column coordinate</param>
-        public GamePiece(int row, int col, GamePieceType type)
+        public GamePiece(int row, int col, GamePieceType type, Guid ownerId, string name)
         {
+            _name = name;
+            _ownerId = ownerId;
             _rowCoordinate = row;
             _colCoordinate = col;
             _type = type;

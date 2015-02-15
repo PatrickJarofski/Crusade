@@ -23,12 +23,12 @@ namespace CrusadeLibrary
                 player.DrawFromDeck();
         }
 
-        private void CreateDebugPieces(CrusadeGame game)
+        private void PlaceCommanders(CrusadeGame game)
         {
-            TroopPiece debug1 = new TroopPiece(0, 2);
-            TroopPiece debug2 = new TroopPiece(4, 2);
-            game.Board.PlaceGamePiece(debug1);
-            game.Board.PlaceGamePiece(debug2);
+            TroopPiece commander1 = new TroopPiece(0, 2, game.Player1.ID, "Commander");
+            TroopPiece commander2 = new TroopPiece(4, 2, game.Player2.ID, "Commander");
+            game.Board.PlaceGamePiece(commander1);
+            game.Board.PlaceGamePiece(commander2);
         }
 
         public override State entry(CrusadeGame game, object obj)
@@ -43,7 +43,7 @@ namespace CrusadeLibrary
             DealStartingHand(game.Player1);
             DealStartingHand(game.Player2);
 
-            CreateDebugPieces(game);
+            PlaceCommanders(game);
 
             return new StateNextPlayerTurn().entry(game, null);
         }

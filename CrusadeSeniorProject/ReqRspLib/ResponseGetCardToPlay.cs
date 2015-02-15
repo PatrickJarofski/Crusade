@@ -3,12 +3,11 @@
 namespace ReqRspLib
 {
     [Serializable]
-    public class ResponseStartGame : IResponse
+    public class ResponseGetCardToPlay : IResponse
     {
         public void Execute(ICrusadeClient client)
         {
-            Console.WriteLine("Start game.");
-            client.BeginGame();
+            client.GetCardToPlay();
         }
     }
 }

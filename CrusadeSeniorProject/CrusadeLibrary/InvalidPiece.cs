@@ -9,7 +9,7 @@ namespace CrusadeLibrary
     public class InvalidPiece : GamePiece, IGamePiece
     {
         public InvalidPiece(int x, int y)
-            :base(x, y, GamePieceType.NoType)
+            :base(x, y, GamePieceType.NoType, Guid.Empty, "Invalid")
         {
 
         }

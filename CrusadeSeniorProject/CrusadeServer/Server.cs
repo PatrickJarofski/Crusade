@@ -257,6 +257,8 @@ namespace CrusadeServer
 
                     lock (lockObject)
                         _game = new CrusadeLibrary.CrusadeGame(_clientList[0].ID, _clientList[1].ID);
+
+
                 }
                 else
                 {
@@ -277,9 +279,17 @@ namespace CrusadeServer
                     GivePlayerHand(client.ID);
                     GivePlayerGameboard(client.ID);
                 }
-
+                                
                 BeginNextTurn();
+                printDebugPlayerIds();
             }
+        }
+
+        private void printDebugPlayerIds()
+        {
+            Console.WriteLine("Client 1 ID: {0}", _clientList[0].ID.ToString());
+            Console.WriteLine("Client 2 ID: {0}", _clientList[1].ID.ToString());
+            Console.WriteLine("Current Player ID: {0}", _game.CurrentPlayerId.ToString());
         }
 
 

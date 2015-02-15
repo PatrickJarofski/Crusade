@@ -30,6 +30,10 @@ namespace CrusadeLibrary
         internal Player CurrentPlayer { get; set; }
 
         internal State CurrentState { get; set; }
+        
+        public Guid CurrentPlayerId { get { return CurrentPlayer.ID; } }
+
+        public int CurrentPlayerAP { get { return CurrentPlayer.ActionPoints; } }
 
         #endregion
 
@@ -88,16 +92,16 @@ namespace CrusadeLibrary
         }
 
 
-        public void BeginNextTurn()
-        {
-            if (CurrentPlayer == Player1)
-                CurrentPlayer = Player2;
+        //public void BeginNextTurn()
+        //{
+        //    if (CurrentPlayer == Player1)
+        //        CurrentPlayer = Player2;
 
-            else // currentPlayer == _player2
-                CurrentPlayer = Player1;
+        //    else // currentPlayer == _player2
+        //        CurrentPlayer = Player1;
 
-            CurrentPlayer.DrawFromDeck();
-        }
+        //    CurrentPlayer.DrawFromDeck();
+        //}
 
 
         public Player.PlayerNumber GetCurrentPlayer()
@@ -122,32 +126,57 @@ namespace CrusadeLibrary
         }
 
 
-        public ICard PlayCard(Guid playerId, int cardSlot)
+        /// <summary>
+        /// Plays a card if the playerId matches the current turn player.
+        /// </summary>
+        /// <param name="playerId">Id of the client/player playing the card</param>
+        /// <param name="cardSlot">Index of the card in the hand</param>
+        /// <returns>Tuple containg the card and a boolean value indicating
+        /// whether or not a new turn has started.</returns>
+        public Tuple<ICard, bool> PlayCard(Guid playerId, int cardSlot)
         {
-            try
-            {
-                return CurrentState.PlayCard(this, playerId, cardSlot);
-            }
-            catch(CrusadeLibrary.GameStateException ex)
-            {
-                throw new FormatException(ex.Message);
-            }
-            catch(CrusadeLibrary.IllegalActionException ex)
-            {
-                throw new IllegalActionException(ex.Message);
-            }
+            throw new NotImplementedException("Non-troops card are currently not supported.");
+            //try
+            //{
+            //    return CurrentState.PlayCard(this, playerId, cardSlot);
+            //}
+            //catch(GameStateException ex)
+            //{
+            //    throw new GameStateException(ex.Message);
+            //}
+            //catch(CrusadeLibrary.IllegalActionException ex)
+            //{
+            //    throw new IllegalActionException(ex.Message);
+            //}
         }
 
 
-        public ICard PlayCard(Guid playerId, int cardSlot, int row, int col)
+        /// <summary>
+        /// Plays a card if the playerId matches the current turn player.
+        /// </summary>
+        /// <param name="playerId">Id of the client/player playing the card</param>
+        /// <param name="cardSlot">Index of the card in the hand</param>
+        /// <param name="row">Row to deploy the Troop Card.</param>
+        /// <param name="col">Column to deploy the Troop Card.</param>
+        /// <returns>Tuple containg the card and a boolean value indicating
+        /// whether or not a new turn has started.</returns>
+        public Tuple<ICard, bool> PlayCard(Guid playerId, int cardSlot, int row, int col)
         {
             try
             {
-                return CurrentState.PlayCard(this, playerId, cardSlot, row, col);
+                ICard card = CurrentState.PlayCard(this, playerId, cardSlot, row, col);
+                if (CurrentPlayer.ActionPoints == 0)
+                {
+                    CurrentState = CurrentState.GetNextState(this);
+
+                    return new Tuple<ICard, bool>(card, true);
+                }
+                else
+                    return new Tuple<ICard, bool>(card, false);
             }
-            catch (CrusadeLibrary.GameStateException ex)
+            catch (GameStateException ex)
             {
-                throw new FormatException(ex.Message);
+                throw new GameStateException(ex.Message);
             }
         }
 

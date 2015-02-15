@@ -42,6 +42,7 @@
     <Compile Include="BadGamePiece.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="CrusadeGamePiece.cs" />
     <Compile Include="ICard.cs" />
     <Compile Include="ICrusadeClient.cs" />
     <Compile Include="IGamePiece.cs" />
@@ -52,12 +53,13 @@
     <Compile Include="RequestGameboard.cs" />
     <Compile Include="RequestHand.cs" />
     <Compile Include="RequestPlayCard.cs" />
+    <Compile Include="ResponseBadMove.cs" />
     <Compile Include="ResponseBeginNextTurn.cs" />
     <Compile Include="ResponseClientID.cs" />
-    <Compile Include="ResponseGameboardNew.cs" />
     <Compile Include="ResponseGameboard.cs" />
-    <Compile Include="ResponseGetPlayerMove.cs" />
+    <Compile Include="ResponseGetCardToPlay.cs" />
     <Compile Include="ResponseHand.cs" />
+    <Compile Include="ResponseMessage.cs" />
     <Compile Include="ResponsePlayCard.cs" />
     <Compile Include="ResponseStartGame.cs" />
     <Compile Include="TroopGamePiece.cs" />

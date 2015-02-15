@@ -22,8 +22,7 @@ namespace CrusadeLibrary
             if (obj != null)
                 throw new GameStateException("Invalid Action requested. Game is currently in a Draw Card state.");
 
-            // Draw card for _currentPlayer
-            // return new StateAwaitAction();
+            game.CurrentPlayer.DrawFromDeck();
             return new StateAwaitAction().entry(game, obj);
         }
 
