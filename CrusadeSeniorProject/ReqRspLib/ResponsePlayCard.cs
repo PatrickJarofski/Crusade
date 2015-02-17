@@ -31,7 +31,7 @@ namespace ReqRspLib
                 Console.WriteLine("==== {0} was played. ====", _card);
 
             else
-                Console.WriteLine("==== {0} was deployed at row {1}, col {2}. ====", _card, _row.ToString(), _col.ToString());
+                Console.WriteLine("==== {0} was deployed at row {1}, col {2}. ====", _card, (_row + 1).ToString(), (_col + 1).ToString());
 
             Console.WriteLine(Environment.NewLine);
         }

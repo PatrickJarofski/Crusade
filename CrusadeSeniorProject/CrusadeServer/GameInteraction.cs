@@ -91,7 +91,11 @@ namespace CrusadeServer
         public void GiveAllPlayersGameboard()
         {
             foreach (GameClient client in _clientList.ToArray())
+            {
                 GivePlayerGameboard(client.ID);
+                ResponseDisplayGameboard rsp = new ResponseDisplayGameboard();
+                SendData(client, rsp);
+            }
         }
 
 
@@ -112,8 +116,7 @@ namespace CrusadeServer
                 if(value.Item2)
                     BeginNextTurn();
                 else
-                    GetNextPlayerAction(clientId);
-                
+                    GetNextPlayerAction(clientId);                
             }
             catch(NotImplementedException ex)
             {

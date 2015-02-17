@@ -140,7 +140,7 @@ namespace CrusadeGameClient
                         _gameboard[r, c] = JsonConvert.DeserializeObject<ClientGamePiece>(newBoard[r, c]);
                     }
                 }
-            }                
+            }
         }
 
 
@@ -172,9 +172,9 @@ namespace CrusadeGameClient
                     for (int col = 0; col < _gameboard.GetUpperBound(1) + 1; ++col)
                     {
                         if (_gameboard[row, col] == null)
-                            Console.Write("Empty\t");
+                            Console.Write("-".PadRight(12));
                         else
-                            Console.Write(_gameboard[row, col].Name + "\t");
+                            Console.Write(_gameboard[row, col].Name.PadRight(12));
                     }
 
                     Console.WriteLine();
@@ -236,8 +236,8 @@ namespace CrusadeGameClient
 
 
         public void BeginNextTurn()
-        {
-            DisplayGameboard();
+        {            
+           // DisplayGameboard();
 
             if (_isTurnPlayer)
                 GetCardToPlay();
