@@ -6,6 +6,7 @@ using System.Net;
 using System.IO;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
+using Newtonsoft.Json;
 using ReqRspLib;
 
 namespace CrusadeGameClient
@@ -26,8 +27,7 @@ namespace CrusadeGameClient
         private Guid _clientId;
         private object _lockObject = new object();
 
-        private string[,] _gameboard;
-        private ReqRspLib.IGamePiece[,] _newGameboard;
+        private ReqRspLib.ClientGamePiece[,] _gameboard;
 
         #endregion
 
@@ -42,8 +42,7 @@ namespace CrusadeGameClient
             set { _isTurnPlayer = value; }
         }
 
-        public List<ReqRspLib.ICard> Hand { get; set; }
-
+        public List<ReqRspLib.Card> Hand { get; set; }      
 
         #endregion
 
@@ -65,15 +64,14 @@ namespace CrusadeGameClient
 
                 _client = new TcpClient();
                 _client.SendTimeout = 3000;
-                _client.ReceiveTimeout = 3000;
+               // _client.ReceiveTimeout = 3000;
                 _client.Connect(ep);
 
                 _shouldReceive = true;
                 ThreadPool.QueueUserWorkItem(Receive);
 
-                Hand = new List<ReqRspLib.ICard>();
-                _gameboard = new string[1,1];
-                _newGameboard = new IGamePiece[1, 1];
+                Hand = new List<ReqRspLib.Card>();
+                _gameboard = new ClientGamePiece[1, 1];
             }
             catch(SocketException ex)
             {
@@ -129,15 +127,20 @@ namespace CrusadeGameClient
         /// <param name="newBoard">New gameboard state.</param>
         public void SetGameboard(string[,] newBoard)
         {
+            int row = newBoard.GetUpperBound(0) + 1;
+            int col = newBoard.GetUpperBound(1) + 1;
+
             lock(_gameboard)
-                _gameboard = newBoard;
-        }
-
-
-        public void SetGameboard(IGamePiece[,] newBoard)
-        {
-            lock(_newGameboard)
-                _newGameboard = newBoard;
+            {
+                _gameboard = new ClientGamePiece[row, col];
+                for(int r = 0; r < row; ++r)
+                {
+                    for(int c = 0; c < col; ++c)
+                    {
+                        _gameboard[r, c] = JsonConvert.DeserializeObject<ClientGamePiece>(newBoard[r, c]);
+                    }
+                }
+            }                
         }
 
 
@@ -162,29 +165,16 @@ namespace CrusadeGameClient
         /// </summary>
         public void DisplayGameboard()
         {
-            DisplayGameboardNew();
-
-            //Console.WriteLine("Gameboard State:" + Environment.NewLine);
-
-            //lock (_gameboard)
-            //{
-            //    foreach (string item in _gameboard)
-            //    {
-            //        Console.Write(item);
-            //    }
-            //}
-        }
-
-
-        public void DisplayGameboardNew()
-        {
-            lock (_newGameboard)
+            lock (_gameboard)
             {
-                for (int row = 0; row < _newGameboard.GetUpperBound(0) + 1; ++row)
+                for (int row = 0; row < _gameboard.GetUpperBound(0) + 1; ++row)
                 {
-                    for (int col = 0; col < _newGameboard.GetUpperBound(1) + 1; ++col)
+                    for (int col = 0; col < _gameboard.GetUpperBound(1) + 1; ++col)
                     {
-                        Console.Write(_newGameboard[row, col].Type + "\t\t");
+                        if (_gameboard[row, col] == null)
+                            Console.Write("Empty\t");
+                        else
+                            Console.Write(_gameboard[row, col].Name + "\t");
                     }
 
                     Console.WriteLine();
@@ -209,7 +199,7 @@ namespace CrusadeGameClient
                     validChoice = true;
                     RequestPlayCard rsp;
 
-                    if (Hand[option - 1].Type == ReqRspLib.Constants.CARD_TYPE_TROOP)
+                    if (Hand[option - 1].Type == "1")
                     {
                         Tuple<int, int> coords = GetDeployCoordinates();
                         rsp = new RequestPlayCard(ID, (option - 1), (coords.Item1), (coords.Item2));
@@ -255,6 +245,18 @@ namespace CrusadeGameClient
             else
                 DisplayHand();
         }
+
+
+        public void SetHand(List<string> newHand)
+        {
+            Hand.Clear();
+            foreach(string item in newHand)
+            {
+                Hand.Add(JsonConvert.DeserializeObject<Card>(item));
+            }
+        }
+
+
         #endregion
 
 
@@ -287,6 +289,7 @@ namespace CrusadeGameClient
                 return false;
             }
         }
+
 
         private void SendRequestToServer(ReqRspLib.IRequest request)
         {
@@ -380,8 +383,8 @@ namespace CrusadeGameClient
             bool valid = false;
             int row = -1;
             int col = -1;
-            int boardRows = _newGameboard.GetUpperBound(0) + 1;
-            int boardCols = _newGameboard.GetUpperBound(1) + 1;
+            int boardRows = _gameboard.GetUpperBound(0) + 1;
+            int boardCols = _gameboard.GetUpperBound(1) + 1;
             string line;
 
             Tuple<int, int> coords = null;
@@ -431,6 +434,7 @@ namespace CrusadeGameClient
             WriteErrorToConsole(error);
         }
         
+
         private void WriteErrorToLog(string error)
         {
             lock (_lockObject)
@@ -440,6 +444,7 @@ namespace CrusadeGameClient
                 File.AppendAllText(path, msg);
             }
         }
+
 
         private void WriteErrorToConsole(string error)
         {

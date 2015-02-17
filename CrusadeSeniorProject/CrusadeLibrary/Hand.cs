@@ -87,7 +87,7 @@ namespace CrusadeLibrary
         public ICard RemoveCard(int cardSlotToRemove)
         {
             if (cardSlotToRemove >= _cardList.Count)
-                return new InvalidCard("Invalid Card.");
+                return new CardInvalid("Invalid Card.");
 
             ICard card = _cardList[cardSlotToRemove];         
             _cardList.RemoveAt(cardSlotToRemove);

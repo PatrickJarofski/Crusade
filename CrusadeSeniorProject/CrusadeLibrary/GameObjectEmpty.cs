@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CrusadeLibrary
 {
-    public class EmptyGameObject : GameObject
+    public class GameObjectEmpty : GameObject
     {
         public Guid ID
         {

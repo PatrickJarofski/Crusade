@@ -5,18 +5,18 @@ namespace ReqRspLib
     [Serializable]
     public class ResponsePlayCard : IResponse
     {
-        private readonly ICard _card;
+        private readonly string _card;
         private readonly int _col;
         private readonly int _row;
 
-        public ResponsePlayCard(ICard card)
+        public ResponsePlayCard(string card)
         {
             _card = card;
             _col = -1;
             _row = -1;
         }
 
-        public ResponsePlayCard(ICard card, int row, int col)
+        public ResponsePlayCard(string card, int row, int col)
         {
             _card = card;
             _col = col;
@@ -28,10 +28,10 @@ namespace ReqRspLib
             Console.WriteLine(Environment.NewLine);
 
             if (_row == -1 && _col == -1)
-                Console.WriteLine("==== {0} was played. ====", _card.Name);
+                Console.WriteLine("==== {0} was played. ====", _card);
 
             else
-                Console.WriteLine("==== {0} was deployed at row {1}, col {2}. ====", _card.Name, _row.ToString(), _col.ToString());
+                Console.WriteLine("==== {0} was deployed at row {1}, col {2}. ====", _card, _row.ToString(), _col.ToString());
 
             Console.WriteLine(Environment.NewLine);
         }

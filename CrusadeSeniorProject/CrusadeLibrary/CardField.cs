@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 
 namespace CrusadeLibrary
 {
-    public class EquipCard : Card
+    public class CardField : Card, ICard
     {
         #region Methods
-        public EquipCard(string name)
-            : base(name, CardType.Equip)
+        public CardField(string name)
+            : base(name, CardType.Field)
         {
-            
+           
         }
         #endregion
-
     }
 }

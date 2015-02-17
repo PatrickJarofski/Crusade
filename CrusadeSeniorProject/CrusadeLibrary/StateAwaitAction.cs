@@ -45,7 +45,7 @@ namespace CrusadeLibrary
                     if (hand[cardSlot].Type != CardType.Troop)
                         throw new NotImplementedException("Non-Troop cards are currently not supported.");
 
-                    game.Board.PlaceGamePiece(new TroopPiece(row, col, playerId, hand[cardSlot].Name));
+                    game.Board.PlaceGamePiece(new GamePieceTroop(row, col, playerId, hand[cardSlot].Name));
 
                     --game.CurrentPlayer.ActionPoints;
 

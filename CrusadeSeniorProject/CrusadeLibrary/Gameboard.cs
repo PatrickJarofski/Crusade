@@ -10,7 +10,7 @@ namespace CrusadeLibrary
         public const int BOARD_COL = 5;
         public const int BOARD_ROW = 5;
 
-        private IGamePiece[,] _board;
+        private GamePieceTroop[,] _board;
 
 
         /// <summary>
@@ -18,7 +18,7 @@ namespace CrusadeLibrary
         /// </summary>
         public Gameboard()
         {
-            _board = new IGamePiece[BOARD_ROW, BOARD_COL];
+            _board = new GamePieceTroop[BOARD_ROW, BOARD_COL];
         }
 
 
@@ -26,13 +26,24 @@ namespace CrusadeLibrary
         /// Place a game piece on the board
         /// </summary>
         /// <param name="piece">GamePiece to place</param>
-        public void PlaceGamePiece(IGamePiece piece)
+        public void PlaceGamePiece(GamePieceTroop piece)
         {
-            Tuple<int, int> coordinates = piece.GetCoordinates();
-            if (!CellOccupied(coordinates.Item1, coordinates.Item2))
-                _board[coordinates.Item1, coordinates.Item2] = piece;
-            else
-                throw new IllegalActionException("Selected cell is already occupied.");
+            try
+            {
+                Tuple<int, int> coordinates = piece.GetCoordinates();
+                if (!CellOccupied(coordinates.Item1, coordinates.Item2))
+                    _board[coordinates.Item1, coordinates.Item2] = piece;
+                else
+                    throw new IllegalActionException("Selected cell is already occupied.");
+            }
+            catch (IndexOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException("Dimensions passed are out of the gameboard's bounds.");
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException("Dimensions passed are out of the gameboard's bounds.");
+            }
         }
 
 
@@ -43,29 +54,55 @@ namespace CrusadeLibrary
         /// <param name="col">Column coordinate</param>
         public void RemoveGamePiece(int row, int col)
         {
-            _board[row, col] = null;
+            try
+            {
+                _board[row, col] = null;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException("Dimensions passed are out of the gameboard's bounds.");
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException("Dimensions passed are out of the gameboard's bounds.");
+            }
         }
 
 
         public bool CellOccupied(int row, int col)
         {
-            if (_board[row, col] != null)
-                return true;
+            try
+            {
+                if (_board[row, col] != null)
+                    return true;
 
-            else
-                return false;
+                else
+                    return false;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException("Dimensions passed are out of the gameboard's bounds.");
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException("Dimensions passed are out of the gameboard's bounds.");
+            }
         }
 
 
-        public IGamePiece GetPiece(int row, int col)
+        public GamePieceTroop GetPiece(int row, int col)
         {
             try
             {
                 return _board[row, col];
             }
-            catch
+            catch(IndexOutOfRangeException)
             {
-                return new InvalidPiece(0, 0);
+                throw new IndexOutOfRangeException("Dimensions passed are out of the gameboard's bounds.");
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException("Dimensions passed are out of the gameboard's bounds.");
             }
         }
     }

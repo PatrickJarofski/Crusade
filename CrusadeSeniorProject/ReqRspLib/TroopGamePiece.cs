@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ReqRspLib
 {
     [Serializable]
-    public class TroopGamePiece : IGamePiece
+    public class TroopGamePiece : ClientGamePiece
     {
         private string _type;
 

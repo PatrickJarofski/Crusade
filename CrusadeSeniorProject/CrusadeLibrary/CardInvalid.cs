@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CrusadeLibrary
 {
-    class InvalidCard : Card, ICard
+    class CardInvalid : Card, ICard
     {
-        internal InvalidCard(string name)
+        internal CardInvalid(string name)
             :base(name, CardType.Invalid)
         {
 

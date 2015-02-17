@@ -10,7 +10,10 @@ namespace CrusadeLibrary
 
     public interface IGamePiece
     {
+        string Name { get; }
+
         int RowCoordinate { get; set; }
+
         int ColCoordinate { get; set; }
 
         GamePieceType Type { get; }

@@ -31,10 +31,13 @@ namespace CrusadeServer
             try
             {
                 List<CrusadeLibrary.Card> hand = _game.GetPlayerHand(client.PlayerNumber);
-                Converter<CrusadeLibrary.ICard, ReqRspLib.ICard> con = new Converter<CrusadeLibrary.ICard, ReqRspLib.ICard>(ConvertToRspICard);
-                List<ReqRspLib.ICard> handToShip = hand.ConvertAll(con);
 
-                ResponseHand rsp = new ResponseHand(handToShip);
+                List<string> stringHand = GetJsonCardList(hand);
+
+         //       Converter<CrusadeLibrary.ICard, ReqRspLib.ICard> con = new Converter<CrusadeLibrary.ICard, ReqRspLib.ICard>(ConvertToRspICard);
+         //       List<ReqRspLib.ICard> handToShip = hand.ConvertAll(con);
+
+                ResponseHand rsp = new ResponseHand(stringHand);
                 SendData(client, rsp);
             }
             catch (NullReferenceException ex)
@@ -45,6 +48,19 @@ namespace CrusadeServer
         }
 
 
+        private List<string> GetJsonCardList(List<CrusadeLibrary.Card> list)
+        {
+            List<string> newList = new List<string>();
+
+            foreach(CrusadeLibrary.Card card in list)
+            {
+                newList.Add(JsonConvert.SerializeObject(card));
+            }
+
+            return newList;
+        }
+
+
         public void GivePlayerGameboard(Guid clientId)
         {
             CrusadeLibrary.IGamePiece[,] board = _game.GetBoardState();
@@ -52,17 +68,30 @@ namespace CrusadeServer
             int numRows = board.GetUpperBound(0) + 1; // GetUpperBound() returns the highest # index
             int numCols = board.GetUpperBound(1) + 1; // for the dimension specified. +1 to it make one-based
 
-            ReqRspLib.IGamePiece[,] convertedBoard = new IGamePiece[numRows, numCols];
+            string[,] convertedBoard = new string[numRows, numCols];
             for(int row = 0; row < numRows; ++row)
             {
                 for(int col = 0; col < numCols; ++col)
                 {
-                    convertedBoard[row, col] = ConvertToRspIGamePiece(board[row, col]);
+                    convertedBoard[row, col] = JsonConvert.SerializeObject(board[row, col]);
                 }
             }
 
             ResponseGameboard rsp = new ResponseGameboard(convertedBoard);
             SendData(clientId, rsp);
+        }
+
+
+        public void GiveAllPlayersHand()
+        {
+            foreach (GameClient client in _clientList.ToArray())
+                GivePlayerHand(client.ID);
+        }
+
+        public void GiveAllPlayersGameboard()
+        {
+            foreach (GameClient client in _clientList.ToArray())
+                GivePlayerGameboard(client.ID);
         }
 
 
@@ -77,7 +106,7 @@ namespace CrusadeServer
             {
                 Tuple<CrusadeLibrary.ICard, bool> value = _game.PlayCard(clientId, cardNum);
 
-                ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(value.Item1));
+                ResponsePlayCard rsp = new ResponsePlayCard(value.Item1.Name);
                 BroadcastToClients(rsp);
 
                 if(value.Item2)
@@ -110,8 +139,7 @@ namespace CrusadeServer
             {
                 Tuple<CrusadeLibrary.ICard, bool> value = _game.PlayCard(clientId, cardNum, row, col);
 
-                string jsonString;
-                ResponsePlayCard rsp = new ResponsePlayCard(ConvertToRspICard(value.Item1), row + 1, col + 1); // +1 Since user expects one based coordinates
+                ResponsePlayCard rsp = new ResponsePlayCard(value.Item1.Name, row, col);
                 BroadcastToClients(rsp);
 
                 if (value.Item2)
@@ -129,11 +157,14 @@ namespace CrusadeServer
             }
         }
 
+
         private void GetNextPlayerAction(Guid clientId)
         {
             GivePlayerHand(clientId);
-            GivePlayerGameboard(clientId);
-            ResponseMessage msg = new ResponseMessage("Remaining Action Points: " + _game.CurrentPlayerAP.ToString());
+
+            GiveAllPlayersGameboard();
+
+            ResponseMessage msg = new ResponseMessage("\nRemaining Action Points: " + _game.CurrentPlayerAP.ToString());
             SendData(clientId, msg);
 
             ResponseGetCardToPlay rspGetMove = new ResponseGetCardToPlay();
@@ -207,18 +238,14 @@ namespace CrusadeServer
                 }
             }
 
-            //_game.BeginNextTurn();
-
-            foreach (GameClient client in _clientList.ToArray())
-            {
-                GivePlayerHand(client.ID);
-                GivePlayerGameboard(client.ID);
-            }
+            GiveAllPlayersGameboard();
+            GiveAllPlayersHand();
 
             ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(_game.CurrentPlayerId);
             BroadcastToClients(rsp);
         }       
 
+        /*
         /// <summary>
         /// Convert a CrusadeLibrary.ICard to a ReqRspLib.ICard
         /// </summary>
@@ -236,8 +263,9 @@ namespace CrusadeServer
 
             return new ReqRspLib.Card(card.Name, newType);
         }
+        */
 
-
+        /*
         /// <summary>
         /// Convert a CrusadeLibrary.IGamePiece to a ReqRspLib.IGamePiece
         /// </summary>
@@ -259,7 +287,7 @@ namespace CrusadeServer
             }
 
         }
-
+        */
 
         private void SendBadCardChoiceError(string er, Guid clientId)
         {

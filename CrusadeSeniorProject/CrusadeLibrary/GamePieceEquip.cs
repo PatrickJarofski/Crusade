@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CrusadeLibrary
 {
-    public class EquipPiece : GamePiece, IGamePiece
+    public class GamePieceEquip : GamePiece, IGamePiece
     {
-        public EquipPiece(int x, int y, Guid ownerId, string name)
+        public GamePieceEquip(int x, int y, Guid ownerId, string name)
             :base(x, y, GamePieceType.Equip, ownerId, name)
         {
 

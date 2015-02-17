@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CrusadeLibrary
 {
-    public class TroopCard : Card, ICard
+    public class CardTroop : Card, ICard
     {
         #region Members
         private int _attack;
@@ -48,7 +48,7 @@ namespace CrusadeLibrary
 
 
         #region Methods
-        public TroopCard(string name)
+        public CardTroop(string name)
             : base(name, CardType.Troop)
         {
             // Debug values

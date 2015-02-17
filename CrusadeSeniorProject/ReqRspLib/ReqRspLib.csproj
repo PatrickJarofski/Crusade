@@ -43,9 +43,8 @@
     <Compile Include="Card.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CrusadeGamePiece.cs" />
-    <Compile Include="ICard.cs" />
     <Compile Include="ICrusadeClient.cs" />
-    <Compile Include="IGamePiece.cs" />
+    <Compile Include="ClientGamePiece.cs" />
     <Compile Include="IRequest.cs" />
     <Compile Include="IResponse.cs" />
     <Compile Include="ICrusadeServer.cs" />

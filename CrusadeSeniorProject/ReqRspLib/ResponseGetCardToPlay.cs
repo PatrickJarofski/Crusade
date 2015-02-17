@@ -7,6 +7,7 @@ namespace ReqRspLib
     {
         public void Execute(ICrusadeClient client)
         {
+            client.DisplayGameboard();
             client.GetCardToPlay();
         }
     }

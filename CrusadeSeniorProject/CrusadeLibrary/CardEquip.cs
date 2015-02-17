@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace CrusadeLibrary
 {
-    public class InvalidPiece : GamePiece, IGamePiece
+    public class CardEquip : Card
     {
-        public InvalidPiece(int x, int y)
-            :base(x, y, GamePieceType.NoType, Guid.Empty, "Invalid")
+        #region Methods
+        public CardEquip(string name)
+            : base(name, CardType.Equip)
         {
-
+            
         }
+        #endregion
+
     }
 }

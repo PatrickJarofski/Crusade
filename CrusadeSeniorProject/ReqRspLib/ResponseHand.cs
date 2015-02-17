@@ -6,16 +6,16 @@ namespace ReqRspLib
     [Serializable]
     public class ResponseHand : IResponse
     {
-        private List<ICard> hand;
+        private List<string> hand;
 
-        public ResponseHand(List<ICard> cardList)
+        public ResponseHand(List<string> cardList)
         {
             hand = cardList;
         }
 
         public void Execute(ICrusadeClient client)
         {
-            client.Hand = hand;
+            client.SetHand(hand);
         }
     }
 }

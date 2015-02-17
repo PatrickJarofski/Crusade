@@ -25,8 +25,8 @@ namespace CrusadeLibrary
 
         private void PlaceCommanders(CrusadeGame game)
         {
-            TroopPiece commander1 = new TroopPiece(0, 2, game.Player1.ID, "Commander");
-            TroopPiece commander2 = new TroopPiece(4, 2, game.Player2.ID, "Commander");
+            GamePieceTroop commander1 = new GamePieceTroop(0, 2, game.Player1.ID, "Commander");
+            GamePieceTroop commander2 = new GamePieceTroop(4, 2, game.Player2.ID, "Commander");
             game.Board.PlaceGamePiece(commander1);
             game.Board.PlaceGamePiece(commander2);
         }
