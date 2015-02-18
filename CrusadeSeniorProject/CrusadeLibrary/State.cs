@@ -12,6 +12,11 @@ namespace CrusadeLibrary
 
         public abstract State entry(CrusadeGame game, object obj);
 
+        public virtual State GetNextState(CrusadeGame game)
+        {
+            return this;
+        }
+
         public virtual void BeginNextTurn()
         {
             throw new GameStateException("Invalid Action: Begin Next Turn. Game is currently in a " + Name + " state.");
@@ -27,9 +32,9 @@ namespace CrusadeLibrary
             throw new GameStateException("Invalid Action: Play Card(player, slot, row, col). Game is currently in a " + Name + " state.");
         }
 
-        public virtual State GetNextState(CrusadeGame game)
+         public virtual void MoveTroop(CrusadeGame game, Guid ownerId, int startRow, int startCol, int endRow, int endCol)
         {
-            return this;
+            throw new GameStateException("Invalid Action: Move Troop. Game is currently in a " + Name + " state.");
         }
     }
 }

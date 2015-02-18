@@ -88,6 +88,7 @@ namespace CrusadeServer
                 GivePlayerHand(client.ID);
         }
 
+
         public void GiveAllPlayersGameboard()
         {
             foreach (GameClient client in _clientList.ToArray())
@@ -120,11 +121,11 @@ namespace CrusadeServer
             }
             catch(NotImplementedException ex)
             {
-                SendBadCardChoiceError(ex.Message, clientId);
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetCardToPlay());
             }
             catch(CrusadeLibrary.IllegalActionException ex)
             {
-                SendBadCardChoiceError(ex.Message, clientId);
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetCardToPlay());
             }
         }
 
@@ -152,13 +153,41 @@ namespace CrusadeServer
             }
             catch(CrusadeLibrary.IllegalActionException ex)
             {
-                SendBadCardChoiceError(ex.Message, clientId);
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetCardToPlay());
             }
             catch(NotImplementedException ex)
             {
-                SendBadCardChoiceError(ex.Message, clientId);
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetCardToPlay());
+            }
+            catch(CrusadeLibrary.GameStateException ex)
+            {
+                Console.WriteLine("GameStateException: {0}", ex.Message);
+                SendInvalidChoiceError("You can't do that right now.", clientId, new ResponseGetCardToPlay());
             }
         }
+
+
+
+        public void MoveTroop(Guid clientId, int startRow, int startCol, int endRow, int endCol)
+        {
+            try
+            {
+                if (_game.MoveTroop(clientId, startRow, startCol, endRow, endCol))
+                    BeginNextTurn();
+                else
+                    GetNextPlayerAction(clientId);
+            }
+            catch(CrusadeLibrary.IllegalActionException ex)
+            {
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetTroopMove());
+            }
+            catch (CrusadeLibrary.GameStateException ex)
+            {
+                Console.WriteLine("GameStateException: {0}", ex.Message);
+                SendInvalidChoiceError("You can't do that right now.", clientId, new ResponseGetCardToPlay());
+            }
+        }
+
 
 
         private void GetNextPlayerAction(Guid clientId)
@@ -170,8 +199,8 @@ namespace CrusadeServer
             ResponseMessage msg = new ResponseMessage("\nRemaining Action Points: " + _game.CurrentPlayerAP.ToString());
             SendData(clientId, msg);
 
-            ResponseGetCardToPlay rspGetMove = new ResponseGetCardToPlay();
-            SendData(clientId, rspGetMove);
+            ResponseGetPlayerAction rsp = new ResponseGetPlayerAction();
+            SendData(clientId, rsp);
         }
 
 
@@ -248,57 +277,18 @@ namespace CrusadeServer
             BroadcastToClients(rsp);
         }       
 
-        /*
         /// <summary>
-        /// Convert a CrusadeLibrary.ICard to a ReqRspLib.ICard
+        /// Sends the client an error message that their input was invalid, then asks for new input.
         /// </summary>
-        /// <param name="card">ICard to convert.</param>
-        /// <returns></returns>
-        private ReqRspLib.ICard ConvertToRspICard(CrusadeLibrary.ICard card)
-        {
-            byte newType;
-            if (card.Type == CrusadeLibrary.CardType.Troop)
-                newType = ReqRspLib.Constants.CARD_TYPE_TROOP;
-            else if (card.Type == CrusadeLibrary.CardType.Equip)
-                newType = ReqRspLib.Constants.CARD_TYPE_EQUIP;
-            else
-                newType = ReqRspLib.Constants.CARD_TYPE_FIELD;
-
-            return new ReqRspLib.Card(card.Name, newType);
-        }
-        */
-
-        /*
-        /// <summary>
-        /// Convert a CrusadeLibrary.IGamePiece to a ReqRspLib.IGamePiece
-        /// </summary>
-        /// <param name="piece">IGamePiece to convert.</param>
-        /// <returns></returns>
-        private ReqRspLib.IGamePiece ConvertToRspIGamePiece(CrusadeLibrary.IGamePiece piece)
-        {
-            if (piece == null)
-                return new ReqRspLib.BadGamePiece();
-
-            CrusadeLibrary.GamePieceType type = piece.Type;
-
-            switch (type)
-            {
-                case CrusadeLibrary.GamePieceType.Troop:
-                    return new ReqRspLib.TroopGamePiece("Troop", piece.RowCoordinate, piece.ColCoordinate);
-                default:
-                    return new ReqRspLib.BadGamePiece();
-            }
-
-        }
-        */
-
-        private void SendBadCardChoiceError(string er, Guid clientId)
+        /// <param name="er">Error message to send</param>
+        /// <param name="clientId">ID of the offending client</param>
+        /// <param name="actionToGet">The action that the client needs to resend</param>
+        private void SendInvalidChoiceError(string er, Guid clientId, IResponse actionToGet)
         {
             ResponseBadMove rsp = new ResponseBadMove(er);
             SendData(clientId, rsp);
 
-            ResponseGetCardToPlay rsp2 = new ResponseGetCardToPlay(); // Resend the request since the last one failed.
-            SendData(clientId, rsp2);
+            SendData(clientId, actionToGet); 
         }
     }
 }

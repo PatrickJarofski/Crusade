@@ -121,6 +121,21 @@ namespace CrusadeGameClient
             SendRequestToServer(rsp);
         }
 
+
+        /// <summary>
+        /// Set the client's hand with a new/updated one.
+        /// </summary>
+        /// <param name="newHand">List of cards in the hand.</param>
+        public void SetHand(List<string> newHand)
+        {
+            Hand.Clear();
+            foreach (string item in newHand)
+            {
+                Hand.Add(JsonConvert.DeserializeObject<Card>(item));
+            }
+        }
+
+
         /// <summary>
         /// Updates the client's stored gameboard.
         /// </summary>
@@ -180,6 +195,8 @@ namespace CrusadeGameClient
                     Console.WriteLine();
                 }
             }
+
+            Console.WriteLine("=====================================================================");
         }
 
 
@@ -218,6 +235,34 @@ namespace CrusadeGameClient
         }
 
 
+        public void GetTroopToMove()
+        {
+            bool validChoice = false;
+            int row = -1;
+            int col = -1;
+            string input;
+
+            while(!validChoice)
+            {
+                Console.WriteLine("Select one of your troops to move in the form of 'Row Col'");
+                input = Console.ReadLine();
+                if (input.Length == 3)
+                {
+                    row = (Convert.ToInt32(input[0] - 48)) - 1; // Adjust for ascii, then make zero based
+                    col = (Convert.ToInt32(input[2] - 48)) - 1;
+
+                    Tuple<int, int> targetSpot = GetTargetMoveCoordinates(row, col);
+                    RequestMoveTroop rsp = new RequestMoveTroop(ID, row, col, targetSpot.Item1, targetSpot.Item2);
+                    SendRequestToServer(rsp);
+
+                    validChoice = true;
+                }
+                else
+                    Console.WriteLine("Invalid selection.");
+            }
+        }
+
+
         public void BeginGame()
         {
             if(!_inAGame)
@@ -239,24 +284,40 @@ namespace CrusadeGameClient
         {            
            // DisplayGameboard();
 
-            if (_isTurnPlayer)
-                GetCardToPlay();
-
+            if (_isTurnPlayer)          
+                GetPlayerAction();            
+               
             else
                 DisplayHand();
         }
 
 
-        public void SetHand(List<string> newHand)
+        public void GetPlayerAction()
         {
-            Hand.Clear();
-            foreach(string item in newHand)
+            DisplayHand();
+
+            bool validChoice = false;
+            int option = -1;
+
+            while (!validChoice)
             {
-                Hand.Add(JsonConvert.DeserializeObject<Card>(item));
+                Console.WriteLine("Please choose an Action to perform: 1. Play Card or 2. Move Troop");
+                option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
+
+                if (option == 1)
+                {
+                    GetCardToPlay();
+                    validChoice = true;
+                }
+                else if(option == 2)
+                {
+                    GetTroopToMove();
+                    validChoice = true;
+                }
+                else
+                    Console.WriteLine("Invalid selection.");
             }
         }
-
-
         #endregion
 
 
@@ -421,6 +482,34 @@ namespace CrusadeGameClient
             }
 
             return coords;
+        }
+
+
+        private Tuple<int, int> GetTargetMoveCoordinates(int row, int col)
+        {
+            int newRow = -1;
+            int newCol = -1;
+
+            bool validChoice = false;
+            while(!validChoice)
+            {
+                Console.WriteLine("Please select where to move to using 'Row Col'");
+                string line = Console.ReadLine();
+                if (line.Length == 3)
+                {
+                    newRow = (Convert.ToInt32(line[0]) - 48) - 1;
+                    newCol = (Convert.ToInt32(line[2]) - 48) - 1;
+
+                    if (newRow == row && newCol == col)
+                        Console.WriteLine("Starting and target coordinates are the same.");
+                    else                        
+                        return new Tuple<int, int>(newRow, newCol);
+                }
+                else
+                    Console.WriteLine("Invalid selection.");
+            }
+
+            return new Tuple<int, int>(newRow, newCol);
         }
 
 

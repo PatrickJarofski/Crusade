@@ -26,6 +26,10 @@ namespace ReqRspLib
 
         void BeginNextTurn();
 
+        void GetPlayerAction();
+
         void GetCardToPlay();
+
+        void GetTroopToMove();
     }
 }

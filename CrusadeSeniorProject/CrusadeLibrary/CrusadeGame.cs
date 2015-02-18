@@ -57,11 +57,18 @@ namespace CrusadeLibrary
             CurrentState = new StateNewGame().entry(this, null);
         }
 
-
-        public object performAction(object obj)
+        public bool MoveTroop(Guid clientId, int startRow, int startCol, int endRow, int endCol)
         {
-            CurrentState = CurrentState.entry(this, obj);
-            return null; // Dunno
+            if (clientId != CurrentPlayer.ID)
+                throw new IllegalActionException("It is not your turn.");
+
+            CurrentState.MoveTroop(this, clientId, startRow, startCol, endRow, endCol);
+
+            if (nextState())
+                return true;
+            else
+                return false;
+            
         }
 
 
@@ -90,18 +97,6 @@ namespace CrusadeLibrary
             Tuple<int, int> boardSize = new Tuple<int, int>(Gameboard.BOARD_ROW, Gameboard.BOARD_COL);
             return boardSize;
         }
-
-
-        //public void BeginNextTurn()
-        //{
-        //    if (CurrentPlayer == Player1)
-        //        CurrentPlayer = Player2;
-
-        //    else // currentPlayer == _player2
-        //        CurrentPlayer = Player1;
-
-        //    CurrentPlayer.DrawFromDeck();
-        //}
 
 
         public Player.PlayerNumber GetCurrentPlayer()
@@ -165,12 +160,9 @@ namespace CrusadeLibrary
             try
             {
                 ICard card = CurrentState.PlayCard(this, playerId, cardSlot, row, col);
-                if (CurrentPlayer.ActionPoints == 0)
-                {
-                    CurrentState = CurrentState.GetNextState(this);
 
-                    return new Tuple<ICard, bool>(card, true);
-                }
+                if (nextState())           
+                    return new Tuple<ICard, bool>(card, true);                
                 else
                     return new Tuple<ICard, bool>(card, false);
             }
@@ -178,9 +170,31 @@ namespace CrusadeLibrary
             {
                 throw new GameStateException(ex.Message);
             }
+        }       
+
+
+
+        #endregion
+
+
+        #region Private Methods
+
+        /// <summary>
+        /// Deducts an actionPoint from the current player. If their AP == 0, the Current State will move to next.
+        /// </summary>
+        /// <returns>bool based on whether or not state has changed.</returns>
+        private bool nextState()
+        {
+            --CurrentPlayer.ActionPoints;
+
+            if (CurrentPlayer.ActionPoints == 0)
+            {
+                CurrentState = CurrentState.GetNextState(this);
+                return true;
+            }
+            else
+                return false;
         }
-
-
         #endregion
     }
 }

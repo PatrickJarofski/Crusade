@@ -17,6 +17,12 @@ namespace CrusadeLibrary
         }
 
 
+        public override State GetNextState(CrusadeGame game)
+        {
+            return new StateNextPlayerTurn().entry(game, null);
+        }
+
+
         public override State entry(CrusadeGame game, object obj)
         {
             // stub
@@ -47,8 +53,6 @@ namespace CrusadeLibrary
 
                     game.Board.PlaceGamePiece(new GamePieceTroop(row, col, playerId, hand[cardSlot].Name));
 
-                    --game.CurrentPlayer.ActionPoints;
-
                     return game.CurrentPlayer.PlayCard(cardSlot);
                 }
                 catch(IndexOutOfRangeException)
@@ -61,10 +65,11 @@ namespace CrusadeLibrary
                 }
             }
         }
+        
 
-        public override State GetNextState(CrusadeGame game)
+        public override void MoveTroop(CrusadeGame game, Guid ownerId, int startRow, int startCol, int endRow, int endCol)
         {
-            return new StateNextPlayerTurn().entry(game, null);
+            game.Board.MovePiece(ownerId, startRow, startCol, endRow, endCol);
         }
     }
 }

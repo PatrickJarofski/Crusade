@@ -16,6 +16,8 @@ namespace ReqRspLib
 
         void PlayCard(Guid clientId, int cardNum, int x, int y);
 
+        void MoveTroop(Guid clientId, int startRow, int startCol, int endRow, int endCol);
+
         void WriteErrorToConsole(string error);
 
         void WriteErrorToLog(string error);

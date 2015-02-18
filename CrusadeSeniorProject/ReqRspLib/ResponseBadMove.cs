@@ -14,7 +14,7 @@ namespace ReqRspLib
 
         public void Execute(ICrusadeClient client)
         {
-            Console.WriteLine("ERROR: {0}", _error);
+            Console.WriteLine("\nERROR: {0}", _error);
         }
     }
 }

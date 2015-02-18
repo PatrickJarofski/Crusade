@@ -7,7 +7,7 @@ namespace ReqRspLib
     {
         public void Execute(ICrusadeClient client)
         {
-            Console.WriteLine("Start game.");
+            Console.WriteLine("Start game.\n");
             client.BeginGame();
         }
     }

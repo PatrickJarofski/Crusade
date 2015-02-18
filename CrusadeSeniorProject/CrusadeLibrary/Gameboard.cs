@@ -105,5 +105,34 @@ namespace CrusadeLibrary
                 throw new IndexOutOfRangeException("Dimensions passed are out of the gameboard's bounds.");
             }
         }
+
+
+        public void MovePiece(Guid ownerId, int startRow, int startCol, int endRow, int endCol)
+        {
+            try
+            {
+                if (CellOccupied(endRow, endCol))
+                    throw new IllegalActionException("Target destination is occupied.");
+
+                GamePieceTroop piece = _board[startRow, startCol];
+                if (piece.OwnerID != ownerId)
+                    throw new IllegalActionException("You do not own that piece.");
+
+                _board[endRow, endCol] = piece;
+                RemoveGamePiece(startRow, startCol);
+            }
+            catch(IndexOutOfRangeException)
+            {
+                throw new IllegalActionException("Invalid coordinates.");
+            }
+            catch(ArgumentOutOfRangeException)
+            {
+                throw new IllegalActionException("Invalid coordinates.");
+            }
+            catch(NullReferenceException)
+            {
+                throw new IllegalActionException("Empty Cell Selected.");
+            }
+        }
     }
 }
