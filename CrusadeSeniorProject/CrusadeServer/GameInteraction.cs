@@ -63,10 +63,12 @@ namespace CrusadeServer
 
         public void GivePlayerGameboard(Guid clientId)
         {
-            CrusadeLibrary.IGamePiece[,] board = _game.GetBoardState();
+            CrusadeLibrary.GamePieceTroop[,] board = _game.GetBoardState();
 
             int numRows = board.GetUpperBound(0) + 1; // GetUpperBound() returns the highest # index
             int numCols = board.GetUpperBound(1) + 1; // for the dimension specified. +1 to it make one-based
+
+            ReqRspLib.ClientGamePiece[,] newBoard = new ClientGamePiece[numRows, numCols];
 
             string[,] convertedBoard = new string[numRows, numCols];
             for(int row = 0; row < numRows; ++row)
@@ -166,8 +168,7 @@ namespace CrusadeServer
             }
         }
 
-
-
+        
         public void MoveTroop(Guid clientId, int startRow, int startCol, int endRow, int endCol)
         {
             try
@@ -189,7 +190,6 @@ namespace CrusadeServer
         }
 
 
-
         private void GetNextPlayerAction(Guid clientId)
         {
             GivePlayerHand(clientId);
@@ -202,8 +202,7 @@ namespace CrusadeServer
             ResponseGetPlayerAction rsp = new ResponseGetPlayerAction();
             SendData(clientId, rsp);
         }
-
-
+        
 
         /// <summary>
         /// Writes the given string to the server's error log.

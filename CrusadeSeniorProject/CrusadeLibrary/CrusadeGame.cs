@@ -48,6 +48,7 @@ namespace CrusadeLibrary
             CurrentState = new StateNewGame().entry(this, null);
         }
 
+
         public CrusadeGame(Guid player1Id, Guid player2Id)
         {
             _board = new Gameboard();
@@ -56,6 +57,7 @@ namespace CrusadeLibrary
 
             CurrentState = new StateNewGame().entry(this, null);
         }
+
 
         public bool MoveTroop(Guid clientId, int startRow, int startCol, int endRow, int endCol)
         {
@@ -72,9 +74,9 @@ namespace CrusadeLibrary
         }
 
 
-        public IGamePiece[,] GetBoardState()
-        {
-            IGamePiece[,] board = new IGamePiece[Gameboard.BOARD_ROW, Gameboard.BOARD_COL];
+        public GamePieceTroop[,] GetBoardState()
+        {         
+            GamePieceTroop[,] board = new GamePieceTroop[Gameboard.BOARD_ROW, Gameboard.BOARD_COL];
 
             for (int row = 0; row < Gameboard.BOARD_ROW; ++row)
             {
@@ -171,7 +173,6 @@ namespace CrusadeLibrary
                 throw new GameStateException(ex.Message);
             }
         }       
-
 
 
         #endregion

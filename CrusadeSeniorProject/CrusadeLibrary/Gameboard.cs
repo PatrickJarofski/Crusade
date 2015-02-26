@@ -94,7 +94,10 @@ namespace CrusadeLibrary
         {
             try
             {
-                return _board[row, col];
+                if (CellOccupied(row, col))
+                    return _board[row, col];
+                else
+                    return null;
             }
             catch(IndexOutOfRangeException)
             {
@@ -115,7 +118,7 @@ namespace CrusadeLibrary
                     throw new IllegalActionException("Target destination is occupied.");
 
                 GamePieceTroop piece = _board[startRow, startCol];
-                if (piece.OwnerID != ownerId)
+                if (piece.Owner != ownerId)
                     throw new IllegalActionException("You do not own that piece.");
 
                 _board[endRow, endCol] = piece;

@@ -285,6 +285,7 @@ namespace CrusadeServer
             }
         }
 
+
         private void printDebugPlayerIds()
         {
             Console.WriteLine("Client 1 ID: {0}", _clientList[0].ID.ToString());

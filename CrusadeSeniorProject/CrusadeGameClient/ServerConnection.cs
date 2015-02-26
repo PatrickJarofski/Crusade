@@ -265,6 +265,43 @@ namespace CrusadeGameClient
         }
 
 
+        public void GetCellInfo()
+        {
+            int row = 0;
+            int col = 0;
+            int maxRow = _gameboard.GetUpperBound(0) + 1;
+            int maxCol = _gameboard.GetUpperBound(1) + 1;
+
+            bool validChoice = false;
+            string input;
+
+            while (!validChoice)
+            {
+                Console.WriteLine("\nSelect which cell to poll using 'row col'");
+                input = Console.ReadLine();
+                if (input.Length == 3)
+                {
+                    row = (Convert.ToInt32(input[0] - 48)) - 1; // Adjust for ascii, then make zero based
+                    col = (Convert.ToInt32(input[2] - 48)) - 1;
+
+                    if (row < 0 || col < 0)
+                        Console.WriteLine("Please enter positive coordinates.");
+                    else if (row > maxRow || col > maxCol)
+                        Console.WriteLine("Please enter coordinates with the gameboard bounds.");     
+                    else
+                    {
+                        validChoice = true;
+                        printCell(row, col);
+                    }
+                }
+                else
+                    Console.WriteLine("Invalid selection.");
+            }
+
+            GetPlayerAction();
+        }
+
+
         public void BeginGame()
         {
             if(!_inAGame)
@@ -303,21 +340,30 @@ namespace CrusadeGameClient
 
             while (!validChoice)
             {
-                Console.WriteLine("Please choose an Action to perform: 1. Play Card or 2. Move Troop");
+                Console.WriteLine("Please choose an Action to perform:");
+                Console.WriteLine("{0} \n{1} \n{2} \n{3}", "1. Play Card", "2. Move Troop", "3. Troop Combat", "4. Check Cell");
                 option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
 
-                if (option == 1)
+                switch(option)
                 {
-                    GetCardToPlay();
-                    validChoice = true;
+                    case 1:
+                        GetCardToPlay();
+                        validChoice = true;
+                        break;
+                    case 2:
+                        GetTroopToMove();
+                        validChoice = true;
+                        break;
+                    case 3:
+                        Console.WriteLine("Currently not available!");
+                        break;
+                    case 4:
+                        GetCellInfo();
+                        break;
+                    default:
+                        Console.WriteLine("Invalid selection.");
+                        break;
                 }
-                else if(option == 2)
-                {
-                    GetTroopToMove();
-                    validChoice = true;
-                }
-                else
-                    Console.WriteLine("Invalid selection.");
             }
         }
         #endregion
@@ -512,6 +558,24 @@ namespace CrusadeGameClient
             }
 
             return new Tuple<int, int>(newRow, newCol);
+        }
+
+
+        private void printCell(int row, int col)
+        {
+            if (_gameboard[row, col] == null)
+                Console.WriteLine("Cell is empty");
+            else
+            {
+                try
+                {
+                    _gameboard[row, col].print(ID);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("\nError: {0}", ex.Message);
+                }
+            }                        
         }
 
 

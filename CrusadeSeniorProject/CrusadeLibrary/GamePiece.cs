@@ -13,7 +13,7 @@ namespace CrusadeLibrary
         private Guid _ownerId;
         private string _name;
 
-        public Guid OwnerID { get { return _ownerId; } }
+        public Guid Owner { get { return _ownerId; } }
 
         public string Name { get { return _name; } }
 
