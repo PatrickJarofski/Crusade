@@ -121,6 +121,9 @@ namespace CrusadeLibrary
                 if (piece.Owner != ownerId)
                     throw new IllegalActionException("You do not own that piece.");
 
+                if (!piece.hasEnoughMovement(startRow, startCol, endRow, endCol))
+                    throw new IllegalActionException("Troop does not have enough movement.");
+
                 _board[endRow, endCol] = piece;
                 RemoveGamePiece(startRow, startCol);
             }

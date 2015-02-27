@@ -24,6 +24,12 @@ namespace CrusadeLibrary
         public int MinAttackRange { get { return minAttackRange; } }
         public int MaxAttackRange { get { return maxAttackRange; } }
 
+        public bool hasEnoughMovement(int sourceRow, int sourceCol, int destRow, int destCol)
+        {
+            int moveCost = Math.Abs(sourceRow - destRow) + Math.Abs(sourceCol - destCol);
+            return Move >= moveCost;
+        }
+
         public GamePieceTroop(int row, int col, Guid ownerId, string name)
             :base(row, col, GamePieceType.Troop, ownerId, name)
         {
