@@ -18,6 +18,12 @@ namespace CrusadeLibrary
         int maxAttackRange;
         int moveRange;
 
+        public int Attack { get { return attack; } }
+        public int Defense { get { return defense; } }
+        public int Move { get { return moveRange; } }
+        public int MinAttackRange { get { return minAttackRange; } }
+        public int MaxAttackRange { get { return maxAttackRange; } }
+
         public GamePieceTroop(int row, int col, Guid ownerId, string name)
             :base(row, col, GamePieceType.Troop, ownerId, name)
         {

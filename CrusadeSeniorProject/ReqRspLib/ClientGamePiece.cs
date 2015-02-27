@@ -8,6 +8,8 @@ namespace ReqRspLib
 {
     public class ClientGamePiece
     {
+        public const int DEFAULT_INT_VALUE = -1;
+        public const string DEFAULT_STRING_VALUE = "Unknown";
 
         public string Name { get; set; }
 
@@ -18,15 +20,29 @@ namespace ReqRspLib
         public int RowCoordinate { get; set; }
 
         public int ColCoordinate { get; set; }
-       
+
+        public int Attack { get; set; }
+
+        public int Defense { get; set; }
+
+        public int Move { get; set; }
+
+        public int MinAttackRange { get; set; }
+
+        public int MaxAttackRange { get; set; }
 
         public ClientGamePiece()
         {
-            Name = "Unknown";
-            Owner = "Unknown";
-            Type = "Unknown";
-            RowCoordinate = -1;
-            ColCoordinate = -1;
+            Name = DEFAULT_STRING_VALUE;
+            Owner = DEFAULT_STRING_VALUE;
+            Type = DEFAULT_STRING_VALUE;
+            RowCoordinate = DEFAULT_INT_VALUE;
+            ColCoordinate = DEFAULT_INT_VALUE;
+            Attack = DEFAULT_INT_VALUE;
+            Defense = DEFAULT_INT_VALUE;
+            Move = DEFAULT_INT_VALUE;
+            MinAttackRange = DEFAULT_INT_VALUE;
+            MaxAttackRange = DEFAULT_INT_VALUE;
         }       
 
 
@@ -41,8 +57,11 @@ namespace ReqRspLib
             Console.WriteLine("{0}----------------------------------", Environment.NewLine);
             Console.WriteLine("Name:    {0}", Name);
             Console.WriteLine("Owner:   {0}", owner);
+            Console.WriteLine("Atk/Def: {0}/{1}", Attack, Defense);
+            Console.WriteLine("Move:    {0}", Move);
+            Console.WriteLine("Range:   {0} - {1}", MinAttackRange, MaxAttackRange);
             Console.WriteLine("Location [{0}, {1}]", RowCoordinate+1, ColCoordinate+1);
-            Console.WriteLine("{0}----------------------------------", Environment.NewLine);
+            Console.WriteLine("----------------------------------{0}", Environment.NewLine);
         }
     }
 }

@@ -204,7 +204,7 @@ namespace CrusadeGameClient
 
         public void GetCardToPlay()
         {
-            Console.WriteLine("Select a card to play.");
+            Console.WriteLine("{0}{0}Select a card to play.", Environment.NewLine);
             DisplayHand();
             int option = -1;
             bool validChoice = false;
@@ -220,7 +220,7 @@ namespace CrusadeGameClient
 
                     if (Hand[option - 1].Type == "1")
                     {
-                        Tuple<int, int> coords = GetDeployCoordinates();
+                        Tuple<int, int> coords = GetUserCoordinates("Select where the troop should be deployed 'Row Col'");
                         rsp = new RequestPlayCard(ID, (option - 1), (coords.Item1), (coords.Item2));
                     }
                     else                    
@@ -239,64 +239,31 @@ namespace CrusadeGameClient
 
         public void GetTroopToMove()
         {
-            bool validChoice = false;
-            int row = -1;
-            int col = -1;
-            string input;
+            Tuple<int, int> coords;
+            Tuple<int, int> targetSpot;
 
-            while(!validChoice)
+            bool valid = false;
+            while(!valid)
             {
-                Console.WriteLine("Select one of your troops to move in the form of 'Row Col'");
-                input = Console.ReadLine();
-                if (input.Length == 3)
-                {
-                    row = (Convert.ToInt32(input[0] - 48)) - 1; // Adjust for ascii, then make zero based
-                    col = (Convert.ToInt32(input[2] - 48)) - 1;
+                coords = GetUserCoordinates("Select one of your troops to move in the form of 'Row Col'");
+                targetSpot = GetUserCoordinates("Select which cell to move to using 'Row Col'");
 
-                    Tuple<int, int> targetSpot = GetTargetMoveCoordinates(row, col);
-                    RequestMoveTroop rsp = new RequestMoveTroop(ID, row, col, targetSpot.Item1, targetSpot.Item2);
-                    SendRequestToServer(rsp);
-
-                    validChoice = true;
-                }
+                if (coords.Item1 == targetSpot.Item1 && coords.Item2 == targetSpot.Item2)
+                    Console.WriteLine("Current location and destination are the same.");
                 else
-                    Console.WriteLine("Invalid selection.");
+                {
+                    valid = true;
+                    RequestMoveTroop rsp = new RequestMoveTroop(ID, coords.Item1, coords.Item2, targetSpot.Item1, targetSpot.Item2);
+                    SendRequestToServer(rsp);
+                }
             }
         }
 
 
         public void GetCellInfo()
         {
-            int row = 0;
-            int col = 0;
-            int maxRow = _gameboard.GetUpperBound(0) + 1;
-            int maxCol = _gameboard.GetUpperBound(1) + 1;
-
-            bool validChoice = false;
-            string input;
-
-            while (!validChoice)
-            {
-                Console.WriteLine("\nSelect which cell to poll using 'row col'");
-                input = Console.ReadLine();
-                if (input.Length == 3)
-                {
-                    row = (Convert.ToInt32(input[0] - 48)) - 1; // Adjust for ascii, then make zero based
-                    col = (Convert.ToInt32(input[2] - 48)) - 1;
-
-                    if (row < 0 || col < 0)
-                        Console.WriteLine("Please enter positive coordinates.");
-                    else if (row > maxRow || col > maxCol)
-                        Console.WriteLine("Please enter coordinates with the gameboard bounds.");     
-                    else
-                    {
-                        validChoice = true;
-                        printCell(row, col);
-                    }
-                }
-                else
-                    Console.WriteLine("Invalid selection.");
-            }
+            Tuple<int, int> coords = GetUserCoordinates("Select which cell to poll using 'row col'");
+            printCell(coords.Item1, coords.Item2);          
 
             GetPlayerAction();
         }
@@ -366,6 +333,7 @@ namespace CrusadeGameClient
                 }
             }
         }
+
         #endregion
 
 
@@ -487,77 +455,35 @@ namespace CrusadeGameClient
         }
 
 
-        private Tuple<int, int> GetDeployCoordinates()
+        public Tuple<int, int> GetUserCoordinates(string msg)
         {
-            bool valid = false;
-            int row = -1;
-            int col = -1;
-            int boardRows = _gameboard.GetUpperBound(0) + 1;
-            int boardCols = _gameboard.GetUpperBound(1) + 1;
-            string line;
-
-            Tuple<int, int> coords = null;
-
-            while(!valid)
-            {
-                Console.WriteLine("{0} Please select where to deploy the troop (row col): ", Environment.NewLine);
-
-                line = Console.ReadLine();
-
-                if (line.Length == 3)
-                {
-                    row = (Convert.ToInt32(line[0]) - 48) - 1;
-                    col = (Convert.ToInt32(line[2]) - 48) - 1;
-
-                    if (row <= boardRows && col <= boardCols && row > -1 && col > -1)
-                    {
-                        coords = new Tuple<int, int>(row, col);
-                        valid = true;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid coordinates.");
-                        while (Console.KeyAvailable)    // "flush" input stream
-                            Console.ReadKey(true);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Invalid coordinates.");
-                    while (Console.KeyAvailable)    // "flush" input stream
-                        Console.ReadKey(true);
-                }
-            }
-
-            return coords;
-        }
-
-
-        private Tuple<int, int> GetTargetMoveCoordinates(int row, int col)
-        {
-            int newRow = -1;
-            int newCol = -1;
+            int row = 0;
+            int col = 0;
+            int maxRow = _gameboard.GetUpperBound(0) + 1;
+            int maxCol = _gameboard.GetUpperBound(1) + 1;
 
             bool validChoice = false;
-            while(!validChoice)
-            {
-                Console.WriteLine("Please select where to move to using 'Row Col'");
-                string line = Console.ReadLine();
-                if (line.Length == 3)
-                {
-                    newRow = (Convert.ToInt32(line[0]) - 48) - 1;
-                    newCol = (Convert.ToInt32(line[2]) - 48) - 1;
+            string input;
 
-                    if (newRow == row && newCol == col)
-                        Console.WriteLine("Starting and target coordinates are the same.");
-                    else                        
-                        return new Tuple<int, int>(newRow, newCol);
+            while (!validChoice)
+            {
+                Console.WriteLine("{0}{0}" + msg, Environment.NewLine);
+                input = Console.ReadLine();
+                if (input.Length == 3)
+                {
+                    row = (Convert.ToInt32(input[0] - 48)) - 1; // Adjust for ascii, then make zero based
+                    col = (Convert.ToInt32(input[2] - 48)) - 1;
+
+                    if (row < 0 || col < 0 || row > maxRow || col > maxCol)
+                        Console.WriteLine("Please enter coordinates with the game board's bounds.");
+                    else
+                        validChoice = true;
                 }
                 else
                     Console.WriteLine("Invalid selection.");
             }
 
-            return new Tuple<int, int>(newRow, newCol);
+            return new Tuple<int, int>(row, col);
         }
 
 
