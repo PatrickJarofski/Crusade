@@ -269,6 +269,16 @@ namespace CrusadeGameClient
         }
 
 
+        public void GetTroopCombat()
+        {
+            Tuple<int, int> attackerCoords = GetUserCoordinates("Which troop will you attack with? 'Row Col'");
+            Tuple<int, int> defenderCoords = GetUserCoordinates("Which troop will you target? 'Row Col'");
+            RequestTroopCombat req = new RequestTroopCombat(ID, attackerCoords.Item1, attackerCoords.Item2, 
+                defenderCoords.Item1, defenderCoords.Item2);
+            SendRequestToServer(req);
+        }
+
+
         public void BeginGame()
         {
             if(!_inAGame)
@@ -283,6 +293,10 @@ namespace CrusadeGameClient
         public void EndGame()
         {
             _inAGame = false;
+            Disconnect();
+
+            Console.WriteLine("Game is done. Press any key to exit.");
+            Console.ReadKey();
         }
 
 
@@ -322,10 +336,12 @@ namespace CrusadeGameClient
                         validChoice = true;
                         break;
                     case 3:
-                        Console.WriteLine("Currently not available!");
+                        GetTroopCombat();
+                        validChoice = true;
                         break;
                     case 4:
                         GetCellInfo();
+                        validChoice = true;
                         break;
                     default:
                         Console.WriteLine("Invalid selection.");

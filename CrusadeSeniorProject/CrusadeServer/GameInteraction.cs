@@ -8,6 +8,8 @@ using ReqRspLib;
 
 namespace CrusadeServer
 {
+    #region Public Methods
+
     public partial class Server : ReqRspLib.ICrusadeServer
     {
         /// <summary>
@@ -180,7 +182,7 @@ namespace CrusadeServer
             }
             catch(CrusadeLibrary.IllegalActionException ex)
             {
-                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetTroopMove());
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
             }
             catch (CrusadeLibrary.GameStateException ex)
             {
@@ -190,51 +192,39 @@ namespace CrusadeServer
         }
 
 
-        private void GetNextPlayerAction(Guid clientId)
+        public void TroopCombat(Guid clientId, int atkRow, int atkCol, int defRow, int defCol)
         {
-            GivePlayerHand(clientId);
-
-            GiveAllPlayersGameboard();
-
-            ResponseMessage msg = new ResponseMessage("\nRemaining Action Points: " + _game.CurrentPlayerAP.ToString());
-            SendData(clientId, msg);
-
-            ResponseGetPlayerAction rsp = new ResponseGetPlayerAction();
-            SendData(clientId, rsp);
-        }
-        
-
-        /// <summary>
-        /// Writes the given string to the server's error log.
-        /// </summary>
-        /// <param name="error">String to write</param>
-        public void WriteErrorToLog(string error)
-        {
-            lock (lockObject)
+            try
             {
-                string path = DateTime.Now.ToString("yyyy-MM-dd" + " Server Log");
-                string msg = DateTime.Now.ToString("hh:mm:ss ") + error;
-                System.IO.File.AppendAllText(path, msg);
+                Tuple<bool, List<string>, Guid> results = _game.TroopCombat(clientId, atkRow, atkCol, defRow, defCol);
+                foreach (string str in results.Item2)
+                {
+                    BroadcastToClients(new ResponseMessage(str));
+                }
+
+                if (results.Item3 == Guid.Empty) // No winner yet, keep playing
+                {
+                    if (results.Item1)
+                        BeginNextTurn();
+                    else
+                        GetNextPlayerAction(clientId);
+                }
+                else
+                {
+                    BroadcastToClients(new ResponseGameFinished(results.Item3));
+                    _game = null;
+                }
+            }
+            catch(CrusadeLibrary.IllegalActionException ex)
+            {
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
             }
         }
 
+        #endregion
 
-        /// <summary>
-        /// Writes a given string to the console with additional formatting for readability.
-        /// </summary>
-        /// <param name="error">String to write.</param>
-        public void WriteErrorToConsole(string error)
-        {
-            lock (lockObject)
-            {
-                Console.WriteLine(Environment.NewLine);
-                Console.WriteLine("====================================================================");
-                Console.WriteLine(error);
-                Console.WriteLine("====================================================================");
-                Console.WriteLine(Environment.NewLine);
-            }
-        }
 
+        #region Private Methods
 
         /// <summary>
         /// Gets the GameClient that matches the given Guid.
@@ -274,7 +264,22 @@ namespace CrusadeServer
 
             ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(_game.CurrentPlayerId);
             BroadcastToClients(rsp);
-        }       
+        }
+
+
+        private void GetNextPlayerAction(Guid clientId)
+        {
+            GivePlayerHand(clientId);
+
+            GiveAllPlayersGameboard();
+
+            ResponseMessage msg = new ResponseMessage("\nRemaining Action Points: " + _game.CurrentPlayerAP.ToString());
+            SendData(clientId, msg);
+
+            ResponseGetPlayerAction rsp = new ResponseGetPlayerAction();
+            SendData(clientId, rsp);
+        }
+
 
         /// <summary>
         /// Sends the client an error message that their input was invalid, then asks for new input.
@@ -287,7 +292,41 @@ namespace CrusadeServer
             ResponseBadMove rsp = new ResponseBadMove(er);
             SendData(clientId, rsp);
 
-            SendData(clientId, actionToGet); 
+            SendData(clientId, actionToGet);
         }
+
+
+        /// <summary>
+        /// Writes the given string to the server's error log.
+        /// </summary>
+        /// <param name="error">String to write</param>
+        public void WriteErrorToLog(string error)
+        {
+            lock (lockObject)
+            {
+                string path = DateTime.Now.ToString("yyyy-MM-dd" + " Server Log");
+                string msg = DateTime.Now.ToString("hh:mm:ss ") + error;
+                System.IO.File.AppendAllText(path, msg);
+            }
+        }
+
+
+        /// <summary>
+        /// Writes a given string to the console with additional formatting for readability.
+        /// </summary>
+        /// <param name="error">String to write.</param>
+        public void WriteErrorToConsole(string error)
+        {
+            lock (lockObject)
+            {
+                Console.WriteLine(Environment.NewLine);
+                Console.WriteLine("====================================================================");
+                Console.WriteLine(error);
+                Console.WriteLine("====================================================================");
+                Console.WriteLine(Environment.NewLine);
+            }
+        }
+
+        #endregion
     }
 }

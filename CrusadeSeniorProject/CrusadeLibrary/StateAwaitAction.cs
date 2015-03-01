@@ -51,7 +51,7 @@ namespace CrusadeLibrary
                     if (hand[cardSlot].Type != CardType.Troop)
                         throw new NotImplementedException("Non-Troop cards are currently not supported.");
 
-                    game.Board.PlaceGamePiece(new GamePieceTroop(row, col, playerId, hand[cardSlot].Name));
+                    game.Board.DeployGamePiece(new GamePieceTroop(row, col, playerId, hand[cardSlot].Name));
 
                     return game.CurrentPlayer.PlayCard(cardSlot);
                 }
@@ -70,6 +70,95 @@ namespace CrusadeLibrary
         public override void MoveTroop(CrusadeGame game, Guid ownerId, int startRow, int startCol, int endRow, int endCol)
         {
             game.Board.MovePiece(ownerId, startRow, startCol, endRow, endCol);
+        }
+
+
+        public override Tuple<State, List<string>> TroopCombat(CrusadeGame game, Guid turnPlayer, int atkRow, int atkCol, int defRow, int defCol)
+        {
+            if (turnPlayer != game.CurrentPlayer.ID)
+                throw new IllegalActionException("It is not your turn.");
+
+            GamePieceTroop atkPiece = game.Board.GetPiece(atkRow, atkCol);
+            GamePieceTroop defPiece = game.Board.GetPiece(defRow, defCol);
+
+            if (!opposingPieces(atkPiece, defPiece))
+                throw new IllegalActionException("You cannot attack troops that you own.");
+
+            if (!inRange(atkPiece, defPiece))
+                throw new IllegalActionException("Target is not within range.");
+
+            doCombat(atkPiece, defPiece);
+            List<string> troopsDefeated = checkForDefeatedTroops(game, atkPiece, defPiece);
+            State nextState = checkState(atkPiece, defPiece);
+
+            return new Tuple<State, List<string>>(nextState, troopsDefeated);
+        }
+
+
+        private bool opposingPieces(GamePieceTroop atkPiece, GamePieceTroop defPiece)
+        {
+            return atkPiece.Owner != defPiece.Owner;
+        }
+
+
+        private bool inRange(GamePieceTroop atkPiece, GamePieceTroop defPiece)
+        {
+            return atkPiece.hasAttackRange(atkPiece.RowCoordinate, atkPiece.ColCoordinate, defPiece.RowCoordinate, defPiece.ColCoordinate);
+        }
+
+
+        private void doCombat(GamePieceTroop atkPiece, GamePieceTroop defPiece)
+        {
+            atkPiece.RemainingDefense = atkPiece.RemainingDefense - defPiece.Attack;
+            defPiece.RemainingDefense = defPiece.RemainingDefense - atkPiece.Attack;
+        }   
+
+
+        private List<string> checkForDefeatedTroops(CrusadeGame game, GamePieceTroop atkPiece, GamePieceTroop defPiece)
+        {
+            List<string> troops = new List<string>();
+            string defeatMsg = " has been defeated!";
+
+            if (atkPiece.RemainingDefense <= 0)
+            {
+                game.Board.RemoveGamePiece(atkPiece.RowCoordinate, atkPiece.ColCoordinate);
+                troops.Add(atkPiece.Name + defeatMsg);
+            }
+
+            if (defPiece.RemainingDefense <= 0)
+            {
+                game.Board.RemoveGamePiece(defPiece.RowCoordinate, defPiece.ColCoordinate);
+                troops.Add(defPiece.Name + defeatMsg);
+            }
+
+            return troops;
+        }
+
+
+        private bool gameIsTie(GamePieceTroop atkPiece, GamePieceTroop defPiece)
+        {
+            return atkPiece.Name == GamePiece.COMMANDER && atkPiece.RemainingDefense <= 0 
+                && defPiece.Name == GamePiece.COMMANDER && defPiece.RemainingDefense <= 0;
+        }
+
+        private bool defeatedCommander(GamePieceTroop piece)
+        {
+            return piece.RemainingDefense <= 0;
+        }
+
+        private State checkState(GamePieceTroop atkPiece, GamePieceTroop defPiece)
+        {
+            if (gameIsTie(atkPiece, defPiece))
+                return new StateTieGame();            
+
+            if (defeatedCommander(defPiece))
+                return new StateAttackerWins();            
+
+            if (defeatedCommander(atkPiece))
+                return new StateDefenderWins();            
+
+            // state hasn't changed
+            return this;
         }
     }
 }

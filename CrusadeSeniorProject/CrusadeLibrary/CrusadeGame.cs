@@ -94,22 +94,6 @@ namespace CrusadeLibrary
         }
 
 
-        public Tuple<int, int> GetBoardDimensions()
-        {
-            Tuple<int, int> boardSize = new Tuple<int, int>(Gameboard.BOARD_ROW, Gameboard.BOARD_COL);
-            return boardSize;
-        }
-
-
-        public Player.PlayerNumber GetCurrentPlayer()
-        {
-            if (CurrentPlayer == Player1)
-                return Player.PlayerNumber.PlayerOne;
-            else
-                return Player.PlayerNumber.PlayerTwo;
-        }
-
-
         public List<Card> GetPlayerHand(Player.PlayerNumber player)
         {
             if (player == Player.PlayerNumber.NotAPlayer)
@@ -175,20 +159,29 @@ namespace CrusadeLibrary
         }       
 
 
+        public Tuple<bool, List<string>, Guid> TroopCombat(Guid turnPlayer, int atkRow, int atkCol, int defRow, int defCol)
+        {
+            // return state?
+            Tuple<State,List<string>> values = CurrentState.TroopCombat(this, turnPlayer, atkRow, atkCol, defRow, defCol);
+            CurrentState = values.Item1;
+            Guid winner = CurrentState.GetWinner(this);
+
+            return new Tuple<bool, List<string>, Guid>(nextState(), values.Item2, winner);
+        }
         #endregion
 
 
         #region Private Methods
 
         /// <summary>
-        /// Deducts an actionPoint from the current player. If their AP == 0, the Current State will move to next.
+        /// Deducts an actionPoint from the current player. If their AP < 1, the Current State will move to next.
         /// </summary>
         /// <returns>bool based on whether or not state has changed.</returns>
         private bool nextState()
         {
             --CurrentPlayer.ActionPoints;
 
-            if (CurrentPlayer.ActionPoints == 0)
+            if (CurrentPlayer.ActionPoints < 1)
             {
                 CurrentState = CurrentState.GetNextState(this);
                 return true;

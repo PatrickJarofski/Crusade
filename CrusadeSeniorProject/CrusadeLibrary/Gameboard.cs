@@ -9,6 +9,8 @@ namespace CrusadeLibrary
     {
         public const int BOARD_COL = 5;
         public const int BOARD_ROW = 5;
+        public const int PLAYER1_ROW = 0;
+        public const int PLAYER2_ROW = 4;
 
         private GamePieceTroop[,] _board;
 
@@ -26,7 +28,7 @@ namespace CrusadeLibrary
         /// Place a game piece on the board
         /// </summary>
         /// <param name="piece">GamePiece to place</param>
-        public void PlaceGamePiece(GamePieceTroop piece)
+        public void DeployGamePiece(GamePieceTroop piece)
         {
             try
             {
@@ -121,10 +123,12 @@ namespace CrusadeLibrary
                 if (piece.Owner != ownerId)
                     throw new IllegalActionException("You do not own that piece.");
 
-                if (!piece.hasEnoughMovement(startRow, startCol, endRow, endCol))
+                if (!piece.hasMoveRange(startRow, startCol, endRow, endCol))
                     throw new IllegalActionException("Troop does not have enough movement.");
 
                 _board[endRow, endCol] = piece;
+                piece.RowCoordinate = endRow;
+                piece.ColCoordinate = endCol;
                 RemoveGamePiece(startRow, startCol);
             }
             catch(IndexOutOfRangeException)

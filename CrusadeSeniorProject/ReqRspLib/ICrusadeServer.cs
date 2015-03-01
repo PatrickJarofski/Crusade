@@ -18,8 +18,6 @@ namespace ReqRspLib
 
         void MoveTroop(Guid clientId, int startRow, int startCol, int endRow, int endCol);
 
-        void WriteErrorToConsole(string error);
-
-        void WriteErrorToLog(string error);
+        void TroopCombat(Guid clientId, int atkRow, int atkCol, int defRow, int defCol);
     }
 }

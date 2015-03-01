@@ -7,6 +7,8 @@ namespace CrusadeLibrary
 {
     public abstract class GamePiece : BaseGameObject, IGamePiece
     {
+        public const string COMMANDER = "Commander";
+
         private int _rowCoordinate;
         private int _colCoordinate;
         private GamePieceType _type;

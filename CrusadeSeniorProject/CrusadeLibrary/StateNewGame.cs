@@ -25,10 +25,10 @@ namespace CrusadeLibrary
 
         private void PlaceCommanders(CrusadeGame game)
         {
-            GamePieceTroop commander1 = new GamePieceTroop(0, 2, game.Player1.ID, "Commander");
-            GamePieceTroop commander2 = new GamePieceTroop(4, 2, game.Player2.ID, "Commander");
-            game.Board.PlaceGamePiece(commander1);
-            game.Board.PlaceGamePiece(commander2);
+            GamePieceTroop commander1 = new GamePieceTroop(0, 2, game.Player1.ID, GamePiece.COMMANDER);
+            GamePieceTroop commander2 = new GamePieceTroop(4, 2, game.Player2.ID, GamePiece.COMMANDER);
+            game.Board.DeployGamePiece(commander1);
+            game.Board.DeployGamePiece(commander2);
         }
 
         public override State entry(CrusadeGame game, object obj)
