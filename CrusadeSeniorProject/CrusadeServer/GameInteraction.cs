@@ -145,6 +145,8 @@ namespace CrusadeServer
         {
             try
             {
+                confirmBackRowDeploy(clientId, row);
+
                 Tuple<CrusadeLibrary.ICard, bool> value = _game.PlayCard(clientId, cardNum, row, col);
 
                 ResponsePlayCard rsp = new ResponsePlayCard(value.Item1.Name, row, col);
@@ -157,16 +159,16 @@ namespace CrusadeServer
             }
             catch(CrusadeLibrary.IllegalActionException ex)
             {
-                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetCardToPlay());
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
             }
             catch(NotImplementedException ex)
             {
-                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetCardToPlay());
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
             }
             catch(CrusadeLibrary.GameStateException ex)
             {
                 Console.WriteLine("GameStateException: {0}", ex.Message);
-                SendInvalidChoiceError("You can't do that right now.", clientId, new ResponseGetCardToPlay());
+                SendData(clientId, new ResponseBadMove("You can't do that right now."));
             }
         }
 
@@ -187,7 +189,7 @@ namespace CrusadeServer
             catch (CrusadeLibrary.GameStateException ex)
             {
                 Console.WriteLine("GameStateException: {0}", ex.Message);
-                SendInvalidChoiceError("You can't do that right now.", clientId, new ResponseGetCardToPlay());
+                SendData(clientId, new ResponseBadMove("You can't do that right now."));
             }
         }
 
@@ -219,6 +221,12 @@ namespace CrusadeServer
             {
                 SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
             }
+            catch (CrusadeLibrary.GameStateException ex)
+            {
+                Console.WriteLine("GameStateException: {0}", ex.Message);
+                SendData(clientId, new ResponseBadMove("You can't do that right now."));
+            }
+
         }
 
         #endregion
@@ -278,6 +286,23 @@ namespace CrusadeServer
 
             ResponseGetPlayerAction rsp = new ResponseGetPlayerAction();
             SendData(clientId, rsp);
+        }
+
+
+        private void confirmBackRowDeploy(Guid clientId, int row)
+        {
+            GameClient client = GetMatchingClient(clientId);
+            if (client.PlayerNumber == CrusadeLibrary.Player.PlayerNumber.PlayerOne)
+            {
+                if (row != CrusadeLibrary.Gameboard.PLAYER1_ROW)
+                    throw new CrusadeLibrary.IllegalActionException("You must deploy in your back row.");
+            }
+
+            if (client.PlayerNumber == CrusadeLibrary.Player.PlayerNumber.PlayerTwo)
+            {
+                if (row != CrusadeLibrary.Gameboard.PLAYER2_ROW)
+                    throw new CrusadeLibrary.IllegalActionException("You must deploy in your back row.");
+            }
         }
 
 

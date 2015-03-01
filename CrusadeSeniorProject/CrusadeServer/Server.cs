@@ -245,46 +245,63 @@ namespace CrusadeServer
                 count = _clientList.Count;
 
             if (count == 2)
-            {
-                int num = CrusadeLibrary.CrusadeGame.RNG.Next() % 1;
-
-                if(num == 0)
-                {
-                    _clientList[0].isTurnPlayer = true;
-                    _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
-                    _clientList[1].isTurnPlayer = false;
-                    _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
-
-                    lock (lockObject)
-                        _game = new CrusadeLibrary.CrusadeGame(_clientList[0].ID, _clientList[1].ID);
-
-
-                }
-                else
-                {
-                    _clientList[1].isTurnPlayer = true;
-                    _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
-                    _clientList[0].isTurnPlayer = false;
-                    _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
-
-                    lock (lockObject)
-                        _game = new CrusadeLibrary.CrusadeGame(_clientList[1].ID, _clientList[0].ID);
-                }
-
-                Console.WriteLine("Game started.");
-                BroadcastToClients(new ResponseStartGame());
-
-                foreach (GameClient client in _clientList)
-                {
-                    GivePlayerHand(client.ID);
-                    GivePlayerGameboard(client.ID);
-                }
-                                
-                BeginNextTurn();
-                printDebugPlayerIds();
-            }
+                startNewGame();            
         }
 
+
+        private void startNewGame()
+        {
+            int num = CrusadeLibrary.CrusadeGame.RNG.Next() % 1;
+
+            if (num == 0)
+            {
+                _clientList[0].isTurnPlayer = true;
+                _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
+                _clientList[1].isTurnPlayer = false;
+                _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
+
+                lock (lockObject)
+                    _game = new CrusadeLibrary.CrusadeGame(_clientList[0].ID, _clientList[1].ID);
+            }
+            else
+            {
+                _clientList[1].isTurnPlayer = true;
+                _clientList[1].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerOne;
+                _clientList[0].isTurnPlayer = false;
+                _clientList[0].PlayerNumber = CrusadeLibrary.Player.PlayerNumber.PlayerTwo;
+
+                lock (lockObject)
+                    _game = new CrusadeLibrary.CrusadeGame(_clientList[1].ID, _clientList[0].ID);
+            }
+
+            Console.WriteLine("Game started.");
+            assignBackRows();
+
+            foreach (GameClient client in _clientList)
+            {
+                GivePlayerHand(client.ID);
+                GivePlayerGameboard(client.ID);
+            }
+
+            BeginNextTurn();
+            printDebugPlayerIds();
+        }
+
+
+        private void assignBackRows()
+        {
+            foreach(GameClient client in _clientList)
+            {
+                if (client.PlayerNumber == CrusadeLibrary.Player.PlayerNumber.PlayerOne)
+                    SendData(client, new ResponseStartGame(0));
+
+                else if (client.PlayerNumber == CrusadeLibrary.Player.PlayerNumber.PlayerTwo)
+                    SendData(client, new ResponseStartGame(CrusadeLibrary.Gameboard.BOARD_ROW - 1));
+
+                else 
+                    throw new FormatException("Starting a new game but client is not a player.");
+            }
+        }
 
         private void printDebugPlayerIds()
         {

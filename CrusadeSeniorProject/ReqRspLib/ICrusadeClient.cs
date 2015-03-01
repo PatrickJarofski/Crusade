@@ -10,6 +10,8 @@ namespace ReqRspLib
     {
         Guid ID { get; }
 
+        int BackRow { get; set; }
+
         bool IsTurnPlayer { get; set; }
 
         List<Card> Hand { get; set; }

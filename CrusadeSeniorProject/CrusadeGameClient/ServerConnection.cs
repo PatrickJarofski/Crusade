@@ -35,6 +35,7 @@ namespace CrusadeGameClient
         #region Properties
 
         public Guid ID { get { return _clientId; } }
+        public int BackRow { get; set; }
 
         public bool IsTurnPlayer
         {
@@ -193,6 +194,8 @@ namespace CrusadeGameClient
                         else
                             Console.Write(_gameboard[row, col].Name.PadRight(12));
                     }
+                    if (row == BackRow)
+                        Console.Write(" <- Your back row");
 
                     Console.WriteLine();
                 }
