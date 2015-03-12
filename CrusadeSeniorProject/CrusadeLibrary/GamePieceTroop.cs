@@ -47,17 +47,74 @@ namespace CrusadeLibrary
             owner = ownerId;
             this.row = row;
             this.col = col;
-            attack = 1;
-            defense = 1;
-            minAttackRange = 1;
-            maxAttackRange = 1;
-            moveRange = 2;
+
+            Tuple<int, int, int, int, int> stats = getStats(name);
+
+            attack = stats.Item1;
+            defense = stats.Item2;
+            minAttackRange = stats.Item3;
+            maxAttackRange = stats.Item4;
+            moveRange = stats.Item5;
             resetRemainingDefense();
         }
 
         public void resetRemainingDefense()
         {
             remainingDefense = defense;
+        }
+
+        private Tuple<int, int, int, int, int> getStats(string troopName)
+        {
+            int atk = 1;
+            int def = 1;
+            int minAtkRange = 1;
+            int maxAtkRange = 1;
+            int moveRange = 1;
+
+            switch(troopName)
+            {
+                case "Commander":
+                    atk = 7;
+                    def = 9;
+                    break;
+                case "Archer":
+                    atk = 3;
+                    def = 3;
+                    minAtkRange = 2;
+                    maxAtkRange = 2;                    
+                    break;
+                case "Catapult":
+                    atk = 6;
+                    minAtkRange = 2;
+                    maxAtkRange = 3;
+                    break;
+                case "Crossbowman":
+                    atk = 3;
+                    def = 3;
+                    maxAtkRange = 2;
+                    break;
+                case "Crusader":
+                    atk = 5;
+                    def = 4;
+                    break;
+                case "Knight":
+                    atk = 4;
+                    def = 5;
+                    moveRange = 2;
+                    break;
+                case "Juggernaut":
+                    atk = 3;
+                    def = 7;
+                    break;
+                case "Swordsman":
+                    atk = 4;
+                    def = 4;
+                    break;
+                default:
+                    break;
+            }
+
+            return new Tuple<int, int, int, int, int>(atk, def, minAtkRange, maxAtkRange, moveRange);
         }
     }
 }

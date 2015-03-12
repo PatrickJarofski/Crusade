@@ -38,13 +38,13 @@ namespace CrusadeLibrary
         {            
             AddCardToDeck(new CardTroop("Swordsman"));
             AddCardToDeck(new CardTroop("Archer"));
-            AddCardToDeck(new CardTroop("Knight"));
-            AddCardToDeck(new CardField("Second Wind"));
+            AddCardToDeck(new CardTroop("Knight"));            
             AddCardToDeck(new CardTroop("Catapult"));
             AddCardToDeck(new CardTroop("Crusader"));
+            AddCardToDeck(new CardTroop("Swordsman"));
             AddCardToDeck(new CardTroop("Crossbowman"));
             AddCardToDeck(new CardTroop("Juggernaut"));
-            AddCardToDeck(new CardTroop("Saboteur"));
+            AddCardToDeck(new CardTroop("Archer"));
             ShuffleDeck();
         }
 

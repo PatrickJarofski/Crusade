@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using ReqRspLib;
 using System.Text;
+using Newtonsoft.Json.Serialization;
 
 namespace CrusadeServer
 {
@@ -302,6 +303,7 @@ namespace CrusadeServer
                     throw new FormatException("Starting a new game but client is not a player.");
             }
         }
+
 
         private void printDebugPlayerIds()
         {

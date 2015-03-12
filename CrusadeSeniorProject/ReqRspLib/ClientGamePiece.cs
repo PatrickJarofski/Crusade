@@ -43,7 +43,9 @@ namespace ReqRspLib
             Move = DEFAULT_INT_VALUE;
             MinAttackRange = DEFAULT_INT_VALUE;
             MaxAttackRange = DEFAULT_INT_VALUE;
-        }       
+        } 
+      
+        
 
 
         public void print(Guid clientId)

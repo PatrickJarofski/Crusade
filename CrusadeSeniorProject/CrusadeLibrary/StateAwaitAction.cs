@@ -81,6 +81,9 @@ namespace CrusadeLibrary
             GamePieceTroop atkPiece = game.Board.GetPiece(atkRow, atkCol);
             GamePieceTroop defPiece = game.Board.GetPiece(defRow, defCol);
 
+            if (atkPiece == null || defPiece == null)
+                throw new IllegalActionException("Empty cell selected.");
+
             if (!opposingPieces(atkPiece, defPiece))
                 throw new IllegalActionException("You cannot attack troops that you own.");
 
@@ -109,8 +112,12 @@ namespace CrusadeLibrary
 
         private void doCombat(GamePieceTroop atkPiece, GamePieceTroop defPiece)
         {
+            // We've already confirmed that the attacking piece has enough range for the attack
             atkPiece.RemainingDefense = atkPiece.RemainingDefense - defPiece.Attack;
-            defPiece.RemainingDefense = defPiece.RemainingDefense - atkPiece.Attack;
+
+            // If the defending has the attack range for a counter attack, it should do so
+            if(defPiece.hasAttackRange(defPiece.RowCoordinate, defPiece.ColCoordinate, atkPiece.RowCoordinate, atkPiece.ColCoordinate))
+                defPiece.RemainingDefense = defPiece.RemainingDefense - atkPiece.Attack;
         }   
 
 
