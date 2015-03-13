@@ -425,6 +425,7 @@ namespace CrusadeGameClient
                     catch (SocketException ex)
                     {
                         WriteError("Receive socket Error: " + ex.Message);
+                        Disconnect();
                     }
                     catch (IOException ex)
                     {
@@ -434,6 +435,8 @@ namespace CrusadeGameClient
                     catch (System.Runtime.Serialization.SerializationException ex)
                     {
                         WriteError("Serialization Error: " + ex.Message);
+                        if (!isConnected())
+                            Disconnect();
                     }       
                 }
             }            

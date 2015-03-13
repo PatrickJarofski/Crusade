@@ -118,14 +118,16 @@ namespace CrusadeServer
             {
                 try
                 {
-                    if (_clientList.Count < 2)
+                    TcpClient client = await _tcpListener.AcceptTcpClientAsync();
+                    if (ClientsConnected < 2)
                     {
-                        TcpClient client = await _tcpListener.AcceptTcpClientAsync();
-                        ++ClientsConnected;                   
+                        ++ClientsConnected;
 
                         Thread clientThread = new Thread(new ParameterizedThreadStart(HandleClientComm));
-                        clientThread.Start(client); 
+                        clientThread.Start(client);
                     }
+                    else
+                        client.Close();
                 }
                 catch (SocketException ex)
                 {
@@ -158,7 +160,7 @@ namespace CrusadeServer
             {                
                 try
                 {
-                    IRequest request = (IRequest)binaryFormatter.Deserialize(newClient.TCPclient.GetStream());
+                    IRequest request = (IRequest)binaryFormatter.Deserialize(clientStream);
                     ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), request);                    
                 }
                 catch(System.Runtime.Serialization.SerializationException ex)
