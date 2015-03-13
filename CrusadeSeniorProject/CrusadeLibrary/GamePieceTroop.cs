@@ -14,7 +14,6 @@ namespace CrusadeLibrary
         int col;
         int attack;
         int defense;
-        int remainingDefense;
         int minAttackRange;
         int maxAttackRange;
         int moveRange;
@@ -60,7 +59,7 @@ namespace CrusadeLibrary
 
         public void resetRemainingDefense()
         {
-            remainingDefense = defense;
+            RemainingDefense = defense;
         }
 
         private Tuple<int, int, int, int, int> getStats(string troopName)
@@ -81,17 +80,17 @@ namespace CrusadeLibrary
                     atk = 3;
                     def = 3;
                     minAtkRange = 2;
-                    maxAtkRange = 2;                    
+                    maxAtkRange = 6;                    
                     break;
                 case "Catapult":
                     atk = 6;
                     minAtkRange = 2;
-                    maxAtkRange = 3;
+                    maxAtkRange = 6;
                     break;
                 case "Crossbowman":
                     atk = 3;
                     def = 3;
-                    maxAtkRange = 2;
+                    maxAtkRange = 6;
                     break;
                 case "Crusader":
                     atk = 5;

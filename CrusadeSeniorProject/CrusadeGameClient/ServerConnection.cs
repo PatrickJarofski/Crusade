@@ -6,7 +6,6 @@ using System.Net;
 using System.IO;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
-using Newtonsoft.Json;
 using ReqRspLib;
 
 namespace CrusadeGameClient
@@ -35,6 +34,7 @@ namespace CrusadeGameClient
         #region Properties
 
         public Guid ID { get { return _clientId; } }
+
         public int BackRow { get; set; }
 
         public bool IsTurnPlayer
@@ -43,7 +43,7 @@ namespace CrusadeGameClient
             set { _isTurnPlayer = value; }
         }
 
-        public List<ReqRspLib.Card> Hand { get; set; }      
+        public List<ReqRspLib.ClientCard> Hand { get; set; }      
 
         #endregion
 
@@ -71,7 +71,7 @@ namespace CrusadeGameClient
                 _shouldReceive = true;
                 ThreadPool.QueueUserWorkItem(Receive);
 
-                Hand = new List<ReqRspLib.Card>();
+                Hand = new List<ReqRspLib.ClientCard>();
                 _gameboard = new ClientGamePiece[1, 1];
             }
             catch(SocketException ex)
@@ -127,13 +127,9 @@ namespace CrusadeGameClient
         /// Set the client's hand with a new/updated one.
         /// </summary>
         /// <param name="newHand">List of cards in the hand.</param>
-        public void SetHand(List<string> newHand)
+        public void SetHand(List<ClientCard> newHand)
         {
-            Hand.Clear();
-            foreach (string item in newHand)
-            {
-                Hand.Add(JsonConvert.DeserializeObject<Card>(item));
-            }
+            Hand = newHand;            
         }
 
 
@@ -141,22 +137,9 @@ namespace CrusadeGameClient
         /// Updates the client's stored gameboard.
         /// </summary>
         /// <param name="newBoard">New gameboard state.</param>
-        public void SetGameboard(string[,] newBoard)
+        public void SetGameboard(ClientGamePiece[,] newBoard)
         {
-            int row = newBoard.GetUpperBound(0) + 1;
-            int col = newBoard.GetUpperBound(1) + 1;
-
-            lock(_gameboard)
-            {
-                _gameboard = new ClientGamePiece[row, col];
-                for(int r = 0; r < row; ++r)
-                {
-                    for(int c = 0; c < col; ++c)
-                    {
-                        _gameboard[r, c] = JsonConvert.DeserializeObject<ClientGamePiece>(newBoard[r, c]);
-                    }
-                }
-            }
+            _gameboard = newBoard;
         }
 
 
@@ -221,7 +204,7 @@ namespace CrusadeGameClient
                     validChoice = true;
                     RequestPlayCard rsp;
 
-                    if (Hand[option - 1].Type == "1")
+                    if (Hand[option - 1].Type == "Troop")
                     {
                         Tuple<int, int> coords = GetUserCoordinates("Select where the troop should be deployed 'Row Col'");
                         rsp = new RequestPlayCard(ID, (option - 1), (coords.Item1), (coords.Item2));
@@ -303,15 +286,19 @@ namespace CrusadeGameClient
         }
 
 
-        public void BeginNextTurn()
-        {            
-           // DisplayGameboard();
-
-            if (_isTurnPlayer)          
-                GetPlayerAction();            
-               
+        public void BeginNextTurn(Guid turnPlayerId)
+        {
+            _isTurnPlayer = (ID == turnPlayerId);
+            if (_isTurnPlayer)
+            {
+                Console.WriteLine("It is your turn.");
+                GetPlayerAction();
+            }
             else
+            {
+                Console.WriteLine("It is your opponent's turn.");
                 DisplayHand();
+            }
         }
 
 
@@ -406,50 +393,48 @@ namespace CrusadeGameClient
             }
         }
 
+        private byte[] formatBuffer(byte[] buffer)
+        {
+            int index = 0;
+            for (int i = 0; i < buffer.Length; ++i)
+            {
+                if(buffer[i] != 0) // find first non-zero value
+                {
+                    index = i;
+                    break;
+                }
+            }
+            byte[] newBuffer = new byte[buffer.Length - index];
+            Array.Copy(buffer, index, newBuffer, 0, newBuffer.Length);
+            
+            return newBuffer;
+        }
 
         private void Receive(object obj)
         {
-            using(NetworkStream stream = _client.GetStream())
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using(NetworkStream netStream = _client.GetStream())
             {
                 while(_shouldReceive)
                 {
-                    byte[] length = new byte[2]; // Will hold how big the anticipated response is
-
                     try
                     {
-                        int read = stream.Read(length, 0, 2);
-
-                        if (read > 0) // Essentially we'll keep looping 'til something's been read
-                        {
-                            byte[] buffer = new byte[BitConverter.ToInt16(length, 0)];  // Find out how big the incoming response is
-                            read = stream.Read(buffer, 0, buffer.Length);               // Read in the response
-
-                            if (read > 0)
-                            {
-                                using(MemoryStream ms = new MemoryStream()) // A bit of a work around to be able to deserialize the buffer
-                                {
-                                    ms.Write(buffer, 0, buffer.Length);
-                                    ms.Position = 0;                    // Need to be at the beginning of the stream before deserializing
-
-                                    IResponse rsp = (IResponse)binaryFormatter.Deserialize(ms);
-                                    ProcessResponse(rsp);
-                                }
-                            }
-                        }
+                        IResponse rsp = (IResponse)binaryFormatter.Deserialize(netStream);
+                        ProcessResponse(rsp);
                     }
-                    catch(SocketException ex)
+                    catch (SocketException ex)
                     {
                         WriteError("Receive socket Error: " + ex.Message);
                     }
-                    catch(IOException ex)
+                    catch (IOException ex)
                     {
-                        if(!isConnected())
+                        if (!isConnected())
                             WriteError("Receive IO Error: " + ex.Message);
                     }
-                    catch(System.Runtime.Serialization.SerializationException ex)
+                    catch (System.Runtime.Serialization.SerializationException ex)
                     {
-                        WriteError("Receive Serialize Error: " + ex.Message);
-                    }
+                        WriteError("Serialization Error: " + ex.Message);
+                    }       
                 }
             }            
 
@@ -457,8 +442,9 @@ namespace CrusadeGameClient
         }
 
 
-        private void ProcessResponse(IResponse serverResponse)
+        private void ProcessResponse(object obj)
         {
+            IResponse serverResponse = (IResponse)obj;
             if (serverResponse is ResponseClientID) // The only response that needs special handling
                                                     // is if we're getting assigned an ID
             {
@@ -539,7 +525,7 @@ namespace CrusadeGameClient
         {
             lock (_lockObject)
             {
-                string path = DateTime.Now.ToString("yyyy-MM-dd") + " Client " + ID.ToString("N");
+                string path = DateTime.Now.ToString("yyyy-MM-dd") + " Client " + ID.ToString("N") + ".txt";
                 string msg = DateTime.Now.ToString("hh:mm:ss ") + error + Environment.NewLine;
                 File.AppendAllText(path, msg);
             }

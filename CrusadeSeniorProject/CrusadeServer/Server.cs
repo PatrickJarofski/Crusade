@@ -6,7 +6,6 @@ using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using ReqRspLib;
 using System.Text;
-using Newtonsoft.Json.Serialization;
 
 namespace CrusadeServer
 {
@@ -18,11 +17,10 @@ namespace CrusadeServer
         private readonly TcpListener _tcpListener;
         private List<GameClient> _clientList;
 
-        private BinaryFormatter binaryFormatter;
+     //   private BinaryFormatter binaryFormatter;
         private object lockObject = new object();
 
         private CrusadeLibrary.CrusadeGame _game = null;
-
         private int ClientsConnected = 0;
 
 
@@ -30,7 +28,7 @@ namespace CrusadeServer
         {
             Console.Title = "Server";
 
-            binaryFormatter = new BinaryFormatter();
+        //    binaryFormatter = new BinaryFormatter();
             _clientList = new List<GameClient>();
 
             IPEndPoint ep = new IPEndPoint(IPAddress.Any, _Port);
@@ -153,14 +151,15 @@ namespace CrusadeServer
 
             PrintNumberOfClients();
             SendClientId(newClient);
-            CheckIfNewGame();           
+            CheckIfNewGame();
 
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
             while(isConnected(newClient))
-            {
+            {                
                 try
                 {
                     IRequest request = (IRequest)binaryFormatter.Deserialize(newClient.TCPclient.GetStream());
-                    ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), request);
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), request);                    
                 }
                 catch(System.Runtime.Serialization.SerializationException ex)
                 {
@@ -205,18 +204,14 @@ namespace CrusadeServer
 
             try
             {
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
                 using(System.IO.MemoryStream ms = new System.IO.MemoryStream())
                 {
                     binaryFormatter.Serialize(ms, rsp);
                     byte[] rspBytes = ms.ToArray();                         // Get the bytes of the response
-                    short length = (short)rspBytes.Length;                  // Get how long the response is
-
-                    byte[] buffer = new byte[length + 2];                   // Have two extra bytes since the length will be prepended
-                    Array.Copy(BitConverter.GetBytes(length), buffer, 2);   // Put the length in the first two bytes
-                    Array.Copy(rspBytes, 0, buffer, 2, length);             // Put the response after the length
                     
                     NetworkStream stream = client.TCPclient.GetStream();    // Get the stream
-                    stream.Write(buffer, 0, buffer.Length);                 // Ship the object off
+                    stream.Write(rspBytes, 0, rspBytes.Length);                 // Ship the object off
                 }
             }
             catch(SocketException ex)
@@ -277,12 +272,6 @@ namespace CrusadeServer
 
             Console.WriteLine("Game started.");
             assignBackRows();
-
-            foreach (GameClient client in _clientList)
-            {
-                GivePlayerHand(client.ID);
-                GivePlayerGameboard(client.ID);
-            }
 
             BeginNextTurn();
             printDebugPlayerIds();

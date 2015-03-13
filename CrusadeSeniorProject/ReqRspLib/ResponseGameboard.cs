@@ -5,9 +5,9 @@ namespace ReqRspLib
     [Serializable]
     public class ResponseGameboard : IResponse
     {
-        string[,] _board;
+        ClientGamePiece[,] _board;
 
-        public ResponseGameboard(string[,] board)
+        public ResponseGameboard(ClientGamePiece[,] board)
         {
             _board = board;
         }

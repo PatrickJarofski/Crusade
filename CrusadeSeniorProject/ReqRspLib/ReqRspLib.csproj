@@ -39,8 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BadGamePiece.cs" />
-    <Compile Include="Card.cs" />
+    <Compile Include="ClientCard.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CrusadeGamePiece.cs" />
     <Compile Include="ICrusadeClient.cs" />
@@ -53,6 +52,7 @@
     <Compile Include="RequestHand.cs" />
     <Compile Include="RequestMoveTroop.cs" />
     <Compile Include="RequestPlayCard.cs" />
+    <Compile Include="RequestResendInfo.cs" />
     <Compile Include="RequestTroopCombat.cs" />
     <Compile Include="ResponseBadMove.cs" />
     <Compile Include="ResponseBeginNextTurn.cs" />
@@ -67,7 +67,6 @@
     <Compile Include="ResponseMessage.cs" />
     <Compile Include="ResponsePlayCard.cs" />
     <Compile Include="ResponseStartGame.cs" />
-    <Compile Include="TroopGamePiece.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

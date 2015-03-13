@@ -6,9 +6,9 @@ namespace ReqRspLib
     [Serializable]
     public class ResponseHand : IResponse
     {
-        private List<string> hand;
+        private List<ClientCard> hand;
 
-        public ResponseHand(List<string> cardList)
+        public ResponseHand(List<ClientCard> cardList)
         {
             hand = cardList;
         }

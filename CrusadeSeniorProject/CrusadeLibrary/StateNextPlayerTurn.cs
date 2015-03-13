@@ -33,8 +33,12 @@ namespace CrusadeLibrary
 
             setCurrentPlayer(game);
             game.CurrentPlayer.ActionPoints = Player.DEFAULT_ACTION_POINTS; // Replenish Action Points (AP)
+            game.Board.RefreshGamePieces();
 
             return new StateDrawCard().entry(game, obj);
         }
+
+
+
     }
 }

@@ -144,5 +144,14 @@ namespace CrusadeLibrary
                 throw new IllegalActionException("Empty Cell Selected.");
             }
         }
+
+
+        public void RefreshGamePieces()
+        {
+            for (int row = 0; row < Gameboard.BOARD_ROW; ++row)
+                for (int col = 0; col < Gameboard.BOARD_COL; ++col)
+                    if (_board[row, col] != null)
+                        _board[row, col].resetRemainingDefense();
+        }
     }
 }

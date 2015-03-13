@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ReqRspLib
 {
+    [Serializable]
     public class ClientGamePiece
     {
         public const int DEFAULT_INT_VALUE = -1;
@@ -43,8 +44,7 @@ namespace ReqRspLib
             Move = DEFAULT_INT_VALUE;
             MinAttackRange = DEFAULT_INT_VALUE;
             MaxAttackRange = DEFAULT_INT_VALUE;
-        } 
-      
+        }      
         
 
 

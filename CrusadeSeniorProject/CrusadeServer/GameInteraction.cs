@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using ReqRspLib;
 
 namespace CrusadeServer
@@ -34,7 +33,7 @@ namespace CrusadeServer
             {
                 List<CrusadeLibrary.Card> hand = _game.GetPlayerHand(client.PlayerNumber);
 
-                List<string> stringHand = GetJsonCardList(hand);
+                List<ClientCard> stringHand = GetJsonCardList(hand);
 
          //       Converter<CrusadeLibrary.ICard, ReqRspLib.ICard> con = new Converter<CrusadeLibrary.ICard, ReqRspLib.ICard>(ConvertToRspICard);
          //       List<ReqRspLib.ICard> handToShip = hand.ConvertAll(con);
@@ -50,13 +49,18 @@ namespace CrusadeServer
         }
 
 
-        private List<string> GetJsonCardList(List<CrusadeLibrary.Card> list)
+        private List<ClientCard> GetJsonCardList(List<CrusadeLibrary.Card> list)
         {
-            List<string> newList = new List<string>();
+            List<ClientCard> newList = new List<ClientCard>();
 
             foreach(CrusadeLibrary.Card card in list)
             {
-                newList.Add(JsonConvert.SerializeObject(card));
+                ClientCard newCard = new ClientCard();
+                newCard.Name = card.Name;
+                newCard.Type = card.Type.ToString();
+                newCard.Location = card.Location.ToString();
+                newCard.Owner = card.ID.ToString();
+                newList.Add(newCard);
             }
 
             return newList;
@@ -72,16 +76,30 @@ namespace CrusadeServer
 
             ReqRspLib.ClientGamePiece[,] newBoard = new ClientGamePiece[numRows, numCols];
 
-            string[,] convertedBoard = new string[numRows, numCols];
             for(int row = 0; row < numRows; ++row)
             {
                 for(int col = 0; col < numCols; ++col)
                 {
-                    convertedBoard[row, col] = JsonConvert.SerializeObject(board[row, col]);
+                    if(board[row, col] != null)
+                    {
+                        ClientGamePiece piece = new ClientGamePiece();
+                        piece.Attack            = board[row, col].Attack;
+                        piece.Defense           = board[row, col].RemainingDefense;
+                        piece.MinAttackRange    = board[row, col].MinAttackRange;
+                        piece.MaxAttackRange    = board[row, col].MaxAttackRange;
+                        piece.Move              = board[row, col].Move;
+
+                        piece.Name              = board[row, col].Name;
+                        piece.Owner             = board[row, col].Owner.ToString();
+                        piece.RowCoordinate     = board[row, col].RowCoordinate;
+                        piece.ColCoordinate     = board[row, col].ColCoordinate;
+
+                        newBoard[row, col]      = piece;
+                    }
                 }
             }
 
-            ResponseGameboard rsp = new ResponseGameboard(convertedBoard);
+            ResponseGameboard rsp = new ResponseGameboard(newBoard);
             SendData(clientId, rsp);
         }
 

@@ -14,11 +14,11 @@ namespace ReqRspLib
 
         bool IsTurnPlayer { get; set; }
 
-        List<Card> Hand { get; set; }
+        List<ClientCard> Hand { get; set; }
 
-        void SetHand(List<string> newHand);
+        void SetHand(List<ClientCard> newHand);
 
-        void SetGameboard(string[,] board);
+        void SetGameboard(ClientGamePiece[,] board);
 
         void DisplayGameboard();
 
@@ -26,7 +26,7 @@ namespace ReqRspLib
 
         void EndGame();
 
-        void BeginNextTurn();
+        void BeginNextTurn(Guid turnPlayerId);
 
         void GetPlayerAction();
 

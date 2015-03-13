@@ -113,11 +113,11 @@ namespace CrusadeLibrary
         private void doCombat(GamePieceTroop atkPiece, GamePieceTroop defPiece)
         {
             // We've already confirmed that the attacking piece has enough range for the attack
-            atkPiece.RemainingDefense = atkPiece.RemainingDefense - defPiece.Attack;
+            defPiece.RemainingDefense = defPiece.RemainingDefense - atkPiece.Attack;
 
             // If the defending has the attack range for a counter attack, it should do so
-            if(defPiece.hasAttackRange(defPiece.RowCoordinate, defPiece.ColCoordinate, atkPiece.RowCoordinate, atkPiece.ColCoordinate))
-                defPiece.RemainingDefense = defPiece.RemainingDefense - atkPiece.Attack;
+            if (defPiece.hasAttackRange(defPiece.RowCoordinate, defPiece.ColCoordinate, atkPiece.RowCoordinate, atkPiece.ColCoordinate))
+                atkPiece.RemainingDefense = atkPiece.RemainingDefense - defPiece.Attack;              
         }   
 
 
@@ -150,7 +150,7 @@ namespace CrusadeLibrary
 
         private bool defeatedCommander(GamePieceTroop piece)
         {
-            return piece.RemainingDefense <= 0;
+            return piece.Name == GamePiece.COMMANDER && piece.RemainingDefense <= 0;
         }
 
         private State checkState(GamePieceTroop atkPiece, GamePieceTroop defPiece)
