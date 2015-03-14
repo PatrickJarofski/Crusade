@@ -250,8 +250,15 @@ namespace CrusadeServer
 
         public void PassTurn(Guid clientId)
         {
-            _game.PassTurn(clientId);
-            BeginNextTurn();
+            try
+            {
+                _game.PassTurn(clientId);
+                BeginNextTurn();
+            }
+            catch(CrusadeLibrary.GameStateException ex)
+            {
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
+            }
         }
         #endregion
 
