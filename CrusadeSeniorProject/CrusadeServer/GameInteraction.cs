@@ -250,7 +250,7 @@ namespace CrusadeServer
         #endregion
 
 
-        #region Private Methods
+    #region Private Methods
 
         /// <summary>
         /// Gets the GameClient that matches the given Guid.
@@ -370,6 +370,7 @@ namespace CrusadeServer
             }
         }
 
-        #endregion
+
     }
+    #endregion
 }

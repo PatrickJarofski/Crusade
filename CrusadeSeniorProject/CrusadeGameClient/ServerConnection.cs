@@ -43,7 +43,9 @@ namespace CrusadeGameClient
             set { _isTurnPlayer = value; }
         }
 
-        public List<ReqRspLib.ClientCard> Hand { get; set; }      
+        public List<ReqRspLib.ClientCard> Hand { get; set; }
+
+        public bool InAGame { get { return _inAGame; } }
 
         #endregion
 
@@ -393,22 +395,6 @@ namespace CrusadeGameClient
             }
         }
 
-        private byte[] formatBuffer(byte[] buffer)
-        {
-            int index = 0;
-            for (int i = 0; i < buffer.Length; ++i)
-            {
-                if(buffer[i] != 0) // find first non-zero value
-                {
-                    index = i;
-                    break;
-                }
-            }
-            byte[] newBuffer = new byte[buffer.Length - index];
-            Array.Copy(buffer, index, newBuffer, 0, newBuffer.Length);
-            
-            return newBuffer;
-        }
 
         private void Receive(object obj)
         {

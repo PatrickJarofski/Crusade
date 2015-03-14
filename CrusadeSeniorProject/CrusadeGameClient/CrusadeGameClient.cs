@@ -16,20 +16,23 @@ namespace CrusadeGameClient
     /// </summary>
     public class CrusadeGameClient : Game
     {
+        private readonly ServerConnection _serverConnection;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        private readonly ServerConnection _serverConnection;
+        Texture2D sprite;
+        Texture2D background;
+        SpriteFont font;
+        Rectangle rect;
 
         public CrusadeGameClient()
             : base()
         {
-            graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
+            graphics = new GraphicsDeviceManager(this);            
             _serverConnection = new ServerConnection();
 
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
+            IsMouseVisible = true;
         }
 
         /// <summary>
@@ -51,10 +54,25 @@ namespace CrusadeGameClient
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            Content.RootDirectory = "Content";
+            Window.Title = "Crusade Client";
+            try
+            {
+                // Create a new SpriteBatch, which can be used to draw textures.
+                spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+                font = Content.Load<SpriteFont>("MonoFont");
+                sprite = Content.Load<Texture2D>("Desert.jpg");
+                background = Content.Load<Texture2D>("stars.jpg");
+
+                rect = new Rectangle(0, 0, sprite.Width, sprite.Height);
+                graphics.PreferredBackBufferHeight = 400;
+                graphics.PreferredBackBufferWidth = 400;
+            }
+            catch(ContentLoadException ex)
+            {
+                Console.WriteLine("ERROR: {0}", ex.Message);
+            }
         }
 
         /// <summary>
@@ -93,11 +111,40 @@ namespace CrusadeGameClient
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            try
+            {
+                GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+                spriteBatch.Begin();
+                DrawThing();
+                spriteBatch.End();
 
-            base.Draw(gameTime);
+                base.Draw(gameTime);
+            }
+            catch(NullReferenceException)
+            {
+                Console.WriteLine("Tried to load graphics that didn't exist.");
+            }
+        }
+
+        private void DrawThing()
+        {
+            int x = Window.ClientBounds.Width / 2;
+            int y = Window.ClientBounds.Height / 2;
+
+            if(_serverConnection.InAGame)
+            {
+                spriteBatch.Draw(background, new Rectangle(0, 0, Window.ClientBounds.Width, Window.ClientBounds.Height), Color.White);
+
+                Vector2 origin = new Vector2(sprite.Bounds.Location.X, sprite.Bounds.Location.Y);
+                Vector2 location = new Vector2(x, y);
+
+                spriteBatch.Draw(sprite, rect, Color.White);
+            }
+            else
+            {
+                spriteBatch.DrawString(font, "Waiting for game to start...", new Vector2(x, y), Color.White);
+            }
         }
     }
 }
