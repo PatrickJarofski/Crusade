@@ -92,11 +92,13 @@ namespace CrusadeLibrary
             if (!inRange(atkPiece, defPiece))
                 throw new IllegalActionException("Target is not within range.");
 
-            doCombat(atkPiece, defPiece);
-            List<string> troopsDefeated = checkForDefeatedTroops(game, atkPiece, defPiece);
+            List<string> msgs = new List<string>();
+            doCombat(atkPiece, defPiece, msgs);
+            
+            AddDefeatedTroops(game, atkPiece, defPiece, msgs);
             State nextState = checkState(atkPiece, defPiece);
 
-            return new Tuple<State, List<string>>(nextState, troopsDefeated);
+            return new Tuple<State, List<string>>(nextState, msgs);
         }
 
 
@@ -112,35 +114,36 @@ namespace CrusadeLibrary
         }
 
 
-        private void doCombat(GamePieceTroop atkPiece, GamePieceTroop defPiece)
+        private void doCombat(GamePieceTroop atkPiece, GamePieceTroop defPiece, List<string> msgList)
         {
             // We've already confirmed that the attacking piece has enough range for the attack
             defPiece.RemainingDefense = defPiece.RemainingDefense - atkPiece.Attack;
+            msgList.Add(atkPiece.Name + " attacks " + defPiece.Name + "!");
 
             // If the defending has the attack range for a counter attack, it should do so
             if (defPiece.hasAttackRange(defPiece.RowCoordinate, defPiece.ColCoordinate, atkPiece.RowCoordinate, atkPiece.ColCoordinate))
-                atkPiece.RemainingDefense = atkPiece.RemainingDefense - defPiece.Attack;              
+            {
+                atkPiece.RemainingDefense = atkPiece.RemainingDefense - defPiece.Attack;
+                msgList.Add(defPiece.Name + " counterattacks " + atkPiece.Name + "!");
+            }
         }   
 
 
-        private List<string> checkForDefeatedTroops(CrusadeGame game, GamePieceTroop atkPiece, GamePieceTroop defPiece)
+        private void AddDefeatedTroops(CrusadeGame game, GamePieceTroop atkPiece, GamePieceTroop defPiece, List<string> msgList)
         {
-            List<string> troops = new List<string>();
             string defeatMsg = " has been defeated!";
 
             if (atkPiece.RemainingDefense <= 0)
             {
                 game.Board.RemoveGamePiece(atkPiece.RowCoordinate, atkPiece.ColCoordinate);
-                troops.Add(atkPiece.Name + defeatMsg);
+                msgList.Add(atkPiece.Name + defeatMsg);
             }
 
             if (defPiece.RemainingDefense <= 0)
             {
                 game.Board.RemoveGamePiece(defPiece.RowCoordinate, defPiece.ColCoordinate);
-                troops.Add(defPiece.Name + defeatMsg);
+                msgList.Add(defPiece.Name + defeatMsg);
             }
-
-            return troops;
         }
 
 
