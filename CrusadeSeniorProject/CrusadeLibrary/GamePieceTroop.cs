@@ -74,23 +74,23 @@ namespace CrusadeLibrary
             {
                 case "Commander":
                     atk = 7;
-                    def = 9;
+                    def = 7;
                     break;
                 case "Archer":
                     atk = 3;
                     def = 3;
                     minAtkRange = 2;
-                    maxAtkRange = 6;                    
+                    maxAtkRange = 2;                    
                     break;
                 case "Catapult":
-                    atk = 6;
+                    atk = 5;
                     minAtkRange = 2;
-                    maxAtkRange = 6;
+                    maxAtkRange = 3;
                     break;
                 case "Crossbowman":
                     atk = 3;
                     def = 3;
-                    maxAtkRange = 6;
+                    maxAtkRange = 2;
                     break;
                 case "Crusader":
                     atk = 5;

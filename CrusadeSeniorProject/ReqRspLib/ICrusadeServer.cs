@@ -19,5 +19,7 @@ namespace ReqRspLib
         void MoveTroop(Guid clientId, int startRow, int startCol, int endRow, int endCol);
 
         void TroopCombat(Guid clientId, int atkRow, int atkCol, int defRow, int defCol);
+
+        void PassTurn(Guid clientId);
     }
 }

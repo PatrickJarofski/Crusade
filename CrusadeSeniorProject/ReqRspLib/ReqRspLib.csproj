@@ -51,6 +51,7 @@
     <Compile Include="RequestGameboard.cs" />
     <Compile Include="RequestHand.cs" />
     <Compile Include="RequestMoveTroop.cs" />
+    <Compile Include="RequestPassTurn.cs" />
     <Compile Include="RequestPlayCard.cs" />
     <Compile Include="RequestResendInfo.cs" />
     <Compile Include="RequestTroopCombat.cs" />

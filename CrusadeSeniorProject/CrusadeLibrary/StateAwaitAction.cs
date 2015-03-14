@@ -19,13 +19,15 @@ namespace CrusadeLibrary
 
         public override State GetNextState(CrusadeGame game)
         {
-            return new StateNextPlayerTurn().entry(game, null);
+            if (game.CurrentPlayer.ActionPoints < 1)
+                return new StateNextPlayerTurn().entry(game, null);
+            else
+                return this;
         }
 
 
         public override State entry(CrusadeGame game, object obj)
         {
-            // stub
             return this;
         }
 
@@ -148,10 +150,12 @@ namespace CrusadeLibrary
                 && defPiece.Name == GamePiece.COMMANDER && defPiece.RemainingDefense <= 0;
         }
 
+
         private bool defeatedCommander(GamePieceTroop piece)
         {
             return piece.Name == GamePiece.COMMANDER && piece.RemainingDefense <= 0;
         }
+
 
         private State checkState(GamePieceTroop atkPiece, GamePieceTroop defPiece)
         {
@@ -166,6 +170,12 @@ namespace CrusadeLibrary
 
             // state hasn't changed
             return this;
+        }
+
+
+        public override void PassTurn(CrusadeGame game)
+        {
+            game.CurrentState = GetNextState(game);
         }
     }
 }

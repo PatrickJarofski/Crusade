@@ -17,6 +17,11 @@ namespace CrusadeLibrary
             return this;
         }
 
+        public virtual void PassTurn(CrusadeGame game)
+        {
+            throw new GameStateException("Invalid Action: Pass Turn. Game is currently in a " + Name + " state.");
+        }
+
         public virtual void BeginNextTurn()
         {
             throw new GameStateException("Invalid Action: Begin Next Turn. Game is currently in a " + Name + " state.");

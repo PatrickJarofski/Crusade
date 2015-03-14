@@ -247,6 +247,12 @@ namespace CrusadeServer
 
         }
 
+
+        public void PassTurn(Guid clientId)
+        {
+            _game.PassTurn(clientId);
+            BeginNextTurn();
+        }
         #endregion
 
 

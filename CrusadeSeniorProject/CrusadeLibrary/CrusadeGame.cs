@@ -168,6 +168,18 @@ namespace CrusadeLibrary
 
             return new Tuple<bool, List<string>, Guid>(nextState(), values.Item2, winner);
         }
+
+
+        public void PassTurn(Guid turnPlayerId)
+        {
+            if (turnPlayerId != CurrentPlayer.ID)
+                throw new IllegalActionException("It is not your turn.");
+            else
+            {
+                CurrentPlayer.ActionPoints = 0;
+                CurrentState.PassTurn(this);
+            }
+        }
         #endregion
 
 

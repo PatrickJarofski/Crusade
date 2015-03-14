@@ -314,7 +314,8 @@ namespace CrusadeGameClient
             while (!validChoice)
             {
                 Console.WriteLine("Please choose an Action to perform:");
-                Console.WriteLine("{0} \n{1} \n{2} \n{3}", "1. Play Card", "2. Move Troop", "3. Troop Combat", "4. Check Cell");
+                Console.WriteLine("{0} \n{1} \n{2} \n{3} \n{4}", "1. Play Card", "2. Move Troop", 
+                    "3. Troop Combat", "4. Check Cell", "5. Pass Turn");
                 option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
 
                 switch(option)
@@ -335,11 +336,21 @@ namespace CrusadeGameClient
                         GetCellInfo();
                         validChoice = true;
                         break;
+                    case 5:
+                        PassTurn();
+                        validChoice = true;
+                        break;
                     default:
                         Console.WriteLine("Invalid selection.");
                         break;
                 }
             }
+        }
+
+        public void PassTurn()
+        {
+            RequestPassTurn req = new RequestPassTurn(ID);
+            SendRequestToServer(req);
         }
 
         #endregion
@@ -416,7 +427,10 @@ namespace CrusadeGameClient
                     catch (IOException ex)
                     {
                         if (!isConnected())
+                        {
                             WriteError("Receive IO Error: " + ex.Message);
+                            Disconnect();
+                        }
                     }
                     catch (System.Runtime.Serialization.SerializationException ex)
                     {
