@@ -18,19 +18,14 @@ namespace CrusadeGameClient
     {
         private readonly ServerConnection _serverConnection;
 
-        GraphicsDeviceManager graphics;
+        GraphicsDeviceManager graphicsManager;
         SpriteBatch spriteBatch;
-
-        Texture2D sprite;
-        Texture2D background;
-        SpriteFont font;
-        Rectangle rect;
 
         public CrusadeGameClient()
             : base()
         {
-            graphics = new GraphicsDeviceManager(this);            
-            _serverConnection = new ServerConnection();
+            graphicsManager = new GraphicsDeviceManager(this);
+            _serverConnection = ServerConnection.Instance;
 
             IsMouseVisible = true;
         }
@@ -43,8 +38,9 @@ namespace CrusadeGameClient
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
+            graphicsManager.PreferredBackBufferWidth = (int)ScreenManager.Instance.Dimensions.X;
+            graphicsManager.PreferredBackBufferHeight = (int)ScreenManager.Instance.Dimensions.Y;
+            graphicsManager.ApplyChanges();
             base.Initialize();
         }
 
@@ -54,25 +50,9 @@ namespace CrusadeGameClient
         /// </summary>
         protected override void LoadContent()
         {
-            Content.RootDirectory = "Content";
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            ScreenManager.Instance.LoadContent(Content);
             Window.Title = "Crusade Client";
-            try
-            {
-                // Create a new SpriteBatch, which can be used to draw textures.
-                spriteBatch = new SpriteBatch(GraphicsDevice);
-
-                font = Content.Load<SpriteFont>("MonoFont");
-                sprite = Content.Load<Texture2D>("Desert.jpg");
-                background = Content.Load<Texture2D>("stars.jpg");
-
-                rect = new Rectangle(0, 0, sprite.Width, sprite.Height);
-                graphics.PreferredBackBufferHeight = 400;
-                graphics.PreferredBackBufferWidth = 400;
-            }
-            catch(ContentLoadException ex)
-            {
-                Console.WriteLine("ERROR: {0}", ex.Message);
-            }
         }
 
         /// <summary>
@@ -81,7 +61,7 @@ namespace CrusadeGameClient
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+            ScreenManager.Instance.UnloadContent();
         }
 
         /// <summary>
@@ -100,8 +80,7 @@ namespace CrusadeGameClient
                 }
             }
 
-            // TODO: Add your update logic here
-
+            ScreenManager.Instance.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -111,40 +90,9 @@ namespace CrusadeGameClient
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            try
-            {
-                GraphicsDevice.Clear(Color.CornflowerBlue);
-
-                spriteBatch.Begin();
-                DrawThing();
-                spriteBatch.End();
-
-                base.Draw(gameTime);
-            }
-            catch(NullReferenceException)
-            {
-                Console.WriteLine("Tried to load graphics that didn't exist.");
-            }
-        }
-
-        private void DrawThing()
-        {
-            int x = Window.ClientBounds.Width / 2;
-            int y = Window.ClientBounds.Height / 2;
-
-            if(_serverConnection.InAGame)
-            {
-                spriteBatch.Draw(background, new Rectangle(0, 0, Window.ClientBounds.Width, Window.ClientBounds.Height), Color.White);
-
-                Vector2 origin = new Vector2(sprite.Bounds.Location.X, sprite.Bounds.Location.Y);
-                Vector2 location = new Vector2(x, y);
-
-                spriteBatch.Draw(sprite, rect, Color.White);
-            }
-            else
-            {
-                spriteBatch.DrawString(font, "Waiting for game to start...", new Vector2(x, y), Color.White);
-            }
+            spriteBatch.Begin();
+            ScreenManager.Instance.Draw(spriteBatch);
+            spriteBatch.End();
         }
     }
 }

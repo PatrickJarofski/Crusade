@@ -28,6 +28,8 @@ namespace CrusadeGameClient
 
         private ReqRspLib.ClientGamePiece[,] _gameboard;
 
+        private static ServerConnection _instance;
+
         #endregion
 
 
@@ -47,6 +49,18 @@ namespace CrusadeGameClient
 
         public bool InAGame { get { return _inAGame; } }
 
+
+        public static ServerConnection Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new ServerConnection();
+
+                return _instance;
+            }
+        }
+
         #endregion
 
 
@@ -55,7 +69,7 @@ namespace CrusadeGameClient
         /// <summary>
         /// Constructor
         /// </summary>
-        public ServerConnection()
+        private ServerConnection()
         {
             try
             {
