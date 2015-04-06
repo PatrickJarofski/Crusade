@@ -1,7 +1,7 @@
 - Commander -
 Attack:	 7	
 Defense: 9
-Range:	 1
+Range:	 1-1
 Move:    1
 
 - Archer -			- Catapult -		- Crossbowman -
@@ -11,15 +11,15 @@ Range:   2-2		Range:   2-3		Range:	 1-2
 Move:    1          Move:    1			Move:	 1
 
 
-- Crusader -		- Knight - 			- Juggernaut -
-Attack:  5			Attack:  4			Attack:  3
-Defense: 4			Defense: 5			Defense: 7
-Range:   1  		Range:   1			Range:	 1
-Move:    1          Move:    2			Move:	 1
+- Crusader -		- Juggernaut - 		- Knight -
+Attack:  5			Attack:  3			Attack:  4
+Defense: 4			Defense: 7			Defense: 5
+Range:   1-1  		Range:   1-1		Range:	 1-1
+Move:    1          Move:    1			Move:	 2
 
 - Swordsman -
 Attack:  4			
 Defense: 4			
-Range:   1		
+Range:   1-1		
 Move:    1			
 

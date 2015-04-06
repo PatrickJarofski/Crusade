@@ -24,11 +24,14 @@ namespace CrusadeGameClient
         private bool _isTurnPlayer = false;
 
         private Guid _clientId;
+
         private object _lockObject = new object();
 
         private ReqRspLib.ClientGamePiece[,] _gameboard;
 
         private static ServerConnection _instance;
+
+        private List<ReqRspLib.ClientCard> _hand;
 
         #endregion
 
@@ -45,10 +48,7 @@ namespace CrusadeGameClient
             set { _isTurnPlayer = value; }
         }
 
-        public List<ReqRspLib.ClientCard> Hand { get; set; }
-
         public bool InAGame { get { return _inAGame; } }
-
 
         public static ServerConnection Instance
         {
@@ -60,6 +60,8 @@ namespace CrusadeGameClient
                 return _instance;
             }
         }
+
+        public List<ReqRspLib.ClientCard> Hand { get { return _hand; } }
 
         #endregion
 
@@ -87,7 +89,7 @@ namespace CrusadeGameClient
                 _shouldReceive = true;
                 ThreadPool.QueueUserWorkItem(Receive);
 
-                Hand = new List<ReqRspLib.ClientCard>();
+                _hand = new List<ReqRspLib.ClientCard>();
                 _gameboard = new ClientGamePiece[1, 1];
             }
             catch(SocketException ex)
@@ -145,7 +147,7 @@ namespace CrusadeGameClient
         /// <param name="newHand">List of cards in the hand.</param>
         public void SetHand(List<ClientCard> newHand)
         {
-            Hand = newHand;            
+            _hand = newHand;            
         }
 
 
@@ -164,13 +166,14 @@ namespace CrusadeGameClient
         /// </summary>
         public void DisplayHand()
         {
-            lock (Hand)
+            lock (_hand)
             {
                 Console.WriteLine(Environment.NewLine + "Hand:");
-                for (int i = 0; i < Hand.Count; ++i)
-                    Console.WriteLine("{0}: {1}", (i + 1).ToString(), Hand[i].Name);
+                for (int i = 0; i < _hand.Count; ++i)
+                    Console.WriteLine("{0}: {1}", (i + 1).ToString(), _hand[i].Name);
 
                 Console.WriteLine(Environment.NewLine);
+
             }
         }
 
@@ -215,12 +218,12 @@ namespace CrusadeGameClient
             {
                 option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
 
-                if ((option - 1) < Hand.Count && (option - 1) > -1)
+                if ((option - 1) < _hand.Count && (option - 1) > -1)
                 {
                     validChoice = true;
                     RequestPlayCard rsp;
 
-                    if (Hand[option - 1].Type == "Troop")
+                    if (_hand[option - 1].Type == "Troop")
                     {
                         Tuple<int, int> coords = GetUserCoordinates("Select where the troop should be deployed 'Row Col'");
                         rsp = new RequestPlayCard(ID, (option - 1), (coords.Item1), (coords.Item2));

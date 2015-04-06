@@ -1,0 +1,6 @@
+﻿Screen info
+
+Total size: 640x480
+
+board takes up top 340 pixels
+hand takes up bottom 140 pixels

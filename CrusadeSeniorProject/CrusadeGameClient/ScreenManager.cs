@@ -65,5 +65,10 @@ namespace CrusadeGameClient
         {
             currentScreen.Draw(spriteBatch);
         }
+
+        public void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> hand)
+        {
+            currentScreen.DrawHand(spriteBatch, hand);
+        }
     }
 }

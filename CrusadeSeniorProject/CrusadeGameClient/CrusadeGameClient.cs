@@ -83,6 +83,7 @@ namespace CrusadeGameClient
             ScreenManager.Instance.Update(gameTime);
             base.Update(gameTime);
         }
+        
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -92,7 +93,9 @@ namespace CrusadeGameClient
         {
             spriteBatch.Begin();
             ScreenManager.Instance.Draw(spriteBatch);
+            ScreenManager.Instance.DrawHand(spriteBatch, _serverConnection.Hand);
             spriteBatch.End();
         }
+     
     }
 }

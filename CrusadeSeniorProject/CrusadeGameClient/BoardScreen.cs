@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
@@ -56,6 +57,33 @@ namespace CrusadeGameClient
                     rec.Y = j * cellImage.Height;
                     spriteBatch.Draw(cellImage, rec, Microsoft.Xna.Framework.Color.White);
                 }
+        }
+
+
+        public override void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> hand)
+        {
+            int yLocation = 350;
+            for (int i = 0; i < hand.Count; ++i)
+            {
+                DrawCard(spriteBatch, hand[i].Name, i, yLocation);
+            }
+        }
+
+        private void DrawCard(SpriteBatch spriteBatch, string cardName, int x, int y)
+        {
+            int offset = ScreenManager.SCREEN_WIDTH / 8;
+
+            try
+            {
+                string cardPath = "Cards/" + cardName + ".png";
+                Texture2D cardImage = content.Load<Texture2D>(cardPath);
+                Rectangle rec = new Rectangle((x * cardImage.Width) + offset, y, cardImage.Width, cardImage.Height);
+                spriteBatch.Draw(cardImage, rec, Color.White);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

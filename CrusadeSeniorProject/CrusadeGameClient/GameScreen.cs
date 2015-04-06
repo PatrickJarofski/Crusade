@@ -34,5 +34,10 @@ namespace CrusadeGameClient
         {
 
         }
+
+        public virtual void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> hand)
+        {
+
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace ReqRspLib
 
         bool IsTurnPlayer { get; set; }
 
-        List<ClientCard> Hand { get; set; }
+       // List<ClientCard> Hand { get; set; }
 
         void SetHand(List<ClientCard> newHand);
 
