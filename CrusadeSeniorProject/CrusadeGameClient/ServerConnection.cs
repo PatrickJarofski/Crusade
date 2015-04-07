@@ -63,6 +63,8 @@ namespace CrusadeGameClient
 
         public List<ReqRspLib.ClientCard> Hand { get { return _hand; } }
 
+        public ReqRspLib.ClientGamePiece[,] Gameboard { get { return _gameboard; } }
+
         #endregion
 
 

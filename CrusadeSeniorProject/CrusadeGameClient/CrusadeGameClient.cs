@@ -94,6 +94,7 @@ namespace CrusadeGameClient
             spriteBatch.Begin();
             ScreenManager.Instance.Draw(spriteBatch);
             ScreenManager.Instance.DrawHand(spriteBatch, _serverConnection.Hand);
+            ScreenManager.Instance.DrawGamePieces(spriteBatch, _serverConnection.Gameboard);
             spriteBatch.End();
         }
      

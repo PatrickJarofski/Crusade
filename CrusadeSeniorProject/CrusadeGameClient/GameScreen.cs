@@ -39,5 +39,10 @@ namespace CrusadeGameClient
         {
 
         }
+
+        public virtual void DrawGamePieces(SpriteBatch spriteBatch, ReqRspLib.ClientGamePiece[,] board)
+        {
+
+        }
     }
 }
