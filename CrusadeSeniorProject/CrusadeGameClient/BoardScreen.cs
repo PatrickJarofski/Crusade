@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
@@ -8,6 +9,7 @@ namespace CrusadeGameClient
 {
     public class BoardScreen : GameScreen
     {
+        #region Fields
         private string cellPath;
         private string bgPath;
         private Texture2D cellImage;
@@ -15,9 +17,10 @@ namespace CrusadeGameClient
 
         private const int BOARD_WIDTH = 5;
         private const int BOARD_HEIGHT = 5;
+        #endregion
 
-        private int cellWidth;
-        private int cellHeight;
+
+        #region Public Methods
 
         public override void LoadContent()
         {
@@ -37,6 +40,7 @@ namespace CrusadeGameClient
         public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
         {
             base.Update(gameTime);
+            handleMouseState();
         }
 
         public override void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
@@ -44,6 +48,55 @@ namespace CrusadeGameClient
             DrawGameboard(spriteBatch);
         }
 
+
+        public override void DrawHand(SpriteBatch spriteBatch)
+        {
+            foreach (CardImage img in hand)
+                img.Draw(content, spriteBatch);    
+        }
+
+
+        public override void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> newHand)
+        {
+            int yLocation = 360;
+            hand.Clear();
+            for (int i = 0; i < newHand.Count; ++i)
+            {
+                CardImage newImg = new CardImage("Cards/" + newHand[i].Name + ".png", i, yLocation);
+                hand.Add(newImg);
+            }
+
+            DrawHand(spriteBatch);
+        }      
+
+
+        public override void DrawGamePieces(SpriteBatch spriteBatch)
+        {
+            foreach (GamepieceImage img in board)
+                img.Draw(content, spriteBatch);
+        }
+
+
+        public override void DrawGamePieces(SpriteBatch spriteBatch, ReqRspLib.ClientGamePiece[,] newBoard)
+        {
+            board.Clear();
+            foreach(ReqRspLib.ClientGamePiece piece in newBoard)
+            {
+                if (piece != null)
+                {
+                    string path = "Gameboard/" + piece.Name + ".png";
+                    GamepieceImage img = new GamepieceImage(path, piece.ColCoordinate, piece.RowCoordinate);
+                    board.Add(img);
+                }
+            }
+
+            DrawGamePieces(spriteBatch);
+        }             
+
+        #endregion
+
+
+        #region Private Methods
 
         private void DrawGameboard(SpriteBatch spriteBatch)
         {
@@ -68,19 +121,10 @@ namespace CrusadeGameClient
         }
 
 
-        public override void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> hand)
-        {
-            int yLocation = 350;
-            for (int i = 0; i < hand.Count; ++i)
-            {
-                DrawCard(spriteBatch, hand[i].Name, i, yLocation);
-            }
-        }
-
         private void DrawCard(SpriteBatch spriteBatch, string cardName, int x, int y)
         {
             try
-            {                
+            {
                 string cardPath = "Cards/" + cardName + ".png";
                 CardImage img = new CardImage(cardPath, x, y);
                 img.Draw(content, spriteBatch);
@@ -91,22 +135,6 @@ namespace CrusadeGameClient
             }
         }
 
-
-        public override void DrawGamePieces(SpriteBatch spriteBatch, ReqRspLib.ClientGamePiece[,] board)
-        {
-            int width = board.GetUpperBound(0) + 1;
-            int height = board.GetUpperBound(1) + 1;
-
-            foreach(ReqRspLib.ClientGamePiece piece in board)
-            {
-                if(piece != null)
-                {
-                    DrawGamepiece(spriteBatch, piece.Name, piece.ColCoordinate, piece.RowCoordinate);
-                }
-            }
-        }
-
-
         private void DrawGamepiece(SpriteBatch spriteBatch, string pieceName, int x, int y)
         {
             try
@@ -115,16 +143,55 @@ namespace CrusadeGameClient
                 GamepieceImage piece = new GamepieceImage(path, x, y);
                 piece.Draw(content, spriteBatch);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
         }
 
 
-        public void CardClicked(object sender, EventArgs e)
+        private void handleMouseState()
         {
-            Console.WriteLine("Card was clicked.");
+            checkMouseOnCard();
+
         }
+
+
+        private void checkMouseOnCard()
+        {
+            foreach (CardImage card in Hand)
+            {
+                int xMin = card.Region.Left;
+                int xMax = card.Region.Right;
+                int yMin = card.Region.Top;
+                int yMax = card.Region.Bottom;
+
+                if (mouseWithinRange(xMin, xMax, currentMouseState.X) && mouseWithinRange(yMin, yMax, currentMouseState.Y))
+                {
+                    if (!card.IsSelected)
+                    {
+                        if (selectedCard != null)
+                            selectedCard.Deselect();
+
+                        selectedCard = card;
+                        selectedCard.Select();
+                    }
+                    else
+                    {
+                        if (selectedCard != card)
+                        {
+                            card.Deselect();
+                            selectedCard = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool mouseWithinRange(int min, int max, int mouseCoord)
+        {
+            return mouseCoord >= min && mouseCoord <= max;
+        }
+        #endregion
     }
 }

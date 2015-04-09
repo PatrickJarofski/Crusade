@@ -18,7 +18,7 @@ namespace CrusadeGameClient
         [STAThread]
         static void Main()
         {
-            using (var game = new CrusadeGameClient())
+            using (var game = CrusadeGameClient.Instance)
                 game.Run();
         }
     }

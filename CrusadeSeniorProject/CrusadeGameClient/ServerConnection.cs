@@ -33,6 +33,9 @@ namespace CrusadeGameClient
 
         private List<ReqRspLib.ClientCard> _hand;
 
+        private bool handChanged = false;
+        private bool boardChanged = false;
+
         #endregion
 
 
@@ -64,6 +67,31 @@ namespace CrusadeGameClient
         public List<ReqRspLib.ClientCard> Hand { get { return _hand; } }
 
         public ReqRspLib.ClientGamePiece[,] Gameboard { get { return _gameboard; } }
+
+        public bool HandUpdated 
+        { 
+            get
+            {   // don't want to keep grabbing a new hand if it hasn't changed since last check
+                if(handChanged) 
+                {
+                    handChanged = false;
+                    return true;
+                }
+                return handChanged; 
+            } 
+        }
+        public bool BoardUpdated 
+        {
+            get
+            {   // don't want to keep grabbing a new board if it hasn't changed since last check
+                if(boardChanged) 
+                {
+                    boardChanged = false;
+                    return true;
+                }
+                return boardChanged; 
+            } 
+        }
 
         #endregion
 
@@ -149,7 +177,8 @@ namespace CrusadeGameClient
         /// <param name="newHand">List of cards in the hand.</param>
         public void SetHand(List<ClientCard> newHand)
         {
-            _hand = newHand;            
+            _hand = newHand;
+            handChanged = true;
         }
 
 
@@ -160,6 +189,7 @@ namespace CrusadeGameClient
         public void SetGameboard(ClientGamePiece[,] newBoard)
         {
             _gameboard = newBoard;
+            boardChanged = true;
         }
 
 

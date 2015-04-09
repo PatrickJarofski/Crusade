@@ -21,7 +21,20 @@ namespace CrusadeGameClient
         GraphicsDeviceManager graphicsManager;
         SpriteBatch spriteBatch;
 
-        public CrusadeGameClient()
+        private static CrusadeGameClient instance;
+
+        public static CrusadeGameClient Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new CrusadeGameClient();
+
+                return instance;
+            }
+        }
+        
+        private CrusadeGameClient()
             : base()
         {
             graphicsManager = new GraphicsDeviceManager(this);
@@ -93,8 +106,17 @@ namespace CrusadeGameClient
         {
             spriteBatch.Begin();
             ScreenManager.Instance.Draw(spriteBatch);
-            ScreenManager.Instance.DrawHand(spriteBatch, _serverConnection.Hand);
-            ScreenManager.Instance.DrawGamePieces(spriteBatch, _serverConnection.Gameboard);
+
+            if (_serverConnection.HandUpdated)
+                ScreenManager.Instance.DrawHand(spriteBatch, _serverConnection.Hand);
+            else
+                ScreenManager.Instance.DrawHand(spriteBatch);
+
+            if (_serverConnection.BoardUpdated)
+                ScreenManager.Instance.DrawGamePieces(spriteBatch, _serverConnection.Gameboard);
+            else
+                ScreenManager.Instance.DrawGamePieces(spriteBatch);
+
             spriteBatch.End();
         }
      

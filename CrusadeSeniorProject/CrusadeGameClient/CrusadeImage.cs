@@ -13,14 +13,15 @@ namespace CrusadeGameClient
 
         protected Texture2D image;
         protected string path;
-        protected bool isSelected = false;        
+        protected bool isSelected = false;
+        protected Rectangle rec;
+        protected int xLoc;
+        protected int yLoc;
 
-        public event EventHandler ClickEvent;
-
-        public int Col { get; set; }
-        public int Row { get; set; }
         public Guid ID { get { return id; } }
         public bool IsSelected { get { return isSelected; } }
+        public Rectangle Region { get { return rec; } }
+        public Texture2D Image { get { return image; } }
 
 
         public abstract void Draw(ContentManager content, SpriteBatch spriteBatch);
@@ -28,9 +29,20 @@ namespace CrusadeGameClient
         public CrusadeImage(string path, int x, int y)
         {
             this.path = path;
-            Col = x;
-            Row = y;
+            xLoc = x;
+            yLoc = y;
             id = Guid.NewGuid();
+            rec = new Rectangle();
+        }
+
+        public virtual void Select()
+        {
+
+        }
+
+        public virtual void Deselect()
+        {
+
         }
     }
 }

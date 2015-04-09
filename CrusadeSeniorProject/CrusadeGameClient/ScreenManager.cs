@@ -57,7 +57,7 @@ namespace CrusadeGameClient
 
         public void Update(GameTime gameTime)
         {
-            currentScreen.Update(gameTime);
+            currentScreen.Update(gameTime);          
         }
 
 
@@ -66,14 +66,25 @@ namespace CrusadeGameClient
             currentScreen.Draw(spriteBatch);
         }
 
+        public void DrawHand(SpriteBatch spriteBatch)
+        {
+            currentScreen.DrawHand(spriteBatch);
+        }
+
         public void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> hand)
         {
             currentScreen.DrawHand(spriteBatch, hand);
+        }
+
+        public void DrawGamePieces(SpriteBatch spriteBatch)
+        {
+            currentScreen.DrawGamePieces(spriteBatch);
         }
 
         public void DrawGamePieces(SpriteBatch spriteBatch, ReqRspLib.ClientGamePiece[,] board)
         {
             currentScreen.DrawGamePieces(spriteBatch, board);
         }
+
     }
 }

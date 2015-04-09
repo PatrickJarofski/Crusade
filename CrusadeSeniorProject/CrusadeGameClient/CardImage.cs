@@ -24,7 +24,7 @@ namespace CrusadeGameClient
                     int offset = ScreenManager.SCREEN_WIDTH / 8;
 
                     image = content.Load<Texture2D>(path);
-                    Rectangle rec = new Rectangle((Col * image.Width) + offset, Row, image.Width, image.Height);
+                    rec = new Rectangle((xLoc * image.Width) + offset, yLoc, image.Width, image.Height);
                     spriteBatch.Draw(image, rec, Color.White);
                 }
                 catch(Exception ex)
@@ -32,6 +32,19 @@ namespace CrusadeGameClient
                     Console.WriteLine("CardImage Error: " + ex.Message);
                 }
             }
+        }
+
+
+        public override void Select()
+        {
+            isSelected = true;
+            yLoc -= 10;
+        }
+
+        public override void Deselect()
+        {
+            isSelected = false;
+            yLoc += 10;
         }
     }
 }

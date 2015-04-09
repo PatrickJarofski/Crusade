@@ -28,9 +28,9 @@ namespace CrusadeGameClient
                 {
                     image = content.Load<Texture2D>(path);
 
-                    int x = Col * 68 + 155;
-                    int y = Row * 68 + 5;
-                    Rectangle rec = new Rectangle(x, y, image.Width, image.Height);
+                    int x = xLoc * 68 + 155;
+                    int y = yLoc * 68 + 5;
+                    rec = new Rectangle(x, y, image.Width, image.Height);
                     spriteBatch.Draw(image, rec, Color.White);
                 }
                 catch(Exception ex)
