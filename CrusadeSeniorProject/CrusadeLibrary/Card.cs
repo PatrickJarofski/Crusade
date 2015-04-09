@@ -9,6 +9,7 @@ namespace CrusadeLibrary
     {
         private string _name;
         private CardType _type;
+        private int _index;
 
         #region Properties
 
@@ -40,6 +41,13 @@ namespace CrusadeLibrary
         {
             _name = name;
             _type = type;
+        }
+
+        public int Index { get { return _index; } }
+
+        internal void setIndex(int num)
+        {
+            _index = num;
         }
     }
 }

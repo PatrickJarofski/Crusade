@@ -9,6 +9,8 @@ namespace CrusadeGameClient
 {
     public class BoardScreen : GameScreen
     {
+        const int CARD_Y_LOC = 360;
+
         #region Fields
         private string cellPath;
         private string bgPath;
@@ -33,7 +35,10 @@ namespace CrusadeGameClient
 
         public override void UnloadContent()
         {
+            cellPath = null;
+            bgPath = null;
             cellImage.Dispose();
+            backgroundImage.Dispose();
             base.UnloadContent();
         }
 
@@ -41,6 +46,8 @@ namespace CrusadeGameClient
         {
             base.Update(gameTime);
             handleMouseState();
+            if (previousMouseState.LeftButton == ButtonState.Pressed && currentMouseState.LeftButton == ButtonState.Released)
+                handleMouseClick();
         }
 
         public override void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
@@ -58,11 +65,10 @@ namespace CrusadeGameClient
 
         public override void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> newHand)
         {
-            int yLocation = 360;
             hand.Clear();
             for (int i = 0; i < newHand.Count; ++i)
             {
-                CardImage newImg = new CardImage("Cards/" + newHand[i].Name + ".png", i, yLocation);
+                CardImage newImg = new CardImage("Cards/" + newHand[i].Name + ".png", i, CARD_Y_LOC, newHand[i].Index);
                 hand.Add(newImg);
             }
 
@@ -121,39 +127,21 @@ namespace CrusadeGameClient
         }
 
 
-        private void DrawCard(SpriteBatch spriteBatch, string cardName, int x, int y)
-        {
-            try
-            {
-                string cardPath = "Cards/" + cardName + ".png";
-                CardImage img = new CardImage(cardPath, x, y);
-                img.Draw(content, spriteBatch);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        private void DrawGamepiece(SpriteBatch spriteBatch, string pieceName, int x, int y)
-        {
-            try
-            {
-                string path = "Gameboard/" + pieceName + ".png";
-                GamepieceImage piece = new GamepieceImage(path, x, y);
-                piece.Draw(content, spriteBatch);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-
         private void handleMouseState()
         {
             checkMouseOnCard();
+        }
 
+
+        private void handleMouseClick()
+        {
+            CrusadeImage img = getImage();
+            if (img != null)
+            {
+                Console.WriteLine("Got image at ({0},{1})", currentMouseState.X, currentMouseState.Y);
+                if (img is CardImage)
+                    Console.WriteLine("Index: {0}", (img as CardImage).Index);
+            }
         }
 
 
@@ -168,29 +156,59 @@ namespace CrusadeGameClient
 
                 if (mouseWithinRange(xMin, xMax, currentMouseState.X) && mouseWithinRange(yMin, yMax, currentMouseState.Y))
                 {
-                    if (!card.IsSelected)
+                    if(selectedCard != card)
                     {
-                        if (selectedCard != null)
-                            selectedCard.Deselect();
+                        if(selectedCard != null)                        
+                            selectedCard.Deselect(); // Deselect previous card
 
                         selectedCard = card;
-                        selectedCard.Select();
+                        selectedCard.Select();                        
                     }
-                    else
+                }
+            }
+
+            if (hand.Count > 0)
+            {
+                int xMin = hand[0].Region.Left;
+                int xMax = hand[hand.Count - 1].Region.Right;
+                int yMax = CARD_Y_LOC + hand[0].Image.Height;
+
+                if(!mouseWithinRange(xMin, xMax, currentMouseState.X) || !mouseWithinRange(CARD_Y_LOC, yMax, currentMouseState.Y))                    
+                {
+                    if(selectedCard != null)
                     {
-                        if (selectedCard != card)
-                        {
-                            card.Deselect();
-                            selectedCard = null;
-                        }
+                        selectedCard.Deselect();
+                        selectedCard = null;
                     }
                 }
             }
         }
 
+
         private bool mouseWithinRange(int min, int max, int mouseCoord)
         {
             return mouseCoord >= min && mouseCoord <= max;
+        }
+
+
+        private CrusadeImage getImage()
+        {
+            CrusadeImage imageToReturn = null;
+
+            foreach(CardImage img in hand)
+                if(mouseWithinRange(img.Region.Left, img.Region.Right, currentMouseState.X) && 
+                    mouseWithinRange(img.Region.Top, img.Region.Bottom, currentMouseState.Y))
+                {
+                    imageToReturn = img;
+                    return imageToReturn;
+                }
+
+            foreach(GamepieceImage img in board)
+                if(mouseWithinRange(img.Region.Left, img.Region.Right, currentMouseState.X) &&
+                    mouseWithinRange(img.Region.Top, img.Region.Bottom, currentMouseState.Y))
+                    imageToReturn = img;
+
+            return imageToReturn;
         }
         #endregion
     }

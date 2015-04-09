@@ -8,11 +8,15 @@ using Microsoft.Xna.Framework.Input;
 namespace CrusadeGameClient
 {
     public class CardImage : CrusadeImage
-    {     
-        public CardImage(string imgPath, int xCoord, int yCoord)
+    {
+        private int _index;
+
+        public int Index { get { return _index; } }
+
+        public CardImage(string imgPath, int xCoord, int yCoord, int index)
             :base(imgPath, xCoord, yCoord)
         {
-
+            _index = index;
         }
 
         public override void Draw(ContentManager content, SpriteBatch spriteBatch)

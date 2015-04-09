@@ -35,9 +35,6 @@ namespace CrusadeServer
 
                 List<ClientCard> stringHand = GetJsonCardList(hand);
 
-         //       Converter<CrusadeLibrary.ICard, ReqRspLib.ICard> con = new Converter<CrusadeLibrary.ICard, ReqRspLib.ICard>(ConvertToRspICard);
-         //       List<ReqRspLib.ICard> handToShip = hand.ConvertAll(con);
-
                 ResponseHand rsp = new ResponseHand(stringHand);
                 SendData(client, rsp);
             }
@@ -60,6 +57,7 @@ namespace CrusadeServer
                 newCard.Type = card.Type.ToString();
                 newCard.Location = card.Location.ToString();
                 newCard.Owner = card.ID.ToString();
+                newCard.Index = card.Index;
                 newList.Add(newCard);
             }
 

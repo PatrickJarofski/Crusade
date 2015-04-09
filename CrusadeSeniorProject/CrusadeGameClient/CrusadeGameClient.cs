@@ -89,6 +89,7 @@ namespace CrusadeGameClient
                 lock (_serverConnection)
                 {
                     _serverConnection.Disconnect();
+                    UnloadContent();
                     Exit();
                 }
             }
@@ -118,6 +119,12 @@ namespace CrusadeGameClient
                 ScreenManager.Instance.DrawGamePieces(spriteBatch);
 
             spriteBatch.End();
+        }
+
+
+        public void PlayCard(int index, int rowCoord, int colCoord)
+        {
+            
         }
      
     }

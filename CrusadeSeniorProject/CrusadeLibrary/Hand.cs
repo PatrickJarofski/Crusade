@@ -50,11 +50,6 @@ namespace CrusadeLibrary
         {
             return _cardList;
         }
-
-        public List<Card> GetHand2()
-        {
-            return _cardList;
-        }
         
 
         /// <summary>
@@ -62,8 +57,9 @@ namespace CrusadeLibrary
         /// </summary>
         /// <param name="card">Card to add</param>
         public void AddCard(Card card)
-        {
+        {           
             _cardList.Add(card);
+            setCardIndices();
         }
 
 
@@ -91,6 +87,8 @@ namespace CrusadeLibrary
 
             ICard card = _cardList[cardSlotToRemove];         
             _cardList.RemoveAt(cardSlotToRemove);
+
+            setCardIndices();
             return card;
         }
 
@@ -129,7 +127,16 @@ namespace CrusadeLibrary
                 discardList.Add(_cardList[i]);
                 _cardList.Remove(_cardList[i]);
             }
+
+            setCardIndices();
             return discardList;
+        }
+
+
+        private void setCardIndices()
+        {
+            for (int i = 0; i < _cardList.Count; ++i)
+                _cardList[i].setIndex(i);
         }
 
         #endregion

@@ -52,6 +52,7 @@ namespace CrusadeGameClient
         public void UnloadContent()
         {
             currentScreen.UnloadContent();
+            Content.Unload();           
         }
 
 

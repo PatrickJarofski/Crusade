@@ -27,7 +27,7 @@ namespace CrusadeLibrary
         /// </summary>
         CardType Type { get; }
 
-        // TODO
-        // List<string> GetInformation();
+
+        int Index { get; }
     }
 }

@@ -18,6 +18,7 @@ namespace ReqRspLib
         public int MinAttackRange { get; set; }
         public int MaxAttackRange { get; set; }
         public int MoveRange { get; set; }
+        public int Index { get; set; }
 
 
         /// <summary>
