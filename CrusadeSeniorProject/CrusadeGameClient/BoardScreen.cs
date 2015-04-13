@@ -157,7 +157,7 @@ namespace CrusadeGameClient
 
         private void handleMouseState()
         {
-            checkMouseOnCard();
+            doCardHighlighting();
         }
 
 
@@ -192,7 +192,7 @@ namespace CrusadeGameClient
         }
 
 
-        private void checkMouseOnCard()
+        private void doCardHighlighting()
         {
             if (!(currentState is AwaitUserInputState) && !(currentState is NotTurnPlayerState))
                 return;
@@ -217,15 +217,21 @@ namespace CrusadeGameClient
                 }
             }
 
+            checkCursorNotOverHand();
+        }
+
+
+        private void checkCursorNotOverHand()
+        {
             if (hand.Count > 0)
             {
                 int xMin = hand[0].Region.Left;
                 int xMax = hand[hand.Count - 1].Region.Right;
                 int yMax = CARD_Y_LOC + hand[0].Image.Height;
 
-                if(!mouseWithinRange(xMin, xMax, currentMouseState.X) || !mouseWithinRange(CARD_Y_LOC, yMax, currentMouseState.Y))                    
+                if (!mouseWithinRange(xMin, xMax, currentMouseState.X) || !mouseWithinRange(CARD_Y_LOC, yMax, currentMouseState.Y))
                 {
-                    if(selectedCard != null)
+                    if (selectedCard != null)
                     {
                         selectedCard.Deselect();
                         selectedCard = null;

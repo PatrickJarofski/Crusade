@@ -24,13 +24,21 @@ namespace CrusadeGameClient
             base.Update(gameTime, previous, current);
             updateCursor();
 
-            if (currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed)
-                handleMouseClick();
+            handleInput();
 
             if (deploymentDone)
                 return new AwaitUserInputState();
             else
                 return this;
+        }
+
+        private void handleInput()
+        {
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                deploymentDone = true;
+
+            else if (currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed)
+                handleMouseClick();
         }
 
         private void handleMouseClick()
@@ -79,11 +87,10 @@ namespace CrusadeGameClient
         {
             if(boardCells != null)
             {
-                int backrow = ServerConnection.Instance.BackRow;
                 int width = boardCells[0].Image.Width;
                 int height = boardCells[0].Image.Height;
 
-                for (int i = backrow * 5; i < boardCells.Count; i += 5)
+                for (int i = ServerConnection.Instance.BackRow; i < boardCells.Count; i += 5)
                 {
                     int x = boardCells[i].X;
                     int y = boardCells[i].Y;
