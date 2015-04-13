@@ -80,6 +80,7 @@ namespace CrusadeGameClient
                 return handChanged; 
             } 
         }
+
         public bool BoardUpdated 
         {
             get
@@ -91,6 +92,16 @@ namespace CrusadeGameClient
                 }
                 return boardChanged; 
             } 
+        }
+
+        #endregion
+
+        #region ClientInput
+
+        public void PlayCard(int index, int row, int col)
+        {
+            ReqRspLib.RequestPlayCard req = new RequestPlayCard(ID, index, row, col);
+            SendRequestToServer(req);
         }
 
         #endregion
@@ -323,7 +334,6 @@ namespace CrusadeGameClient
                 _inAGame = true;
                 RequestGameHand();
             }
-
         }
 
 
@@ -356,6 +366,7 @@ namespace CrusadeGameClient
         public void GetPlayerAction()
         {
             DisplayHand();
+            return;
 
             bool validChoice = false;
             int option = -1;
@@ -395,6 +406,7 @@ namespace CrusadeGameClient
                 }
             }
         }
+
 
         public void PassTurn()
         {

@@ -10,25 +10,24 @@ namespace CrusadeGameClient
     public class CardImage : CrusadeImage
     {
         private int _index;
+        private int xOffset = ScreenManager.SCREEN_WIDTH / 8;
 
         public int Index { get { return _index; } }
 
         public CardImage(string imgPath, int xCoord, int yCoord, int index)
             :base(imgPath, xCoord, yCoord)
         {
+            image = ScreenManager.Instance.Content.Load<Texture2D>(path);            
             _index = index;
         }
 
-        public override void Draw(ContentManager content, SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             if (path != null && path != String.Empty)
             {
                 try
                 {
-                    int offset = ScreenManager.SCREEN_WIDTH / 8;
-
-                    image = content.Load<Texture2D>(path);
-                    rec = new Rectangle((xLoc * image.Width) + offset, yLoc, image.Width, image.Height);
+                    rec = new Rectangle((xLoc * image.Width) + xOffset, yLoc, image.Width, image.Height);
                     spriteBatch.Draw(image, rec, Color.White);
                 }
                 catch(Exception ex)

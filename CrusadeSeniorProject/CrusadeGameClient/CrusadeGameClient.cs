@@ -33,6 +33,11 @@ namespace CrusadeGameClient
                 return instance;
             }
         }
+
+        public bool IsTurnPlayer
+        {
+            get { return _serverConnection.IsTurnPlayer; }
+        }
         
         private CrusadeGameClient()
             : base()
@@ -40,7 +45,7 @@ namespace CrusadeGameClient
             graphicsManager = new GraphicsDeviceManager(this);
             _serverConnection = ServerConnection.Instance;
 
-            IsMouseVisible = true;
+            //IsMouseVisible = true;
         }
 
         /// <summary>
@@ -63,8 +68,10 @@ namespace CrusadeGameClient
         /// </summary>
         protected override void LoadContent()
         {
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
             spriteBatch = new SpriteBatch(GraphicsDevice);
             ScreenManager.Instance.LoadContent(Content);
+            
             Window.Title = "Crusade Client";
         }
 
@@ -84,15 +91,11 @@ namespace CrusadeGameClient
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
-                lock (_serverConnection)
-                {
-                    _serverConnection.Disconnect();
-                    UnloadContent();
-                    Exit();
-                }
-            }
+            if (_serverConnection.HandUpdated)
+                ScreenManager.Instance.UpdateHand(_serverConnection.Hand);
+
+            if (_serverConnection.BoardUpdated)
+                ScreenManager.Instance.UpdateBoard(_serverConnection.Gameboard);
 
             ScreenManager.Instance.Update(gameTime);
             base.Update(gameTime);
@@ -107,25 +110,18 @@ namespace CrusadeGameClient
         {
             spriteBatch.Begin();
             ScreenManager.Instance.Draw(spriteBatch);
-
-            if (_serverConnection.HandUpdated)
-                ScreenManager.Instance.DrawHand(spriteBatch, _serverConnection.Hand);
-            else
-                ScreenManager.Instance.DrawHand(spriteBatch);
-
-            if (_serverConnection.BoardUpdated)
-                ScreenManager.Instance.DrawGamePieces(spriteBatch, _serverConnection.Gameboard);
-            else
-                ScreenManager.Instance.DrawGamePieces(spriteBatch);
-
             spriteBatch.End();
         }
 
 
-        public void PlayCard(int index, int rowCoord, int colCoord)
+        protected override void OnExiting(object sender, EventArgs args)
         {
-            
-        }
-     
+            base.OnExiting(sender, args);
+
+            lock(_serverConnection)
+                _serverConnection.Disconnect();
+
+            UnloadContent();
+        }     
     }
 }

@@ -16,18 +16,16 @@ namespace CrusadeGameClient
         public GamepieceImage(string path, int x, int y)
             :base(path, x, y)
         {
-
+            image = ScreenManager.Instance.Content.Load<Texture2D>(path);
         }
 
 
-        public override void Draw(ContentManager content, SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             if(path != null && path != String.Empty)
             {
                 try
-                {
-                    image = content.Load<Texture2D>(path);
-
+                {                    
                     int x = xLoc * 68 + 155;
                     int y = yLoc * 68 + 5;
                     rec = new Rectangle(x, y, image.Width, image.Height);

@@ -10,6 +10,8 @@ namespace CrusadeGameClient
     public class BoardScreen : GameScreen
     {
         const int CARD_Y_LOC = 360;
+        private const int BOARD_WIDTH = 5;
+        private const int BOARD_HEIGHT = 5;
 
         #region Fields
         private string cellPath;
@@ -17,8 +19,16 @@ namespace CrusadeGameClient
         private Texture2D cellImage;
         private Texture2D backgroundImage;
 
-        private const int BOARD_WIDTH = 5;
-        private const int BOARD_HEIGHT = 5;
+        private List<GameCell> boardCells;
+        private Rectangle bgRec;
+
+        private BoardScreenState currentState;
+        #endregion
+
+        #region Properties
+
+        public List<GameCell> GameboardCells { get { return boardCells; } }
+
         #endregion
 
 
@@ -29,41 +39,59 @@ namespace CrusadeGameClient
             base.LoadContent();
             cellPath = "Gameboard/Cell.png";
             bgPath = "Gameboard/Background.png";
+
             cellImage = content.Load<Texture2D>(cellPath);
             backgroundImage = content.Load<Texture2D>(bgPath);
+
+            bgRec = new Rectangle(0, 0, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
+
+            boardCells = new List<GameCell>();
+            setupGameboardCells();
+            currentState = new AwaitUserInputState();
+            currentState.LoadContent();
         }
 
+        
         public override void UnloadContent()
         {
             cellPath = null;
             bgPath = null;
             cellImage.Dispose();
             backgroundImage.Dispose();
+            currentState.UnloadContent();
             base.UnloadContent();
         }
 
-        public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
+
+        public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            
             handleMouseState();
             if (previousMouseState.LeftButton == ButtonState.Pressed && currentMouseState.LeftButton == ButtonState.Released)
                 handleMouseClick();
+
+            currentState = currentState.Update(gameTime, previousMouseState, currentMouseState);
+
+            if (!CrusadeGameClient.Instance.IsTurnPlayer && !(currentState is NotTurnPlayerState))
+                currentState = new NotTurnPlayerState();
+
+            else if (CrusadeGameClient.Instance.IsTurnPlayer && currentState is NotTurnPlayerState)
+                currentState = new AwaitUserInputState();
         }
 
-        public override void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
+
+        public override void Draw(SpriteBatch spriteBatch)
         {
+            spriteBatch.Draw(backgroundImage, bgRec, Color.White);
             DrawGameboard(spriteBatch);
+            DrawGamePieces(spriteBatch);
+            DrawHand(spriteBatch);
+            currentState.Draw(spriteBatch);
         }
+        
 
-
-        public override void DrawHand(SpriteBatch spriteBatch)
-        {
-            foreach (CardImage img in hand)
-                img.Draw(content, spriteBatch);    
-        }
-
-
-        public override void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> newHand)
+        public override void UpdateHand(List<ReqRspLib.ClientCard> newHand)
         {
             hand.Clear();
             for (int i = 0; i < newHand.Count; ++i)
@@ -71,22 +99,13 @@ namespace CrusadeGameClient
                 CardImage newImg = new CardImage("Cards/" + newHand[i].Name + ".png", i, CARD_Y_LOC, newHand[i].Index);
                 hand.Add(newImg);
             }
-
-            DrawHand(spriteBatch);
-        }      
-
-
-        public override void DrawGamePieces(SpriteBatch spriteBatch)
-        {
-            foreach (GamepieceImage img in board)
-                img.Draw(content, spriteBatch);
         }
 
 
-        public override void DrawGamePieces(SpriteBatch spriteBatch, ReqRspLib.ClientGamePiece[,] newBoard)
+        public override void UpdateBoard(ReqRspLib.ClientGamePiece[,] newBoard)
         {
             board.Clear();
-            foreach(ReqRspLib.ClientGamePiece piece in newBoard)
+            foreach (ReqRspLib.ClientGamePiece piece in newBoard)
             {
                 if (piece != null)
                 {
@@ -95,35 +114,44 @@ namespace CrusadeGameClient
                     board.Add(img);
                 }
             }
-
-            DrawGamePieces(spriteBatch);
-        }             
+        }
 
         #endregion
 
 
         #region Private Methods
 
-        private void DrawGameboard(SpriteBatch spriteBatch)
+        private void setupGameboardCells()
         {
-            Microsoft.Xna.Framework.Rectangle rec = new Microsoft.Xna.Framework.Rectangle();
-            rec.Width = cellImage.Width;
-            rec.Height = cellImage.Height;
-
-            Microsoft.Xna.Framework.Rectangle bgRec = new Microsoft.Xna.Framework.Rectangle(0, 0,
-                ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
-
-            spriteBatch.Draw(backgroundImage, bgRec, Microsoft.Xna.Framework.Color.White);
-
-            for (int i = 0; i < BOARD_WIDTH; ++i)
+            for (int col = 0; col < BOARD_WIDTH; ++col)
             {
-                for (int j = 0; j < BOARD_HEIGHT; ++j)
+                for (int row = 0; row < BOARD_HEIGHT; ++row)
                 {
-                    rec.X = i * cellImage.Width + (ScreenManager.SCREEN_WIDTH / 4) - 10;
-                    rec.Y = j * cellImage.Height;
-                    spriteBatch.Draw(cellImage, rec, Microsoft.Xna.Framework.Color.White);
+                    GameCell img = new GameCell(row, col);
+                    boardCells.Add(img);
                 }
             }
+        }
+
+
+        private void DrawGameboard(SpriteBatch spriteBatch)
+        {
+            foreach (GameCell cell in boardCells)
+                cell.Draw(spriteBatch);
+        }
+
+
+        private void DrawHand(SpriteBatch spriteBatch)
+        {
+            foreach (CardImage img in hand)
+                img.Draw(spriteBatch);
+        }
+
+
+        private void DrawGamePieces(SpriteBatch spriteBatch)
+        {
+            foreach (GamepieceImage img in board)
+                img.Draw(spriteBatch);
         }
 
 
@@ -138,9 +166,28 @@ namespace CrusadeGameClient
             CrusadeImage img = getImage();
             if (img != null)
             {
-                Console.WriteLine("Got image at ({0},{1})", currentMouseState.X, currentMouseState.Y);
                 if (img is CardImage)
-                    Console.WriteLine("Index: {0}", (img as CardImage).Index);
+                    processCardInput((CardImage)img);
+
+                else if (img is GamepieceImage)
+                    processGamepieceInput((GamepieceImage)img);
+            }
+            
+        }
+
+
+        private void processGamepieceInput(GamepieceImage gamepieceImage)
+        {
+            
+        }
+
+
+        private void processCardInput(CardImage image)
+        {
+            if (CrusadeGameClient.Instance.IsTurnPlayer && !(currentState is DeployTroopState))
+            {
+                currentState = new DeployTroopState(image, GameboardCells);
+                currentState.LoadContent();
             }
         }
 

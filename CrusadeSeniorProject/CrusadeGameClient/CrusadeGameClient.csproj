@@ -42,13 +42,19 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AwaitUserInputState.cs" />
     <Compile Include="BoardScreen.cs" />
+    <Compile Include="BoardScreenState.cs" />
     <Compile Include="CardImage.cs" />
     <Compile Include="ConnectScreen.cs" />
     <Compile Include="CrusadeGameClient.cs" />
     <Compile Include="CrusadeImage.cs" />
+    <Compile Include="GameCell.cs" />
     <Compile Include="GamepieceImage.cs" />
     <Compile Include="GameScreen.cs" />
+    <Compile Include="MoveTroopState.cs" />
+    <Compile Include="DeployTroopState.cs" />
+    <Compile Include="NotTurnPlayerState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenManager.cs" />
@@ -90,6 +96,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Cards\Swordsman.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Cursors\InvalidChoiceCursor.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Cursors\NormalCursor.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Cursors\ValidChoiceCursor.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Gameboard\Archer.png">

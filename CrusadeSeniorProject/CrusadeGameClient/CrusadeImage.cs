@@ -24,7 +24,7 @@ namespace CrusadeGameClient
         public Texture2D Image { get { return image; } }
 
 
-        public abstract void Draw(ContentManager content, SpriteBatch spriteBatch);
+        public abstract void Draw(SpriteBatch spriteBatch);
 
         public CrusadeImage(string path, int x, int y)
         {

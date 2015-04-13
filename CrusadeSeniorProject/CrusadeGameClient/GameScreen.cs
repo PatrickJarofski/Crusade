@@ -58,26 +58,12 @@ namespace CrusadeGameClient
 
         }
 
-
-        public virtual void DrawHand(SpriteBatch spriteBatch)
+        public virtual void UpdateHand(List<ReqRspLib.ClientCard> newHand)
         {
 
         }
 
-
-        public virtual void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> hand)
-        {
-
-        }
-
-
-        public virtual void DrawGamePieces(SpriteBatch spriteBatch)
-        {
-
-        }
-
-
-        public virtual void DrawGamePieces(SpriteBatch spriteBatch, ReqRspLib.ClientGamePiece[,] board)
+        public virtual void UpdateBoard(ReqRspLib.ClientGamePiece[,] newBoard)
         {
 
         }

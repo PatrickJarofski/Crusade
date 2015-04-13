@@ -30,6 +30,7 @@ namespace CrusadeGameClient
             Dimensions = new Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
         }
 
+
         public static ScreenManager Instance
         {
             get
@@ -47,7 +48,7 @@ namespace CrusadeGameClient
             Content = new ContentManager(content.ServiceProvider, "Content");
             currentScreen.LoadContent();
         }
-
+        
 
         public void UnloadContent()
         {
@@ -67,24 +68,16 @@ namespace CrusadeGameClient
             currentScreen.Draw(spriteBatch);
         }
 
-        public void DrawHand(SpriteBatch spriteBatch)
+
+        public void UpdateHand(List<ReqRspLib.ClientCard> newHand)
         {
-            currentScreen.DrawHand(spriteBatch);
+            currentScreen.UpdateHand(newHand);
         }
 
-        public void DrawHand(SpriteBatch spriteBatch, List<ReqRspLib.ClientCard> hand)
-        {
-            currentScreen.DrawHand(spriteBatch, hand);
-        }
 
-        public void DrawGamePieces(SpriteBatch spriteBatch)
+        public void UpdateBoard(ReqRspLib.ClientGamePiece[,] newBoard)
         {
-            currentScreen.DrawGamePieces(spriteBatch);
-        }
-
-        public void DrawGamePieces(SpriteBatch spriteBatch, ReqRspLib.ClientGamePiece[,] board)
-        {
-            currentScreen.DrawGamePieces(spriteBatch, board);
+            currentScreen.UpdateBoard(newBoard);
         }
 
     }
