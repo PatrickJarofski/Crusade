@@ -8,5 +8,6 @@ namespace CrusadeGameClient
 {
     internal class AwaitUserInputState : BoardScreenState
     {
+
     }
 }

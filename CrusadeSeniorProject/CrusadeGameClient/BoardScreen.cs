@@ -194,6 +194,9 @@ namespace CrusadeGameClient
 
         private void checkMouseOnCard()
         {
+            if (!(currentState is AwaitUserInputState) && !(currentState is NotTurnPlayerState))
+                return;
+
             foreach (CardImage card in Hand)
             {
                 int xMin = card.Region.Left;

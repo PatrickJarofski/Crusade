@@ -367,7 +367,7 @@ namespace CrusadeGameClient
         {
             DisplayHand();
             return;
-
+            /*
             bool validChoice = false;
             int option = -1;
 
@@ -404,7 +404,7 @@ namespace CrusadeGameClient
                         Console.WriteLine("Invalid selection.");
                         break;
                 }
-            }
+            }*/
         }
 
 
