@@ -47,18 +47,27 @@ namespace CrusadeGameClient
             rec = new Rectangle(recX, recY, image.Width, image.Height);
         }
 
-
+        // Draw the stat rectangle and gamepiece stats
         public override void Draw(SpriteBatch spriteBatch)
         {            
-
-
             spriteBatch.Draw(image, rec, Color.White);
-            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Name, new Vector2(textX, textY), Color.Black);
-            spriteBatch.DrawString(font, owner, new Vector2(textX, textY + 12), Color.Black);
-            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Attack.ToString(), new Vector2(textX, textY + 24), Color.Black);
-            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Defense.ToString(), new Vector2(textX, textY + 36), Color.Black);
-            spriteBatch.DrawString(font, attackRange, new Vector2(textX, textY + 48), Color.Black);
-            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Move.ToString(), new Vector2(textX, textY + 60), Color.Black);
+            Vector2 vec = new Vector2(textX, textY);
+            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Name, vec, Color.Black);
+
+            vec.Y += 12;
+            spriteBatch.DrawString(font, owner, vec, Color.Black);
+
+            vec.Y += 12;
+            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Attack.ToString(), vec, Color.Black);
+
+            vec.Y += 12;
+            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Defense.ToString(), vec, Color.Black);
+
+            vec.Y += 12;
+            spriteBatch.DrawString(font, attackRange, vec, Color.Black);
+
+            vec.Y += 12;
+            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Move.ToString(), vec, Color.Black);
             base.Draw(spriteBatch);            
         }
 
