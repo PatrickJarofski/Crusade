@@ -51,6 +51,7 @@
     <Compile Include="CrusadeImage.cs" />
     <Compile Include="GameCell.cs" />
     <Compile Include="GamepieceImage.cs" />
+    <Compile Include="GamepieceMenuState.cs" />
     <Compile Include="GameScreen.cs" />
     <Compile Include="MoveTroopState.cs" />
     <Compile Include="DeployTroopState.cs" />
@@ -143,6 +144,9 @@
     <Content Include="Content\Gameboard\Knight.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Gameboard\Menu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Gameboard\Swordsman.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -153,6 +157,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <Content Include="Content\Debug\MonoFont.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\MonoFont.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

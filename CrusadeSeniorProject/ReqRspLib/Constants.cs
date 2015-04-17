@@ -8,6 +8,9 @@ namespace ReqRspLib
 {
     public static class Constants
     {
+        public const int BOARD_ROWS = 5;
+        public const int BOARD_COLS = 5;
+
         public const byte BAD_ATTRIBUTE = 0xF0;
 
         public const byte CARD_TYPE_TROOP = 0x01;

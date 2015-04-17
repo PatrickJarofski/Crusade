@@ -8,11 +8,11 @@ namespace CrusadeGameClient
     internal class DeployTroopState : BoardScreenState
     {
         CardImage selectedCard;
-        List<GameCell> boardCells;
+        GameCell[,] boardCells;
 
         bool deploymentDone = false;
 
-        public DeployTroopState(CardImage img, List<GameCell> board)
+        public DeployTroopState(CardImage img, GameCell[,] board)
             :base()
         {
             selectedCard = img;
@@ -32,6 +32,7 @@ namespace CrusadeGameClient
                 return this;
         }
 
+
         private void handleInput()
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -40,6 +41,7 @@ namespace CrusadeGameClient
             else if (currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed)
                 handleMouseClick();
         }
+
 
         private void handleMouseClick()
         {
@@ -87,13 +89,14 @@ namespace CrusadeGameClient
         {
             if(boardCells != null)
             {
-                int width = boardCells[0].Image.Width;
-                int height = boardCells[0].Image.Height;
+                int width = boardCells[0,0].Image.Width;
+                int height = boardCells[0,0].Image.Height;
+                int row = ServerConnection.Instance.BackRow;
 
-                for (int i = ServerConnection.Instance.BackRow; i < boardCells.Count; i += 5)
+                for (int col = 0; col < CrusadeGameClient.BOARD_COLS; ++col)
                 {
-                    int x = boardCells[i].X;
-                    int y = boardCells[i].Y;
+                    int x = boardCells[row, col].X;
+                    int y = boardCells[row, col].Y;
 
                     if (mouseInRange(x, x + width, currentMouseState.X) && mouseInRange(y, y + height, currentMouseState.Y))
                         return true;
@@ -103,10 +106,6 @@ namespace CrusadeGameClient
             return false;
         }
 
-        
-        private bool mouseInRange(int min, int max, int mouse)
-        {
-            return mouse >= min && mouse <= max;
-        }
+       
     }
 }

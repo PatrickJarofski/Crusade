@@ -16,7 +16,6 @@ namespace CrusadeGameClient
         protected ContentManager content;
 
         protected List<CardImage> hand;
-        protected List<GamepieceImage> board;
         protected MouseState previousMouseState;
         protected MouseState currentMouseState;
 
@@ -27,7 +26,6 @@ namespace CrusadeGameClient
 
         #region Properties
         public List<CardImage> Hand { get { return hand; } }
-        public List<GamepieceImage> Board { get { return board; } }
         #endregion
 
 
@@ -35,7 +33,6 @@ namespace CrusadeGameClient
         public virtual void LoadContent()
         {
             hand = new List<CardImage>();
-            board = new List<GamepieceImage>();
             content = new ContentManager(ScreenManager.Instance.Content.ServiceProvider, "Content");
         }
 

@@ -16,6 +16,9 @@ namespace CrusadeGameClient
     /// </summary>
     public class CrusadeGameClient : Game
     {
+        public const int BOARD_COLS = ReqRspLib.Constants.BOARD_COLS;
+        public const int BOARD_ROWS = ReqRspLib.Constants.BOARD_ROWS;
+
         private readonly ServerConnection _serverConnection;
 
         GraphicsDeviceManager graphicsManager;

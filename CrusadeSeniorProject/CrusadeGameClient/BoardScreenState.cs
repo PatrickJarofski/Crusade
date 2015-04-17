@@ -22,6 +22,11 @@ namespace CrusadeGameClient
         protected MouseState currentMouseState;
         protected MouseState previousMouseState;
 
+        protected bool mouseInRange(int min, int max, int mouse)
+        {
+            return mouse >= min && mouse <= max;
+        }
+
         public virtual void LoadContent()
         {
             normalCursor = ScreenManager.Instance.Content.Load<Texture2D>(NORMAL_CURSOR_PATH);
@@ -44,7 +49,7 @@ namespace CrusadeGameClient
         {
             currentMouseState = current;
             previousMouseState = previous;
-            mousePos = new Vector2(current.X, current.Y);
+            mousePos = new Vector2(current.X, current.Y);            
             return this;
         }
 
@@ -54,7 +59,11 @@ namespace CrusadeGameClient
             if (cursorImage == null)
                 LoadContent();
 
-            spriteBatch.Draw(cursorImage, mousePos, Color.White);
+            if(mousePos.X < 10 && mousePos.Y < 10)
+                spriteBatch.Draw(cursorImage, mousePos, Color.White);
+
+            else
+                spriteBatch.Draw(cursorImage, mousePos, Color.White);
         }
 
 

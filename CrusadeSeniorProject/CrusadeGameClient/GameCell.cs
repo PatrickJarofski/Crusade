@@ -23,6 +23,7 @@ namespace CrusadeGameClient
         public int X { get { return x; } }
         public int Y { get { return y; } }
         public Texture2D Image { get { return image; } }
+        public GamepieceImage GamepieceImg { get; set; }
 
         public GameCell(int row, int col)
         {
@@ -40,6 +41,8 @@ namespace CrusadeGameClient
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(image, rec, Color.White);
+            if(GamepieceImg != null)
+                GamepieceImg.Draw(spriteBatch);
         }
     }
 }

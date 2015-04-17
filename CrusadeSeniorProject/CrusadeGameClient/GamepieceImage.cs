@@ -9,14 +9,22 @@ namespace CrusadeGameClient
 {
     public class GamepieceImage : CrusadeImage
     {
-        /*
-         * Gamepiece stats here
-         */ 
+        ReqRspLib.ClientGamePiece gamepiece;
 
-        public GamepieceImage(string path, int x, int y)
+        public ReqRspLib.ClientGamePiece Gamepiece { get { return gamepiece; } }
+
+        public GamepieceImage(string path, int x, int y, ReqRspLib.ClientGamePiece piece)
             :base(path, x, y)
         {
-            image = ScreenManager.Instance.Content.Load<Texture2D>(path);
+            try
+            {
+                gamepiece = piece;
+                image = ScreenManager.Instance.Content.Load<Texture2D>(path);
+            }
+            catch
+            {
+
+            }
         }
 
 

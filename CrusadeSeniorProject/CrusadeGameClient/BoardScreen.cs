@@ -10,24 +10,27 @@ namespace CrusadeGameClient
     public class BoardScreen : GameScreen
     {
         const int CARD_Y_LOC = 360;
-        private const int BOARD_WIDTH = 5;
-        private const int BOARD_HEIGHT = 5;
 
         #region Fields
         private string cellPath;
         private string bgPath;
         private Texture2D cellImage;
         private Texture2D backgroundImage;
+        private GameCell[,] board;
 
-        private List<GameCell> boardCells;
         private Rectangle bgRec;
 
         private BoardScreenState currentState;
+
+        private int boardMinX;
+        private int boardMinY;
+        private int boardMaxX;
+        private int boardMaxY;
         #endregion
 
         #region Properties
 
-        public List<GameCell> GameboardCells { get { return boardCells; } }
+        public GameCell[,] Gameboard { get { return board; } }
 
         #endregion
 
@@ -45,9 +48,17 @@ namespace CrusadeGameClient
 
             bgRec = new Rectangle(0, 0, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
 
-            boardCells = new List<GameCell>();
+            board = new GameCell[CrusadeGameClient.BOARD_ROWS, CrusadeGameClient.BOARD_COLS];
             setupGameboardCells();
             currentState = new AwaitUserInputState();
+
+            boardMinX = board[0, 0].X;
+            boardMinY = board[0, 0].Y;
+            boardMaxX = board[CrusadeGameClient.BOARD_ROWS - 1, CrusadeGameClient.BOARD_COLS - 1].X
+                + board[0, 0].Image.Width; // All cells have the same cell image
+            boardMaxY = board[CrusadeGameClient.BOARD_ROWS - 1, CrusadeGameClient.BOARD_COLS - 1].Y
+                + board[0, 0].Image.Height;
+
             currentState.LoadContent();
         }
 
@@ -66,18 +77,18 @@ namespace CrusadeGameClient
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            
-            handleMouseState();
-            if (previousMouseState.LeftButton == ButtonState.Pressed && currentMouseState.LeftButton == ButtonState.Released)
-                handleMouseClick();
-
-            currentState = currentState.Update(gameTime, previousMouseState, currentMouseState);
 
             if (!CrusadeGameClient.Instance.IsTurnPlayer && !(currentState is NotTurnPlayerState))
                 currentState = new NotTurnPlayerState();
 
             else if (CrusadeGameClient.Instance.IsTurnPlayer && currentState is NotTurnPlayerState)
                 currentState = new AwaitUserInputState();
+                        
+            if (previousMouseState.LeftButton == ButtonState.Pressed && currentMouseState.LeftButton == ButtonState.Released)
+                handleMouseClick();
+
+            currentState = currentState.Update(gameTime, previousMouseState, currentMouseState);
+            handleMouseState();
         }
 
 
@@ -85,7 +96,6 @@ namespace CrusadeGameClient
         {
             spriteBatch.Draw(backgroundImage, bgRec, Color.White);
             DrawGameboard(spriteBatch);
-            DrawGamePieces(spriteBatch);
             DrawHand(spriteBatch);
             currentState.Draw(spriteBatch);
         }
@@ -104,14 +114,18 @@ namespace CrusadeGameClient
 
         public override void UpdateBoard(ReqRspLib.ClientGamePiece[,] newBoard)
         {
-            board.Clear();
-            foreach (ReqRspLib.ClientGamePiece piece in newBoard)
+            for (int row = 0; row < CrusadeGameClient.BOARD_ROWS; ++row)
             {
-                if (piece != null)
+                for(int col = 0; col < CrusadeGameClient.BOARD_COLS; ++col)
                 {
-                    string path = "Gameboard/" + piece.Name + ".png";
-                    GamepieceImage img = new GamepieceImage(path, piece.ColCoordinate, piece.RowCoordinate);
-                    board.Add(img);
+                    if (newBoard[row, col] != null)
+                    {
+                        string path = "Gameboard/" + newBoard[row, col].Name + ".png";
+                        GamepieceImage img = new GamepieceImage(path, newBoard[row, col].ColCoordinate, newBoard[row, col].RowCoordinate, newBoard[row,col]);
+                        board[row, col].GamepieceImg = img;
+                    }
+                    else
+                        board[row,col].GamepieceImg = null;
                 }
             }
         }
@@ -123,12 +137,12 @@ namespace CrusadeGameClient
 
         private void setupGameboardCells()
         {
-            for (int col = 0; col < BOARD_WIDTH; ++col)
+            for (int row = 0; row < CrusadeGameClient.BOARD_ROWS; ++row)
             {
-                for (int row = 0; row < BOARD_HEIGHT; ++row)
+                for (int col = 0; col < CrusadeGameClient.BOARD_COLS; ++col)
                 {
                     GameCell img = new GameCell(row, col);
-                    boardCells.Add(img);
+                    board[row, col] = img;
                 }
             }
         }
@@ -136,7 +150,7 @@ namespace CrusadeGameClient
 
         private void DrawGameboard(SpriteBatch spriteBatch)
         {
-            foreach (GameCell cell in boardCells)
+            foreach (GameCell cell in board)
                 cell.Draw(spriteBatch);
         }
 
@@ -148,17 +162,13 @@ namespace CrusadeGameClient
         }
 
 
-        private void DrawGamePieces(SpriteBatch spriteBatch)
-        {
-            foreach (GamepieceImage img in board)
-                img.Draw(spriteBatch);
-        }
-
-
         private void handleMouseState()
         {
             doCardHighlighting();
+            doCellHighlighting();
         }
+
+
 
 
         private void handleMouseClick()
@@ -186,7 +196,7 @@ namespace CrusadeGameClient
         {
             if (CrusadeGameClient.Instance.IsTurnPlayer && !(currentState is DeployTroopState))
             {
-                currentState = new DeployTroopState(image, GameboardCells);
+                currentState = new DeployTroopState(image, Gameboard);
                 currentState.LoadContent();
             }
         }
@@ -194,30 +204,76 @@ namespace CrusadeGameClient
 
         private void doCardHighlighting()
         {
-            if (!(currentState is AwaitUserInputState) && !(currentState is NotTurnPlayerState))
+            if (!(currentState is AwaitUserInputState))
                 return;
 
-            foreach (CardImage card in Hand)
+            // Only bother checking hand if mouse is within range
+            // Mouse X can be anything; only need to check Y coordinate
+            if (mouseWithinRange(boardMaxY + 1, ScreenManager.SCREEN_HEIGHT, currentMouseState.Y))                 
             {
-                int xMin = card.Region.Left;
-                int xMax = card.Region.Right;
-                int yMin = card.Region.Top;
-                int yMax = card.Region.Bottom;
-
-                if (mouseWithinRange(xMin, xMax, currentMouseState.X) && mouseWithinRange(yMin, yMax, currentMouseState.Y))
+                foreach (CardImage card in Hand)
                 {
-                    if(selectedCard != card)
-                    {
-                        if(selectedCard != null)                        
-                            selectedCard.Deselect(); // Deselect previous card
+                    int xMin = card.Region.Left;
+                    int xMax = card.Region.Right;
+                    int yMin = card.Region.Top;
+                    int yMax = card.Region.Bottom;
 
-                        selectedCard = card;
-                        selectedCard.Select();                        
+                    if (mouseWithinRange(xMin, xMax, currentMouseState.X) && mouseWithinRange(yMin, yMax, currentMouseState.Y))
+                    {
+                        if (selectedCard != card)
+                        {
+                            if (selectedCard != null)
+                                selectedCard.Deselect(); // Deselect previous card
+
+                            selectedCard = card;
+                            selectedCard.Select();
+                        }
                     }
                 }
             }
-
             checkCursorNotOverHand();
+        }
+
+
+        private void doCellHighlighting()
+        {
+            if (mouseWithinRange(boardMinX, boardMaxX, currentMouseState.X)
+                && mouseWithinRange(boardMinY, boardMaxY, currentMouseState.Y)) // Only bother checking cells if mouse within board bounds
+            {
+                GameCell cell = getCell();
+                if(cell != null && cell.GamepieceImg != null && validCreateMenuState())
+                {
+                    currentState = new GamepieceMenuState(cell);
+                    currentState.LoadContent();
+                }
+            }
+        }
+
+        private bool validCreateMenuState()
+        {
+            if (currentState is AwaitUserInputState)
+                return true;
+
+            if (currentState is NotTurnPlayerState)
+                return true;
+
+            return false;
+        }
+
+        private GameCell getCell()
+        {
+            for(int row = 0; row < CrusadeGameClient.BOARD_ROWS; ++row)
+            {
+                for(int col = 0; col < CrusadeGameClient.BOARD_COLS; ++col)
+                {
+                   if(mouseWithinRange(board[row, col].X, board[row, col].X + board[row, col].Image.Width, currentMouseState.X)
+                       && mouseWithinRange(board[row, col].Y, board[row, col].Y + board[row, col].Image.Height, currentMouseState.Y))
+                   {
+                       return board[row, col];
+                   }
+                }
+            }
+            return null;
         }
 
 
@@ -256,13 +312,20 @@ namespace CrusadeGameClient
                     mouseWithinRange(img.Region.Top, img.Region.Bottom, currentMouseState.Y))
                 {
                     imageToReturn = img;
-                    return imageToReturn;
+                    return imageToReturn; // Skip the other foreach
                 }
 
-            foreach(GamepieceImage img in board)
-                if(mouseWithinRange(img.Region.Left, img.Region.Right, currentMouseState.X) &&
-                    mouseWithinRange(img.Region.Top, img.Region.Bottom, currentMouseState.Y))
-                    imageToReturn = img;
+            foreach(GameCell cell in board)
+            {
+                if(cell != null && cell.GamepieceImg != null)
+                {
+                    if(mouseWithinRange(cell.GamepieceImg.Region.Left, cell.GamepieceImg.Region.Right, currentMouseState.X) &&
+                        mouseWithinRange(cell.GamepieceImg.Region.Top, cell.GamepieceImg.Region.Bottom, currentMouseState.Y))
+                    {
+                        imageToReturn = cell.GamepieceImg;
+                    }
+                }
+            }
 
             return imageToReturn;
         }
