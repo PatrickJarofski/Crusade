@@ -578,7 +578,7 @@ namespace CrusadeGameClient
         /// Writes the input error to both the console and a log file.
         /// </summary>
         /// <param name="error">Error to write.</param>
-        private void WriteError(string error)
+        public void WriteError(string error)
         {
             WriteErrorToLog(error);
             WriteErrorToConsole(error);

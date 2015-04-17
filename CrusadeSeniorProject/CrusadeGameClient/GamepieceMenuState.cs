@@ -51,7 +51,7 @@ namespace CrusadeGameClient
         public override void Draw(SpriteBatch spriteBatch)
         {            
             spriteBatch.Draw(image, rec, Color.White);
-            Vector2 vec = new Vector2(textX, textY);
+            Vector2 vec = new Vector2(textX, textY); 
             spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Name, vec, Color.Black);
 
             vec.Y += 12;
@@ -72,15 +72,17 @@ namespace CrusadeGameClient
         }
 
 
-        public override BoardScreenState Update(GameTime gameTime, MouseState previous, MouseState current)
+        public new GamepieceMenuState Update(GameTime gameTime, MouseState previous, MouseState current)
         {
             if (mouseInRange(_cell.X, _cell.X + image.Width, current.X) &&
                 mouseInRange(_cell.Y, _cell.Y + image.Height, current.Y))
-                return base.Update(gameTime, previous, current);
+            {
+                base.Update(gameTime, previous, current);
+                return this;
+            }
 
             else
-                return new AwaitUserInputState();
-            
+                return null;            
         }
     }
 }

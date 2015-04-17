@@ -21,6 +21,7 @@ namespace CrusadeGameClient
         private Rectangle bgRec;
 
         private BoardScreenState currentState;
+        private GamepieceMenuState menuState;
 
         private int boardMinX;
         private int boardMinY;
@@ -89,6 +90,9 @@ namespace CrusadeGameClient
 
             currentState = currentState.Update(gameTime, previousMouseState, currentMouseState);
             handleMouseState();
+
+            if (menuState != null)
+                menuState = menuState.Update(gameTime, previousMouseState, currentMouseState);
         }
 
 
@@ -98,6 +102,8 @@ namespace CrusadeGameClient
             DrawGameboard(spriteBatch);
             DrawHand(spriteBatch);
             currentState.Draw(spriteBatch);
+            if (menuState != null)
+                menuState.Draw(spriteBatch);
         }
         
 
@@ -167,34 +173,37 @@ namespace CrusadeGameClient
             doCardHighlighting();
             doCellHighlighting();
         }
-
-
-
+        
 
         private void handleMouseClick()
         {
-            CrusadeImage img = getImage();
-            if (img != null)
-            {
-                if (img is CardImage)
-                    processCardInput((CardImage)img);
+            if(mouseOverHand())
+                processCardInput(getCardImage());
 
-                else if (img is GamepieceImage)
-                    processGamepieceInput((GamepieceImage)img);
-            }
-            
+            else if (mouseOverBoard())
+                processGamepieceInput(getCell());
         }
 
 
-        private void processGamepieceInput(GamepieceImage gamepieceImage)
+        private void processGamepieceInput(GameCell cell)
         {
-            
+            if (cell == null || cell.GamepieceImg == null || (cell.GamepieceImg.Gamepiece.Owner != ServerConnection.Instance.ID.ToString()))
+                return;
+
+            if(currentState is AwaitUserInputState)
+            {
+                currentState = new TroopOptionState(cell);
+                currentState.LoadContent();
+            }
         }
 
 
         private void processCardInput(CardImage image)
         {
-            if (CrusadeGameClient.Instance.IsTurnPlayer && !(currentState is DeployTroopState))
+            if (image == null) 
+                return;
+
+            if (CrusadeGameClient.Instance.IsTurnPlayer && currentState is AwaitUserInputState)
             {
                 currentState = new DeployTroopState(image, Gameboard);
                 currentState.LoadContent();
@@ -209,7 +218,7 @@ namespace CrusadeGameClient
 
             // Only bother checking hand if mouse is within range
             // Mouse X can be anything; only need to check Y coordinate
-            if (mouseWithinRange(boardMaxY + 1, ScreenManager.SCREEN_HEIGHT, currentMouseState.Y))                 
+            if (mouseOverHand())                 
             {
                 foreach (CardImage card in Hand)
                 {
@@ -237,28 +246,30 @@ namespace CrusadeGameClient
 
         private void doCellHighlighting()
         {
-            if (mouseWithinRange(boardMinX, boardMaxX, currentMouseState.X)
-                && mouseWithinRange(boardMinY, boardMaxY, currentMouseState.Y)) // Only bother checking cells if mouse within board bounds
+            // Only bother checking cells if mouse within board bounds
+            if (mouseOverBoard()) 
             {
                 GameCell cell = getCell();
                 if(cell != null && cell.GamepieceImg != null && validCreateMenuState())
                 {
-                    currentState = new GamepieceMenuState(cell);
-                    currentState.LoadContent();
+                    menuState = new GamepieceMenuState(cell);
+                    menuState.LoadContent();
                 }
             }
         }
 
+
         private bool validCreateMenuState()
         {
             if (currentState is AwaitUserInputState)
-                return true;
+                return (menuState == null);
 
             if (currentState is NotTurnPlayerState)
-                return true;
+                return (menuState == null);
 
             return false;
         }
+
 
         private GameCell getCell()
         {
@@ -274,6 +285,19 @@ namespace CrusadeGameClient
                 }
             }
             return null;
+        }
+
+
+        private CardImage getCardImage()
+        {
+            CardImage imageToReturn = null;
+
+            foreach (CardImage img in hand)
+                if (mouseWithinRange(img.Region.Left, img.Region.Right, currentMouseState.X) &&
+                    mouseWithinRange(img.Region.Top, img.Region.Bottom, currentMouseState.Y))
+                imageToReturn = img;          
+
+            return imageToReturn;
         }
 
 
@@ -303,31 +327,19 @@ namespace CrusadeGameClient
         }
 
 
-        private CrusadeImage getImage()
+
+
+
+        private bool mouseOverHand()
         {
-            CrusadeImage imageToReturn = null;
+            return mouseWithinRange(boardMaxY + 1, ScreenManager.SCREEN_HEIGHT, currentMouseState.Y);
+        }
 
-            foreach(CardImage img in hand)
-                if(mouseWithinRange(img.Region.Left, img.Region.Right, currentMouseState.X) && 
-                    mouseWithinRange(img.Region.Top, img.Region.Bottom, currentMouseState.Y))
-                {
-                    imageToReturn = img;
-                    return imageToReturn; // Skip the other foreach
-                }
 
-            foreach(GameCell cell in board)
-            {
-                if(cell != null && cell.GamepieceImg != null)
-                {
-                    if(mouseWithinRange(cell.GamepieceImg.Region.Left, cell.GamepieceImg.Region.Right, currentMouseState.X) &&
-                        mouseWithinRange(cell.GamepieceImg.Region.Top, cell.GamepieceImg.Region.Bottom, currentMouseState.Y))
-                    {
-                        imageToReturn = cell.GamepieceImg;
-                    }
-                }
-            }
-
-            return imageToReturn;
+        private bool mouseOverBoard()
+        {
+            return (mouseWithinRange(boardMinX, boardMaxX, currentMouseState.X)
+                && mouseWithinRange(boardMinY, boardMaxY, currentMouseState.Y));
         }
         #endregion
     }
