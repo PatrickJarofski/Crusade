@@ -104,6 +104,12 @@ namespace CrusadeGameClient
             SendRequestToServer(req);
         }
 
+        public void MoveTroop(GameCell source, GameCell dest)
+        {
+            RequestMoveTroop req = new RequestMoveTroop(ID, source.Row, source.Col, dest.Row, dest.Col);
+            SendRequestToServer(req);
+        }
+
         #endregion
 
 
@@ -524,7 +530,7 @@ namespace CrusadeGameClient
         }
 
 
-        public Tuple<int, int> GetUserCoordinates(string msg)
+        private Tuple<int, int> GetUserCoordinates(string msg)
         {
             int row = 0;
             int col = 0;

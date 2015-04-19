@@ -11,14 +11,19 @@ namespace CrusadeGameClient
         Texture2D menuImage;
         Texture2D highlightMask;
         Rectangle rec;
-        GameCell cell;
+
+        readonly GameCell cell;
+        readonly GameCell[,] board;
+
+        bool notFirstCheck = false;
+
         const string path = "Gameboard/TroopOptionMenu.png";
 
-        public TroopOptionState(GameCell cell)
+        public TroopOptionState(GameCell selectedCell, GameCell[,] gameboard)
             :base()
         {
-            this.cell = cell;
-            
+            this.cell = selectedCell;
+            board = gameboard;
         }
 
         public override void LoadContent()
@@ -28,12 +33,21 @@ namespace CrusadeGameClient
             rec = new Rectangle(cell.X, cell.Y, menuImage.Width, menuImage.Height);
         }
 
+
         public override BoardScreenState Update(GameTime gameTime, MouseState previous, MouseState current)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            base.Update(gameTime, previous, current);
+
+            if (mouseClick() && notFirstCheck)
+                return handleMouseClick();
+
+            if ((Keyboard.GetState().IsKeyDown(Keys.Escape)) || !mouseInRange())
                 return new AwaitUserInputState();
+
+            if (!notFirstCheck)
+                notFirstCheck = true;
             
-            return base.Update(gameTime, previous, current);
+            return this;
         }
 
 
@@ -48,6 +62,36 @@ namespace CrusadeGameClient
             {
                 ServerConnection.Instance.WriteError("TroopOptionState Error: " + ex.Message);
             }
+        }
+
+
+        private bool mouseInRange()
+        {
+            return mouseInRange(rec.Left, rec.Right, currentMouseState.X) && mouseInRange(rec.Top, rec.Bottom, currentMouseState.Y);
+        }
+
+
+        private bool mouseClick()
+        {
+            return (previousMouseState.LeftButton == ButtonState.Pressed) && (currentMouseState.LeftButton == ButtonState.Released);
+        }
+
+
+        private BoardScreenState handleMouseClick()
+        {
+            int mouseX = currentMouseState.X;
+            int mouseY = currentMouseState.Y;
+
+            // Clicked Move Troop
+            if (mouseInRange(rec.Left, rec.Right, currentMouseState.X) && mouseInRange(rec.Top, rec.Top + (rec.Height / 2), currentMouseState.Y))
+                return new MoveTroopState(cell, board);
+
+            // Clicked Attack Troop
+            if (mouseInRange(rec.Left, rec.Right, currentMouseState.X) && mouseInRange(rec.Top + (rec.Height / 2) + 1, rec.Bottom, currentMouseState.Y))
+                return new AttackTroopState(cell, board);
+
+            // Default
+            return this;
         }
     }
 }

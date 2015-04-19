@@ -42,6 +42,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AttackTroopState.cs" />
     <Compile Include="AwaitUserInputState.cs" />
     <Compile Include="BoardScreen.cs" />
     <Compile Include="BoardScreenState.cs" />

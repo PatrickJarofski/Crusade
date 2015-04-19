@@ -48,7 +48,7 @@ namespace CrusadeGameClient
             graphicsManager = new GraphicsDeviceManager(this);
             _serverConnection = ServerConnection.Instance;
 
-            //IsMouseVisible = true;
+            IsMouseVisible = false;
         }
 
         /// <summary>

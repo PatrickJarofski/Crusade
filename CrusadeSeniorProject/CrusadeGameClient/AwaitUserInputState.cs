@@ -8,6 +8,6 @@ namespace CrusadeGameClient
 {
     internal class AwaitUserInputState : BoardScreenState
     {
-
+        // move card highlighting into here
     }
 }

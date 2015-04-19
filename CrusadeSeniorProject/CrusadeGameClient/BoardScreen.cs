@@ -192,7 +192,7 @@ namespace CrusadeGameClient
 
             if(currentState is AwaitUserInputState)
             {
-                currentState = new TroopOptionState(cell);
+                currentState = new TroopOptionState(cell, Gameboard);
                 currentState.LoadContent();
             }
         }
@@ -326,10 +326,7 @@ namespace CrusadeGameClient
             return mouseCoord >= min && mouseCoord <= max;
         }
 
-
-
-
-
+        
         private bool mouseOverHand()
         {
             return mouseWithinRange(boardMaxY + 1, ScreenManager.SCREEN_HEIGHT, currentMouseState.Y);

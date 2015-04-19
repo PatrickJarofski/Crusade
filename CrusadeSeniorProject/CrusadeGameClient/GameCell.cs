@@ -17,13 +17,16 @@ namespace CrusadeGameClient
         private int y;
         private Texture2D image;
         private Rectangle rec;
+        private Tuple<int, int> center;
 
         public int Row { get { return row; } }
         public int Col { get { return col; } }
         public int X { get { return x; } }
         public int Y { get { return y; } }
         public Texture2D Image { get { return image; } }
+        public Rectangle Region { get { return rec; } }
         public GamepieceImage GamepieceImg { get; set; }
+        public Tuple<int, int> Center { get { return center; } }
 
         public GameCell(int row, int col)
         {
@@ -35,6 +38,10 @@ namespace CrusadeGameClient
             y = row * image.Height;
 
             rec = new Rectangle(x, y, image.Width, image.Height);
+
+            int xc = rec.X + image.Width / 2;
+            int yc = rec.Y + image.Height / 2;
+            center = new Tuple<int, int>(xc, yc);
         }
 
 

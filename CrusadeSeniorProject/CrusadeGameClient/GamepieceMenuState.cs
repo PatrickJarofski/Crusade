@@ -52,7 +52,9 @@ namespace CrusadeGameClient
         {            
             spriteBatch.Draw(image, rec, Color.White);
             Vector2 vec = new Vector2(textX, textY); 
-            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Name, vec, Color.Black);
+
+            if(_cell.GamepieceImg != null)
+                spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Name, vec, Color.Black);
 
             vec.Y += 12;
             spriteBatch.DrawString(font, owner, vec, Color.Black);
