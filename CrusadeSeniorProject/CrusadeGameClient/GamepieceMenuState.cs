@@ -8,21 +8,21 @@ namespace CrusadeGameClient
 {
     internal class GamepieceMenuState : BoardScreenState
     {
-        readonly string attackRange;
-        readonly string owner;
+        private readonly string attackRange;
+        private readonly string owner;
 
-        GameCell _cell;
-        Texture2D image;
-        Rectangle rec;
-        SpriteFont font;
-        int mouseX;
-        int mouseY;
+        private readonly GameCell _cell;
 
-        private int textX = 535;
-        private int textY = 61;
+        private readonly int textX = CrusadeGameClient.Instance.Window.ClientBounds.Right - 105;
+        private readonly int textY = CrusadeGameClient.Instance.Window.ClientBounds.Top + 61;
+        private readonly int recX = CrusadeGameClient.Instance.Window.ClientBounds.Right - 140;
+        private readonly int recY = CrusadeGameClient.Instance.Window.ClientBounds.Top + 60;
 
-        private int recX = 500;
-        private int recY = 60;
+        private Texture2D image;
+        private Rectangle rec;
+        private SpriteFont font;
+        private int mouseX;
+        private int mouseY;
 
         public GamepieceMenuState(GameCell cell)
             :base()
@@ -50,34 +50,36 @@ namespace CrusadeGameClient
         // Draw the stat rectangle and gamepiece stats
         public override void Draw(SpriteBatch spriteBatch)
         {            
-            spriteBatch.Draw(image, rec, Color.White);
-            Vector2 vec = new Vector2(textX, textY); 
-
-            if(_cell.GamepieceImg != null)
+            if (_cell.GamepieceImg != null)
+            {
+                spriteBatch.Draw(image, rec, Color.White);
+                Vector2 vec = new Vector2(textX, textY);
                 spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Name, vec, Color.Black);
 
-            vec.Y += 12;
-            spriteBatch.DrawString(font, owner, vec, Color.Black);
+                vec.Y += 12;
+                spriteBatch.DrawString(font, owner, vec, Color.Black);
 
-            vec.Y += 12;
-            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Attack.ToString(), vec, Color.Black);
+                vec.Y += 12;
+                spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Attack.ToString(), vec, Color.Black);
 
-            vec.Y += 12;
-            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Defense.ToString(), vec, Color.Black);
+                vec.Y += 12;
+                spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Defense.ToString(), vec, Color.Black);
 
-            vec.Y += 12;
-            spriteBatch.DrawString(font, attackRange, vec, Color.Black);
+                vec.Y += 12;
+                spriteBatch.DrawString(font, attackRange, vec, Color.Black);
 
-            vec.Y += 12;
-            spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Move.ToString(), vec, Color.Black);
+                vec.Y += 12;
+                spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Move.ToString(), vec, Color.Black);
+            }
+
             base.Draw(spriteBatch);            
         }
 
 
         public new GamepieceMenuState Update(GameTime gameTime, MouseState previous, MouseState current)
         {
-            if (mouseInRange(_cell.X, _cell.X + image.Width, current.X) &&
-                mouseInRange(_cell.Y, _cell.Y + image.Height, current.Y))
+            if (mouseInRange(_cell.Region.Left, _cell.Region.Right, current.X) &&
+                mouseInRange(_cell.Region.Top, _cell.Region.Bottom, current.Y))
             {
                 base.Update(gameTime, previous, current);
                 return this;
