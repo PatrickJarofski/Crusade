@@ -67,8 +67,5 @@ namespace CrusadeGameClient
         }
 
 
-        public virtual void MoveTroop() { }
-
-        public virtual void AttackTarget() { }
     }
 }

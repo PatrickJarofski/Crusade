@@ -5,23 +5,26 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace CrusadeGameClient
 {
     internal class MoveTroopState : BoardScreenState
     {
-        readonly GameCell cell;
-        readonly GameCell[,] board;
+        private readonly GameCell cell;
+        private readonly GameCell[,] board;
 
         private GameCell targetCell;
+        private List<Texture2D> cellHighlights;
 
-        bool selectionDone = false;
+        private bool selectionDone = false;
 
         public MoveTroopState(GameCell selectedCell, GameCell[,] gameboard)
             : base()
         {
             cell = selectedCell;
             board = gameboard;
+            cellHighlights = new List<Texture2D>();
         }
 
         public override BoardScreenState Update(GameTime gameTime, MouseState previous, MouseState current)
@@ -41,52 +44,31 @@ namespace CrusadeGameClient
                 return this;
         }
 
+
         private void handleMouseClick()
         {
-            if(targetCell != null && cursorImage == validChoiceCursor)
+            if(targetCell != null)
             {
                 ServerConnection.Instance.MoveTroop(cell, targetCell);
                 selectionDone = true;
             }
         }
 
+
         private bool mouseClicked()
         {
             return (previousMouseState.LeftButton == ButtonState.Pressed) && (currentMouseState.LeftButton == ButtonState.Released);
         }
 
+
         private void updateCursor()
         {
-            if (mouseOverValidCell())
-                cursorImage = validChoiceCursor;
-            else
+            if (!isEmptyCell())
                 cursorImage = invalidChoiceCursor;
+            else
+                cursorImage = normalCursor;
         }
 
-        private bool mouseOverValidCell()
-        {            
-            int xMax = cell.Region.Right + (cell.GamepieceImg.Gamepiece.Move * cell.Image.Width);
-            int yMax = cell.Region.Bottom + (cell.GamepieceImg.Gamepiece.Move * cell.Image.Height);
-            int xMin = cell.Region.Left - (cell.GamepieceImg.Gamepiece.Move * cell.Image.Width);
-            int yMin = cell.Region.Top - (cell.GamepieceImg.Gamepiece.Move * cell.Image.Height);
-
-            bool left = mouseInRange(xMin, cell.Region.Left - 1, currentMouseState.X) &&
-                         mouseInRange(cell.Y, cell.Y + cell.Image.Height, currentMouseState.Y);
-
-            bool right = mouseInRange(cell.Region.Right + 1, xMax, currentMouseState.X) &&
-                         mouseInRange(cell.Y, cell.Y + cell.Image.Height, currentMouseState.Y);
-
-            bool up = mouseInRange(cell.X, cell.X + cell.Image.Width, currentMouseState.X) &&
-                      mouseInRange(yMin, cell.Region.Top - 1, currentMouseState.Y);
-
-            bool down = mouseInRange(cell.X, cell.X + cell.Image.Width, currentMouseState.X) && 
-                        mouseInRange(cell.Region.Bottom + 1, yMax, currentMouseState.Y);
-
-            if ((left || right || up || down) && isEmptyCell())
-                return true;
-
-            return false;
-        }
 
         private bool isEmptyCell()
         {

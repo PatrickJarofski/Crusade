@@ -267,6 +267,9 @@ namespace CrusadeGameClient
             if (currentState is NotTurnPlayerState)
                 return (menuState == null);
 
+            if (currentState is AttackTroopState)
+                return (menuState == null);
+
             return false;
         }
 

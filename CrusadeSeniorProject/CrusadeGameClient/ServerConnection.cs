@@ -12,6 +12,9 @@ namespace CrusadeGameClient
 {
     internal class ServerConnection : ReqRspLib.ICrusadeClient
     {
+        private const string ipAddress = "primefusion.ddns.net";
+        // private const string ipAddress = "127.0.0.1";
+
         #region Fields
 
         private const int _port = 777;
@@ -96,6 +99,7 @@ namespace CrusadeGameClient
 
         #endregion
 
+
         #region ClientInput
 
         public void PlayCard(int index, int row, int col)
@@ -107,6 +111,12 @@ namespace CrusadeGameClient
         public void MoveTroop(GameCell source, GameCell dest)
         {
             RequestMoveTroop req = new RequestMoveTroop(ID, source.Row, source.Col, dest.Row, dest.Col);
+            SendRequestToServer(req);
+        }
+
+        public void AttackTroop(int atkRow, int atkCol, int defRow, int defCol)
+        {
+            RequestTroopCombat req = new RequestTroopCombat(ID, atkRow, atkCol, defRow, defCol);
             SendRequestToServer(req);
         }
 
@@ -123,8 +133,7 @@ namespace CrusadeGameClient
             try
             {
                 binaryFormatter = new BinaryFormatter();
-                 IPAddress[] hosts = Dns.GetHostAddresses("primefusion.ddns.net");
-                //IPAddress[] hosts = Dns.GetHostAddresses("127.0.0.1");
+                IPAddress[] hosts = Dns.GetHostAddresses(ipAddress);
                 IPAddress serverIP = hosts[0];
                 IPEndPoint ep = new IPEndPoint(serverIP, _port);
 
