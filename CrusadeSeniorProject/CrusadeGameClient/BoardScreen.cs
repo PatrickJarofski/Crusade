@@ -21,7 +21,7 @@ namespace CrusadeGameClient
         private Rectangle bgRec;
 
         private BoardScreenState currentState;
-        private GamepieceMenuState menuState;
+        private GamepiecePreviewBox menuState;
 
         private int boardMinX;
         private int boardMinY;
@@ -252,7 +252,7 @@ namespace CrusadeGameClient
                 GameCell cell = getCell();
                 if(cell != null && cell.GamepieceImg != null && validCreateMenuState())
                 {
-                    menuState = new GamepieceMenuState(cell);
+                    menuState = new GamepiecePreviewBox(cell);
                     menuState.LoadContent();
                 }
             }

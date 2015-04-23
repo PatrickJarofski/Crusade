@@ -27,7 +27,10 @@ namespace CrusadeGameClient
             handleInput();
 
             if (deploymentDone)
+            {
+                CrusadeGameClient.Instance.Cursor = CrusadeGameClient.Instance.NormalCursor;
                 return new AwaitUserInputState();
+            }
             else
                 return this;
         }
@@ -45,7 +48,7 @@ namespace CrusadeGameClient
 
         private void handleMouseClick()
         {
-           if(cursorImage == validChoiceCursor)
+            if (CrusadeGameClient.Instance.Cursor == CrusadeGameClient.Instance.ValidChoiceCursor)
            {
                Tuple<int, int> coords = getCellNumber();
                if(coords != null)
@@ -76,11 +79,11 @@ namespace CrusadeGameClient
         {
             if (mouseOverBackrow())
             {
-                cursorImage = validChoiceCursor;
+                CrusadeGameClient.Instance.Cursor = CrusadeGameClient.Instance.ValidChoiceCursor;
             }
             else
             {
-                cursorImage = invalidChoiceCursor;
+                CrusadeGameClient.Instance.Cursor = CrusadeGameClient.Instance.InvalidChoiceCursor;
             }
         }
 

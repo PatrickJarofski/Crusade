@@ -39,7 +39,10 @@ namespace CrusadeGameClient
                 handleMouseClick();
 
             if (selectionDone)
+            {
+                CrusadeGameClient.Instance.Cursor = CrusadeGameClient.Instance.NormalCursor;
                 return new AwaitUserInputState();
+            }
             else
                 return this;
         }
@@ -64,9 +67,9 @@ namespace CrusadeGameClient
         private void updateCursor()
         {
             if (!isEmptyCell())
-                cursorImage = invalidChoiceCursor;
+                CrusadeGameClient.Instance.Cursor = CrusadeGameClient.Instance.InvalidChoiceCursor;
             else
-                cursorImage = normalCursor;
+                CrusadeGameClient.Instance.Cursor = CrusadeGameClient.Instance.NormalCursor;
         }
 
 

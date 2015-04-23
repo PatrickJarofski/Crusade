@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace CrusadeGameClient
 {
-    internal class GamepieceMenuState : BoardScreenState
+    internal class GamepiecePreviewBox : BoardScreenState
     {
         private readonly string attackRange;
         private readonly string owner;
@@ -24,7 +24,7 @@ namespace CrusadeGameClient
         private int mouseX;
         private int mouseY;
 
-        public GamepieceMenuState(GameCell cell)
+        public GamepiecePreviewBox(GameCell cell)
             :base()
         {
             _cell = cell;
@@ -76,7 +76,7 @@ namespace CrusadeGameClient
         }
 
 
-        public new GamepieceMenuState Update(GameTime gameTime, MouseState previous, MouseState current)
+        public new GamepiecePreviewBox Update(GameTime gameTime, MouseState previous, MouseState current)
         {
             if (mouseInRange(_cell.Region.Left, _cell.Region.Right, current.X) &&
                 mouseInRange(_cell.Region.Top, _cell.Region.Bottom, current.Y))

@@ -13,19 +13,11 @@ namespace CrusadeGameClient
 
         private GameCell targetCell;
         private bool validSelection = false;
-        private Texture2D targetCursor;
 
         public AttackTroopState(GameCell gameCell, GameCell[,] gameboard)
         {
             cell = gameCell;
             board = gameboard;
-        }
-
-
-        public override void LoadContent()
-        {
-            base.LoadContent();
-            targetCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/AttackTroopCursor.png");
         }
 
 
@@ -38,7 +30,7 @@ namespace CrusadeGameClient
 
             if (validSelection)
             {
-                cursorImage = normalCursor;
+                CrusadeGameClient.Instance.Cursor = CrusadeGameClient.Instance.NormalCursor;
                 return new AwaitUserInputState();
             }
             else
@@ -49,9 +41,9 @@ namespace CrusadeGameClient
         private void updateCursor()
         {
             if (!validTarget())
-                cursorImage = invalidChoiceCursor;
+                CrusadeGameClient.Instance.Cursor = CrusadeGameClient.Instance.InvalidChoiceCursor;
             else
-                cursorImage = targetCursor;
+                CrusadeGameClient.Instance.Cursor = CrusadeGameClient.Instance.TargetCursor;
         }
 
 
@@ -82,9 +74,11 @@ namespace CrusadeGameClient
         {
             targetCell = getGameCell();
 
-            // empty cell or targeting friendly gamepiece
-            if (targetCell != null || targetCell.GamepieceImg.Gamepiece.Owner == ServerConnection.Instance.ID.ToString())
-                return targetCell.GamepieceImg == null;
+            if(targetCell != null)
+            {
+                if (targetCell.GamepieceImg != null)
+                    return targetCell.GamepieceImg.Gamepiece.Owner != ServerConnection.Instance.ID.ToString();
+            }
 
             return false;
         }

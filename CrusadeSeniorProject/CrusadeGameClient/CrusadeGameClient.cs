@@ -19,12 +19,16 @@ namespace CrusadeGameClient
         public const int BOARD_COLS = ReqRspLib.Constants.BOARD_COLS;
         public const int BOARD_ROWS = ReqRspLib.Constants.BOARD_ROWS;
 
-        private readonly ServerConnection _serverConnection;
+        private Texture2D normalCursor;
+        private Texture2D validChoiceCursor;
+        private Texture2D invalidChoiceCursor;
+        private Texture2D targetCursor;
 
-        GraphicsDeviceManager graphicsManager;
-        SpriteBatch spriteBatch;
-
-        private static CrusadeGameClient instance;
+        public Texture2D NormalCursor { get { return normalCursor; } }
+        public Texture2D ValidChoiceCursor { get { return validChoiceCursor; } }
+        public Texture2D InvalidChoiceCursor { get { return invalidChoiceCursor; } }
+        public Texture2D TargetCursor { get { return targetCursor; } }
+        public Texture2D Cursor { get; set; }
 
         public static CrusadeGameClient Instance
         {
@@ -36,6 +40,15 @@ namespace CrusadeGameClient
                 return instance;
             }
         }
+
+        private readonly ServerConnection _serverConnection;
+
+        private GraphicsDeviceManager graphicsManager;
+        private SpriteBatch spriteBatch;
+
+        private static CrusadeGameClient instance;
+
+        private Vector2 mousePos;
 
         public bool IsTurnPlayer
         {
@@ -74,6 +87,12 @@ namespace CrusadeGameClient
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             spriteBatch = new SpriteBatch(GraphicsDevice);
             ScreenManager.Instance.LoadContent(Content);
+
+            normalCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/NormalCursor.png");
+            validChoiceCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/ValidChoiceCursor.png");
+            invalidChoiceCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/InvalidChoiceCursor.png");
+            targetCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/AttackTroopCursor.png");
+            Cursor = NormalCursor;
             
             Window.Title = "Crusade Client";
         }
@@ -101,6 +120,8 @@ namespace CrusadeGameClient
                 ScreenManager.Instance.UpdateBoard(_serverConnection.Gameboard);
 
             ScreenManager.Instance.Update(gameTime);
+
+            mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
             base.Update(gameTime);
         }
         
@@ -113,6 +134,7 @@ namespace CrusadeGameClient
         {
             spriteBatch.Begin();
             ScreenManager.Instance.Draw(spriteBatch);
+            spriteBatch.Draw(Cursor, mousePos, Color.White);
             spriteBatch.End();
         }
 
