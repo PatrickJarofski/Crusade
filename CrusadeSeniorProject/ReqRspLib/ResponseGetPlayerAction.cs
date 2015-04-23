@@ -9,9 +9,17 @@ namespace ReqRspLib
     [Serializable]
     public class ResponseGetPlayerAction : IResponse
     {
+        int ap;
+
+        public ResponseGetPlayerAction(int actionPoints)
+        {
+            ap = actionPoints;
+        }
+
         public void Execute(ICrusadeClient client)
         {
             client.GetPlayerAction();
+            client.ActionPoints = ap;
         }
     }
 }

@@ -12,6 +12,10 @@ namespace ReqRspLib
 
         int BackRow { get; set; }
 
+        int DeckCount { get; set; }
+
+        int ActionPoints { get; set; }
+
         bool IsTurnPlayer { get; set; }
 
        // List<ClientCard> Hand { get; set; }

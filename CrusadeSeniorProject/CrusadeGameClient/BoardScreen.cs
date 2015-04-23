@@ -19,6 +19,7 @@ namespace CrusadeGameClient
         private GameCell[,] board;
 
         private Rectangle bgRec;
+        private SpriteFont messageFont;
 
         private BoardScreenState currentState;
         private GamepiecePreviewBox menuState;
@@ -27,6 +28,9 @@ namespace CrusadeGameClient
         private int boardMinY;
         private int boardMaxX;
         private int boardMaxY;
+
+        private Vector2 apLocation;
+        private Vector2 deckLocation;
         #endregion
 
         #region Properties
@@ -41,11 +45,10 @@ namespace CrusadeGameClient
         public override void LoadContent()
         {
             base.LoadContent();
-            cellPath = "Gameboard/Cell.png";
-            bgPath = "Gameboard/Background.png";
 
-            cellImage = content.Load<Texture2D>(cellPath);
-            backgroundImage = content.Load<Texture2D>(bgPath);
+            cellImage = content.Load<Texture2D>("Gameboard/Cell.png");
+            backgroundImage = content.Load<Texture2D>("Gameboard/Background.png");
+            messageFont = content.Load<SpriteFont>("MessageFont");
 
             bgRec = new Rectangle(0, 0, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
 
@@ -59,6 +62,9 @@ namespace CrusadeGameClient
                 + board[0, 0].Image.Width; // All cells have the same cell image
             boardMaxY = board[CrusadeGameClient.BOARD_ROWS - 1, CrusadeGameClient.BOARD_COLS - 1].Y
                 + board[0, 0].Image.Height;
+
+            apLocation = new Vector2(25, 25);
+            deckLocation = new Vector2(550, 320);
 
             currentState.LoadContent();
         }
@@ -101,6 +107,7 @@ namespace CrusadeGameClient
             spriteBatch.Draw(backgroundImage, bgRec, Color.White);
             DrawGameboard(spriteBatch);
             DrawHand(spriteBatch);
+            drawAPandDeckSize(spriteBatch);
             currentState.Draw(spriteBatch);
             if (menuState != null)
                 menuState.Draw(spriteBatch);
@@ -165,6 +172,19 @@ namespace CrusadeGameClient
         {
             foreach (CardImage img in hand)
                 img.Draw(spriteBatch);
+        }
+
+
+        private void drawAPandDeckSize(SpriteBatch spriteBatch)
+        {
+            string msg;
+            if (ServerConnection.Instance.IsTurnPlayer)
+                msg = "Action Points: " + ServerConnection.Instance.ActionPoints;
+            else
+                msg = "Opponent's Turn";
+
+            spriteBatch.DrawString(messageFont, msg, apLocation, Color.White);
+            spriteBatch.DrawString(messageFont, "Deck: " + ServerConnection.Instance.DeckCount.ToString(), deckLocation, Color.White);
         }
 
 

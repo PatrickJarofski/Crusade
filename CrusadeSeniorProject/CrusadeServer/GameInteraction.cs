@@ -35,7 +35,7 @@ namespace CrusadeServer
 
                 List<ClientCard> stringHand = GetJsonCardList(hand);
 
-                ResponseHand rsp = new ResponseHand(stringHand);
+                ResponseHand rsp = new ResponseHand(stringHand, _game.GetDeckSize(clientId));
                 SendData(client, rsp);
             }
             catch (NullReferenceException ex)
@@ -175,11 +175,11 @@ namespace CrusadeServer
             }
             catch(CrusadeLibrary.IllegalActionException ex)
             {
-                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction(_game.CurrentPlayerAP));
             }
             catch(NotImplementedException ex)
             {
-                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction(_game.CurrentPlayerAP));
             }
             catch(CrusadeLibrary.GameStateException ex)
             {
@@ -200,7 +200,7 @@ namespace CrusadeServer
             }
             catch(CrusadeLibrary.IllegalActionException ex)
             {
-                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction(_game.CurrentPlayerAP));
             }
             catch (CrusadeLibrary.GameStateException ex)
             {
@@ -235,7 +235,7 @@ namespace CrusadeServer
             }
             catch(CrusadeLibrary.IllegalActionException ex)
             {
-                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction(_game.CurrentPlayerAP));
             }
             catch (CrusadeLibrary.GameStateException ex)
             {
@@ -255,7 +255,7 @@ namespace CrusadeServer
             }
             catch(CrusadeLibrary.GameStateException ex)
             {
-                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction());
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction(_game.CurrentPlayerAP));
             }
         }
         #endregion
@@ -299,7 +299,7 @@ namespace CrusadeServer
             GiveAllPlayersGameboard();
             GiveAllPlayersHand();
 
-            ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(_game.CurrentPlayerId);
+            ResponseBeginNextTurn rsp = new ResponseBeginNextTurn(_game.CurrentPlayerId, _game.CurrentPlayerAP);
             BroadcastToClients(rsp);
         }
 
@@ -313,7 +313,7 @@ namespace CrusadeServer
             ResponseMessage msg = new ResponseMessage("\nRemaining Action Points: " + _game.CurrentPlayerAP.ToString());
             SendData(clientId, msg);
 
-            ResponseGetPlayerAction rsp = new ResponseGetPlayerAction();
+            ResponseGetPlayerAction rsp = new ResponseGetPlayerAction(_game.CurrentPlayerAP);
             SendData(clientId, rsp);
         }
 

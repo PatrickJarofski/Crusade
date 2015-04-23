@@ -20,6 +20,8 @@ namespace CrusadeLibrary
 
         #region Properties
         public int ActionPoints { get; set; }
+
+        public int DeckSize { get { return _deck.Count; } }
         #endregion
 
 

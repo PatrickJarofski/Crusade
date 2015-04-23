@@ -9,7 +9,6 @@ namespace CrusadeGameClient
     internal class TroopOptionState : BoardScreenState
     {
         Texture2D menuImage;
-        Texture2D highlightMask;
         Rectangle rec;
 
         readonly GameCell cell;

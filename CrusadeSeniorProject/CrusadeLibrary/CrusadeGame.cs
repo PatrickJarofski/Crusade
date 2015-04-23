@@ -180,6 +180,18 @@ namespace CrusadeLibrary
                 CurrentState.PassTurn(this);
             }
         }
+
+
+        public int GetDeckSize(Guid playerId)
+        {
+            if (playerId == Player1.ID)
+                return Player1.DeckSize;
+
+            if (playerId == Player2.ID)
+                return Player2.DeckSize;
+
+            return 0;
+        }
         #endregion
 
 

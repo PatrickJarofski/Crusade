@@ -48,6 +48,10 @@ namespace CrusadeGameClient
 
         public int BackRow { get; set; }
 
+        public int DeckCount { get; set; }
+
+        public int ActionPoints { get; set; }
+
         public bool IsTurnPlayer
         {
             get { return _isTurnPlayer; }
