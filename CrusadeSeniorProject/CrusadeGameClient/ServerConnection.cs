@@ -60,6 +60,8 @@ namespace CrusadeGameClient
 
         public bool InAGame { get { return _inAGame; } }
 
+        public ConsoleColor PlayerColor { get; set; }
+
         public static ServerConnection Instance
         {
             get

@@ -14,6 +14,7 @@ namespace CrusadeLibrary
         #region Fields
         private Deck _deck;
         private Hand _hand;
+        private ConsoleColor color;
 
         #endregion
 
@@ -22,25 +23,19 @@ namespace CrusadeLibrary
         public int ActionPoints { get; set; }
 
         public int DeckSize { get { return _deck.Count; } }
+
+        public ConsoleColor PlayerColor { get { return color; } private set { color = value; } }
         #endregion
 
 
         #region Methods
 
-        /// <summary>
-        /// Constructor for Player
-        /// </summary>
-        public Player()
-        {
-            _deck = new Deck();
-            _hand = new Hand();
-        }
-
-        public Player(Guid id)
+        public Player(Guid id, ConsoleColor playerColor)
             :base(id)
         {
             _deck = new Deck();
             _hand = new Hand();
+            color = playerColor;
         }
 
 

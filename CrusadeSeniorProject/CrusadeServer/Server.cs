@@ -274,16 +274,26 @@ namespace CrusadeServer
 
             Console.WriteLine("Game started.");
             assignBackRows();
+            assignColors();
 
             BeginNextTurn();
             printDebugPlayerIds();
+        }
+
+        private void assignColors()
+        {
+            foreach(GameClient client in _clientList)
+            {
+                ResponsePlayerColor rsp = new ResponsePlayerColor(_game.GetPlayerColor(client.ID));
+                SendData(client, rsp);
+            }
         }
 
 
         private void assignBackRows()
         {
             foreach(GameClient client in _clientList)
-            {
+            {           
                 if (client.PlayerNumber == CrusadeLibrary.Player.PlayerNumber.PlayerOne)
                     SendData(client, new ResponseStartGame(0));
 

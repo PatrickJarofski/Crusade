@@ -67,6 +67,7 @@
     <Compile Include="ResponseHand.cs" />
     <Compile Include="ResponseMessage.cs" />
     <Compile Include="ResponsePlayCard.cs" />
+    <Compile Include="ResponsePlayerColor.cs" />
     <Compile Include="ResponseStartGame.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

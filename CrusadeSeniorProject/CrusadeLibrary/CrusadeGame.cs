@@ -39,21 +39,12 @@ namespace CrusadeLibrary
 
 
         #region Public Methods
-        public CrusadeGame()
-        {
-            _board = new Gameboard();
-            _player1 = new Player();
-            _player2 = new Player();
-
-            CurrentState = new StateNewGame().entry(this, null);
-        }
-
 
         public CrusadeGame(Guid player1Id, Guid player2Id)
         {
             _board = new Gameboard();
-            _player1 = new Player(player1Id);
-            _player2 = new Player(player2Id);
+            _player1 = new Player(player1Id, ConsoleColor.Red);
+            _player2 = new Player(player2Id, ConsoleColor.Blue);
 
             CurrentState = new StateNewGame().entry(this, null);
         }
@@ -191,6 +182,17 @@ namespace CrusadeLibrary
                 return Player2.DeckSize;
 
             return 0;
+        }
+
+        public ConsoleColor GetPlayerColor(Guid playerId)
+        {
+            if (playerId == Player1.ID)
+                return Player1.PlayerColor;
+
+            if (playerId == Player2.ID)
+                return Player2.PlayerColor;
+
+            return ConsoleColor.Black;
         }
         #endregion
 
