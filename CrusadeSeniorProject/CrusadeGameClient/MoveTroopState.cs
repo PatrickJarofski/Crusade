@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
@@ -28,15 +25,11 @@ namespace CrusadeGameClient
         }
 
         public override BoardScreenState Update(GameTime gameTime, MouseState previous, MouseState current)
-        {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                return new AwaitUserInputState();
-
+        {            
             base.Update(gameTime, previous, current);
 
             updateCursor();
-            if (mouseClicked())
-                handleMouseClick();
+            handleInput();
 
             if (selectionDone)
             {
@@ -45,6 +38,16 @@ namespace CrusadeGameClient
             }
             else
                 return this;
+        }
+
+
+        private void handleInput()
+        {
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                selectionDone = true;
+
+            if (mouseClicked())
+                handleMouseClick();
         }
 
 
