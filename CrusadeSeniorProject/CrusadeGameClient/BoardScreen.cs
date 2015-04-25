@@ -98,6 +98,8 @@ namespace CrusadeGameClient
         public override void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(backgroundImage, bgRec, Color.White);
+
+
             DrawGameboard(spriteBatch);
             DrawHand(spriteBatch);
             drawAPandDeckSize(spriteBatch);
@@ -143,15 +145,16 @@ namespace CrusadeGameClient
         #region Private Methods
         private void setupImages()
         {
-            bgRec = new Rectangle(0, 0, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
-
             cellImage = content.Load<Texture2D>("Gameboard/Cell.png");
             backgroundImage = content.Load<Texture2D>("Gameboard/Background.png");
+            
             messageFont = content.Load<SpriteFont>("MessageFont");
 
             blackColor = content.Load<Texture2D>("Gameboard/Black.png");
             blueColor = content.Load<Texture2D>("Gameboard/Blue.png");
             redColor = content.Load<Texture2D>("Gameboard/Red.png");
+
+            bgRec = new Rectangle(0, 0, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
         }
 
 

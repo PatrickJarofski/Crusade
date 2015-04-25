@@ -10,7 +10,6 @@ namespace CrusadeGameClient
     public class GamepieceImage : CrusadeImage
     {
         ReqRspLib.ClientGamePiece gamepiece;
-        Rectangle rec;
         Color playerColor;
 
         public ReqRspLib.ClientGamePiece Gamepiece { get { return gamepiece; } }

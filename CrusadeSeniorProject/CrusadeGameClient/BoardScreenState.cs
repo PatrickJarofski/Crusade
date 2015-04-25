@@ -32,8 +32,8 @@ namespace CrusadeGameClient
 
         public virtual BoardScreenState Update(GameTime gameTime, MouseState previous, MouseState current)
         {
-            previousMouseState = previous;
-            currentMouseState = current;
+            previousMouseState = currentMouseState;
+            currentMouseState = Mouse.GetState();
             return this;
         }
 
