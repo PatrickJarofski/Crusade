@@ -5,13 +5,13 @@ Range:	 1-1
 Move:    1
 
 - Archer -			- Catapult -		- Crossbowman -
-Attack:  3			Attack:  6			Attack:  3
+Attack:  3			Attack:  3			Attack:  3
 Defense: 3			Defense: 1			Defense: 3
 Range:   2-2		Range:   2-3		Range:	 1-2
 Move:    1          Move:    1			Move:	 1
 
 
-- Crusader -		- Juggernaut - 		- Knight -
+- Crusader -		- Guardian - 		- Knight -
 Attack:  5			Attack:  3			Attack:  4
 Defense: 4			Defense: 7			Defense: 5
 Range:   1-1  		Range:   1-1		Range:	 1-1

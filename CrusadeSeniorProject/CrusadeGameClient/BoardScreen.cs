@@ -14,6 +14,8 @@ namespace CrusadeGameClient
         #region Fields
         private Texture2D cellImage;
         private Texture2D backgroundImage;
+        private Texture2D playerColor;
+
         private GameCell[,] board;
 
         private Rectangle bgRec;
@@ -29,8 +31,13 @@ namespace CrusadeGameClient
 
         private Vector2 apLocation;
         private Vector2 deckLocation;
+        private Vector2 playerColorTextLocation;
+        private Vector2 playerColorLocation;
 
-
+        private Texture2D blackColor;
+        private Texture2D blueColor;
+        private Texture2D redColor;
+       
         #endregion
 
         #region Properties
@@ -46,26 +53,11 @@ namespace CrusadeGameClient
         {
             base.LoadContent();
 
-            cellImage = content.Load<Texture2D>("Gameboard/Cell.png");
-            backgroundImage = content.Load<Texture2D>("Gameboard/Background.png");
-            messageFont = content.Load<SpriteFont>("MessageFont");
-
-            bgRec = new Rectangle(0, 0, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
-
-            board = new GameCell[CrusadeGameClient.BOARD_ROWS, CrusadeGameClient.BOARD_COLS];
+            setupImages();
+            setupVectors();
             setupGameboardCells();
+
             currentState = new AwaitUserInputState();
-
-            boardMinX = board[0, 0].X;
-            boardMinY = board[0, 0].Y;
-            boardMaxX = board[CrusadeGameClient.BOARD_ROWS - 1, CrusadeGameClient.BOARD_COLS - 1].X
-                + board[0, 0].Image.Width; // All cells have the same cell image
-            boardMaxY = board[CrusadeGameClient.BOARD_ROWS - 1, CrusadeGameClient.BOARD_COLS - 1].Y
-                + board[0, 0].Image.Height;
-
-            apLocation = new Vector2(25, 25);
-            deckLocation = new Vector2(550, 320);
-
             currentState.LoadContent();
             contentLoaded = true;
         }
@@ -83,6 +75,8 @@ namespace CrusadeGameClient
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+
+            playerColor = getPlayerColor();
 
             if (!CrusadeGameClient.Instance.IsTurnPlayer && !(currentState is NotTurnPlayerState))
                 currentState = new NotTurnPlayerState();
@@ -107,6 +101,7 @@ namespace CrusadeGameClient
             DrawGameboard(spriteBatch);
             DrawHand(spriteBatch);
             drawAPandDeckSize(spriteBatch);
+            drawPlayerColor(spriteBatch);
             currentState.Draw(spriteBatch);
             if (menuState != null)
                 menuState.Draw(spriteBatch);
@@ -146,9 +141,24 @@ namespace CrusadeGameClient
 
 
         #region Private Methods
+        private void setupImages()
+        {
+            bgRec = new Rectangle(0, 0, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
+
+            cellImage = content.Load<Texture2D>("Gameboard/Cell.png");
+            backgroundImage = content.Load<Texture2D>("Gameboard/Background.png");
+            messageFont = content.Load<SpriteFont>("MessageFont");
+
+            blackColor = content.Load<Texture2D>("Gameboard/Black.png");
+            blueColor = content.Load<Texture2D>("Gameboard/Blue.png");
+            redColor = content.Load<Texture2D>("Gameboard/Red.png");
+        }
+
 
         private void setupGameboardCells()
         {
+            board = new GameCell[CrusadeGameClient.BOARD_ROWS, CrusadeGameClient.BOARD_COLS];
+
             for (int row = 0; row < CrusadeGameClient.BOARD_ROWS; ++row)
             {
                 for (int col = 0; col < CrusadeGameClient.BOARD_COLS; ++col)
@@ -157,6 +167,22 @@ namespace CrusadeGameClient
                     board[row, col] = img;
                 }
             }
+
+            boardMinX = board[0, 0].X;
+            boardMinY = board[0, 0].Y;
+            boardMaxX = board[CrusadeGameClient.BOARD_ROWS - 1, CrusadeGameClient.BOARD_COLS - 1].X
+                + board[0, 0].Image.Width; // All cells have the same cell image
+            boardMaxY = board[CrusadeGameClient.BOARD_ROWS - 1, CrusadeGameClient.BOARD_COLS - 1].Y
+                + board[0, 0].Image.Height;
+        }
+
+
+        private void setupVectors()
+        {
+            apLocation = new Vector2(5, 25);
+            deckLocation = new Vector2(550, 320);
+            playerColorTextLocation = new Vector2(5, 100);
+            playerColorLocation = new Vector2(85, 100);
         }
 
 
@@ -184,6 +210,13 @@ namespace CrusadeGameClient
 
             spriteBatch.DrawString(messageFont, msg, apLocation, Color.White);
             spriteBatch.DrawString(messageFont, "Deck: " + ServerConnection.Instance.DeckCount.ToString(), deckLocation, Color.White);
+        }
+
+
+        private void drawPlayerColor(SpriteBatch spriteBatch)
+        {
+            spriteBatch.DrawString(messageFont, "Your Color:", playerColorTextLocation, Color.White);
+            spriteBatch.Draw(playerColor, playerColorLocation, Color.White);
         }
 
 
@@ -359,6 +392,17 @@ namespace CrusadeGameClient
         {
             return (mouseWithinRange(boardMinX, boardMaxX, currentMouseState.X)
                 && mouseWithinRange(boardMinY, boardMaxY, currentMouseState.Y));
+        }
+
+
+        private Texture2D getPlayerColor()
+        {
+            if (ServerConnection.Instance.PlayerColor == ConsoleColor.Red)
+                return redColor;
+            else if (ServerConnection.Instance.PlayerColor == ConsoleColor.Blue)
+                return blueColor;
+
+            return blackColor; // default
         }
         #endregion
     }

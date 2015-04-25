@@ -73,7 +73,7 @@ namespace CrusadeLibrary
             switch(troopName)
             {
                 case "Commander":
-                    atk = 7;
+                    atk = 5;
                     def = 7;
                     break;
                 case "Archer":
@@ -83,7 +83,7 @@ namespace CrusadeLibrary
                     maxAtkRange = 2;                    
                     break;
                 case "Catapult":
-                    atk = 5;
+                    atk = 3;
                     minAtkRange = 2;
                     maxAtkRange = 3;
                     break;
@@ -101,7 +101,7 @@ namespace CrusadeLibrary
                     def = 5;
                     moveRange = 2;
                     break;
-                case "Juggernaut":
+                case "Guardian":
                     atk = 3;
                     def = 7;
                     break;
