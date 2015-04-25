@@ -18,7 +18,7 @@ namespace CrusadeGameClient
         #region Fields
 
         private const int _port = 777;
-        private readonly TcpClient _client;
+        private TcpClient _client;
 
         private BinaryFormatter binaryFormatter;
 
@@ -57,6 +57,8 @@ namespace CrusadeGameClient
             get { return _isTurnPlayer; }
             set { _isTurnPlayer = value; }
         }
+
+        public string GameOverMessage { get; set; }
 
         public bool InAGame { get { return _inAGame; } }
 
@@ -139,26 +141,32 @@ namespace CrusadeGameClient
             try
             {
                 binaryFormatter = new BinaryFormatter();
-                IPAddress[] hosts = Dns.GetHostAddresses(ipAddress);
-                IPAddress serverIP = hosts[0];
-                IPEndPoint ep = new IPEndPoint(serverIP, _port);
-
-                _client = new TcpClient();
-                _client.SendTimeout = 3000;
-               // _client.ReceiveTimeout = 3000;
-                _client.Connect(ep);
-
-                _shouldReceive = true;
-                ThreadPool.QueueUserWorkItem(Receive);
-
                 _hand = new List<ReqRspLib.ClientCard>();
                 _gameboard = new ClientGamePiece[1, 1];
+
+                connect();
             }
             catch(SocketException ex)
             {
                 WriteErrorToLog("Connect Error: " + ex.Message);
                 WriteErrorToConsole("Connect Error: " + ex.Message);
             }
+        }
+
+
+        private void connect()
+        {
+            IPAddress[] hosts = Dns.GetHostAddresses(ipAddress);
+            IPAddress serverIP = hosts[0];
+            IPEndPoint ep = new IPEndPoint(serverIP, _port);
+
+            _client = new TcpClient();
+            _client.SendTimeout = 3000;
+            // _client.ReceiveTimeout = 3000;
+            _client.Connect(ep);
+
+            _shouldReceive = true;
+            ThreadPool.QueueUserWorkItem(Receive);
         }
 
 
@@ -361,10 +369,22 @@ namespace CrusadeGameClient
         public void EndGame()
         {
             _inAGame = false;
-            Disconnect();
+            ScreenManager.Instance.EndGame();
 
-            Console.WriteLine("Game is done. Press any key to exit.");
-            Console.ReadKey();
+            Console.WriteLine("Game is over.");
+        }
+
+
+        public void RestartGame()
+        {
+            RequestRestartGame req = new RequestRestartGame(ID);
+            SendRequestToServer(req);
+            ActionPoints = 0;
+
+            _hand = new List<ClientCard>();
+            _gameboard = new ClientGamePiece[1,1];
+
+            ScreenManager.Instance.BeginNewGame();
         }
 
 

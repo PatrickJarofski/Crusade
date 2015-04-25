@@ -46,7 +46,9 @@ namespace CrusadeGameClient
         public void LoadContent(ContentManager content)
         {
             Content = new ContentManager(content.ServiceProvider, "Content");
-            currentScreen.LoadContent();
+
+            if(!currentScreen.ContentLoaded)
+                currentScreen.LoadContent();
         }
         
 
@@ -78,6 +80,20 @@ namespace CrusadeGameClient
         public void UpdateBoard(ReqRspLib.ClientGamePiece[,] newBoard)
         {
             currentScreen.UpdateBoard(newBoard);
+        }
+
+        public void BeginNewGame()
+        {
+            currentScreen.UnloadContent();
+            currentScreen = new BoardScreen();
+            currentScreen.LoadContent();
+        }
+
+        public void EndGame()
+        {
+            currentScreen.UnloadContent();
+            currentScreen = new GameDoneScreen();
+            currentScreen.LoadContent();
         }
 
     }

@@ -11,6 +11,23 @@ namespace CrusadeServer
 
     public partial class Server : ReqRspLib.ICrusadeServer
     {
+        int restartRequests = 0;
+
+        public void RestartGame(Guid clientId)
+        {
+            if(clientIsValid(clientId))
+            {
+                ++restartRequests;
+                if (restartRequests == 2)
+                {
+                    CheckIfNewGame();
+                    GiveAllPlayersGameboard();
+                    GiveAllPlayersHand();
+                }
+            }
+        }
+
+
         /// <summary>
         /// Obtains the hand of the given GameClient, then sends
         /// a response back to the client with that hand's information.
@@ -381,7 +398,15 @@ namespace CrusadeServer
             }
         }
 
+        
+        private bool clientIsValid(Guid id)
+        {
+            foreach (GameClient client in _clientList)
+                if (client.ID == id)
+                    return true;
 
+            return false;
+        }
     }
     #endregion
 }

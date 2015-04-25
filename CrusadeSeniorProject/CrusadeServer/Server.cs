@@ -201,8 +201,8 @@ namespace CrusadeServer
         
         private void SendData(GameClient client, IResponse rsp)
         {
-            if (client == null || rsp == null)
-                return;
+            if (client == null || rsp == null || !isConnected(client))
+                throw new ArgumentNullException("Client is currently disconnected");
 
             try
             {
@@ -278,7 +278,9 @@ namespace CrusadeServer
 
             BeginNextTurn();
             printDebugPlayerIds();
+            restartRequests = 0;
         }
+
 
         private void assignColors()
         {

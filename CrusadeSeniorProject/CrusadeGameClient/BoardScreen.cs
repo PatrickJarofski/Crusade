@@ -12,8 +12,6 @@ namespace CrusadeGameClient
         const int CARD_Y_LOC = 360;
 
         #region Fields
-        private string cellPath;
-        private string bgPath;
         private Texture2D cellImage;
         private Texture2D backgroundImage;
         private GameCell[,] board;
@@ -31,6 +29,8 @@ namespace CrusadeGameClient
 
         private Vector2 apLocation;
         private Vector2 deckLocation;
+
+
         #endregion
 
         #region Properties
@@ -67,13 +67,12 @@ namespace CrusadeGameClient
             deckLocation = new Vector2(550, 320);
 
             currentState.LoadContent();
+            contentLoaded = true;
         }
 
         
         public override void UnloadContent()
         {
-            cellPath = null;
-            bgPath = null;
             cellImage.Dispose();
             backgroundImage.Dispose();
             currentState.UnloadContent();

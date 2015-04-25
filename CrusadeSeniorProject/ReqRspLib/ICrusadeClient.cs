@@ -18,9 +18,9 @@ namespace ReqRspLib
 
         bool IsTurnPlayer { get; set; }
 
-        ConsoleColor PlayerColor { get; set; }
+        string GameOverMessage { get; set; }
 
-       // List<ClientCard> Hand { get; set; }
+        ConsoleColor PlayerColor { get; set; }       
 
         void SetHand(List<ClientCard> newHand);
 

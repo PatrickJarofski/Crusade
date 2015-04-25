@@ -21,13 +21,15 @@ namespace ReqRspLib
             string msg;
 
             if (_winner == client.ID)
-                msg = "Game is over. You win!";
+                msg = "You win!";
 
             else if (_winner == Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"))
-                msg = "Game is over. Tie game!";
+                msg = "Tie game.";
 
             else
-                msg = "Game is over. You lose...";
+                msg = "You lose...";
+
+            client.GameOverMessage = msg;
 
             Console.WriteLine("{0}====================================", Environment.NewLine);
             Console.WriteLine(msg);

@@ -51,6 +51,7 @@
     <Compile Include="CrusadeGameClient.cs" />
     <Compile Include="CrusadeImage.cs" />
     <Compile Include="GameCell.cs" />
+    <Compile Include="GameDoneScreen.cs" />
     <Compile Include="GamepieceImage.cs" />
     <Compile Include="GamepiecePreviewBox.cs" />
     <Compile Include="GameScreen.cs" />
@@ -111,6 +112,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Cursors\ValidChoiceCursor.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\GameDone\Background.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\GameDone\PlayAgain.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Gameboard\Archer.png">

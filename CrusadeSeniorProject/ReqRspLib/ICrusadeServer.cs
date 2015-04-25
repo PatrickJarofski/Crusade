@@ -21,5 +21,7 @@ namespace ReqRspLib
         void TroopCombat(Guid clientId, int atkRow, int atkCol, int defRow, int defCol);
 
         void PassTurn(Guid clientId);
+
+        void RestartGame(Guid clientId);
     }
 }

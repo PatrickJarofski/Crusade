@@ -54,6 +54,7 @@
     <Compile Include="RequestPassTurn.cs" />
     <Compile Include="RequestPlayCard.cs" />
     <Compile Include="RequestResendInfo.cs" />
+    <Compile Include="RequestRestartGame.cs" />
     <Compile Include="RequestTroopCombat.cs" />
     <Compile Include="ResponseBadMove.cs" />
     <Compile Include="ResponseBeginNextTurn.cs" />
