@@ -74,10 +74,10 @@ namespace CrusadeGameClient
 
         private void handleMouseClick()
         {
-            GameCell selectedCell = getGameCell();
-            if(selectedCell.GamepieceImg != null && selectedCell.GamepieceImg.Gamepiece.Owner != ServerConnection.Instance.ID.ToString())
+            GameCell target = getGameCell();
+            if (target.GamepieceImg != null && target.GamepieceImg.Gamepiece.Owner != ServerConnection.Instance.ID.ToString())
             {
-                ServerConnection.Instance.AttackTroop(selectedCell.Row, selectedCell.Col, selectedCell.Row, selectedCell.Col);
+                ServerConnection.Instance.AttackTroop(selectedCell.Row, selectedCell.Col, target.Row, target.Col);
                 validSelection = true;
             }
         }
