@@ -100,6 +100,7 @@ namespace CrusadeServer
                         ClientGamePiece piece = new ClientGamePiece();
                         piece.Attack            = board[row, col].Attack;
                         piece.Defense           = board[row, col].RemainingDefense;
+                        piece.OriginalDefense   = board[row, col].Defense;
                         piece.MinAttackRange    = board[row, col].MinAttackRange;
                         piece.MaxAttackRange    = board[row, col].MaxAttackRange;
                         piece.Move              = board[row, col].Move;

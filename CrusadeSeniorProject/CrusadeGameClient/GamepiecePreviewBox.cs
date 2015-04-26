@@ -63,7 +63,13 @@ namespace CrusadeGameClient
                 spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Attack.ToString(), vec, Color.Black);
 
                 vec.Y += 12;
-                spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Defense.ToString(), vec, Color.Black);
+                Color defColor;
+                if (_cell.GamepieceImg.Gamepiece.Defense < _cell.GamepieceImg.Gamepiece.OriginalDefense)
+                    defColor = Color.Red;
+                else
+                    defColor = Color.Black;
+
+                spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Defense.ToString(), vec, defColor);
 
                 vec.Y += 12;
                 spriteBatch.DrawString(font, attackRange, vec, Color.Black);

@@ -26,6 +26,8 @@ namespace ReqRspLib
 
         public int Defense { get; set; }
 
+        public int OriginalDefense { get; set; }
+
         public int Move { get; set; }
 
         public int MinAttackRange { get; set; }
