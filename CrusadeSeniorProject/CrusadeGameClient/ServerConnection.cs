@@ -630,8 +630,11 @@ namespace CrusadeGameClient
         {
             lock (_lockObject)
             {
-                string path = DateTime.Now.ToString("yyyy-MM-dd") + " Client " + ID.ToString("N") + ".txt";
+                string path = "Log/" + DateTime.Now.ToString("yyyy-MM-dd") + " Error Log.txt";
                 string msg = DateTime.Now.ToString("hh:mm:ss ") + error + Environment.NewLine;
+
+                if(!Directory.Exists("Log"))
+                    Directory.CreateDirectory("Log");
                 File.AppendAllText(path, msg);
             }
         }
