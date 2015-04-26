@@ -8,16 +8,22 @@ namespace CrusadeGameClient
 {
     internal class AttackTroopState : BoardScreenState
     {
-        private readonly GameCell cell;
+        private readonly GameCell selectedCell;
         private readonly GameCell[,] board;
 
         private GameCell targetCell;
+
+        private List<GameCell> cellHighlights;
+        private Texture2D attackHighlight;
         private bool validSelection = false;
 
         public AttackTroopState(GameCell gameCell, GameCell[,] gameboard)
         {
-            cell = gameCell;
+            cellHighlights = new List<GameCell>();
+            selectedCell = gameCell;
             board = gameboard;
+            getValidAttackCells();
+            attackHighlight = ScreenManager.Instance.Content.Load<Texture2D>("Gameboard/CellAttackRange.png");
         }
 
 
@@ -35,6 +41,13 @@ namespace CrusadeGameClient
             }
             else
                 return this;
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            base.Draw(spriteBatch);
+            foreach (GameCell cell in cellHighlights)
+                spriteBatch.Draw(attackHighlight, new Vector2(cell.X, cell.Y), Color.White);
         }
 
 
@@ -64,7 +77,7 @@ namespace CrusadeGameClient
             GameCell selectedCell = getGameCell();
             if(selectedCell.GamepieceImg != null && selectedCell.GamepieceImg.Gamepiece.Owner != ServerConnection.Instance.ID.ToString())
             {
-                ServerConnection.Instance.AttackTroop(cell.Row, cell.Col, selectedCell.Row, selectedCell.Col);
+                ServerConnection.Instance.AttackTroop(selectedCell.Row, selectedCell.Col, selectedCell.Row, selectedCell.Col);
                 validSelection = true;
             }
         }
@@ -93,6 +106,24 @@ namespace CrusadeGameClient
                     return cell;
             }
             return null;
+        }
+
+
+        private void getValidAttackCells()
+        {
+            foreach (GameCell current in board)
+                if (cellInAttackRange(current))
+                    cellHighlights.Add(current);
+        }
+
+        private bool cellInAttackRange(GameCell destinationCell)
+        {
+            if(destinationCell.GamepieceImg == null)
+                return false;
+
+            int range = Math.Abs(destinationCell.Row - selectedCell.Row) + Math.Abs(destinationCell.Col - selectedCell.Col);
+            return selectedCell.GamepieceImg.Gamepiece.MinAttackRange <= range && selectedCell.GamepieceImg.Gamepiece.MaxAttackRange >= range
+                && destinationCell.GamepieceImg.Gamepiece.Owner != selectedCell.GamepieceImg.Gamepiece.Owner;
         }
 
     }
