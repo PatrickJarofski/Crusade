@@ -8,20 +8,23 @@ namespace CrusadeGameClient
 {
     internal class MoveTroopState : BoardScreenState
     {
-        private readonly GameCell cell;
+        private readonly GameCell selectedCell;
         private readonly GameCell[,] board;
 
         private GameCell targetCell;
-        private List<Texture2D> cellHighlights;
+        private Texture2D moveHighlight;
+        private List<GameCell> cellHighlights;
 
         private bool selectionDone = false;
 
-        public MoveTroopState(GameCell selectedCell, GameCell[,] gameboard)
+        public MoveTroopState(GameCell cell, GameCell[,] gameboard)
             : base()
         {
-            cell = selectedCell;
+            selectedCell = cell;
             board = gameboard;
-            cellHighlights = new List<Texture2D>();
+            cellHighlights = new List<GameCell>();
+            moveHighlight = ScreenManager.Instance.Content.Load<Texture2D>("Gameboard/CellMoveRange.png");
+            getValidMoveCells();
         }
 
         public override BoardScreenState Update(GameTime gameTime, MouseState previous, MouseState current)
@@ -41,6 +44,16 @@ namespace CrusadeGameClient
         }
 
 
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            base.Draw(spriteBatch);
+            foreach(GameCell current in cellHighlights)
+            {
+                spriteBatch.Draw(moveHighlight, new Vector2(current.X, current.Y), Color.White);
+            }
+        }
+
+
         private void handleInput()
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -55,7 +68,7 @@ namespace CrusadeGameClient
         {
             if(targetCell != null)
             {
-                ServerConnection.Instance.MoveTroop(cell, targetCell);
+                ServerConnection.Instance.MoveTroop(selectedCell, targetCell);
                 selectionDone = true;
             }
         }
@@ -98,5 +111,17 @@ namespace CrusadeGameClient
             return null;
         }
 
+        private void getValidMoveCells()
+        {
+            foreach (GameCell current in board)
+                if (cellInMoveRange(current))
+                    cellHighlights.Add(current);
+        }
+
+        private bool cellInMoveRange(GameCell destinationCell)
+        {
+            int moveCost = Math.Abs(destinationCell.Row - selectedCell.Row) + Math.Abs(destinationCell.Col - selectedCell.Col);
+            return selectedCell.GamepieceImg.Gamepiece.Move >= moveCost && destinationCell != selectedCell && destinationCell.GamepieceImg == null;
+        }
     }
 }
