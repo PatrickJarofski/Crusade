@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace CrusadeGameClient
 {
@@ -10,13 +11,19 @@ namespace CrusadeGameClient
         CardImage selectedCard;
         GameCell[,] boardCells;
 
+        List<GameCell> cellsHighlighted;
+        Texture2D highlight;
+
         bool deploymentDone = false;
 
         public DeployTroopState(CardImage img, GameCell[,] board)
             :base()
         {
+            cellsHighlighted = new List<GameCell>();
             selectedCard = img;
             boardCells = board;
+            highlight = ScreenManager.Instance.Content.Load<Texture2D>("Gameboard/CellMoveRange.png");
+            getValidDeployCells();
         }
 
         public override BoardScreenState Update(GameTime gameTime, MouseState previous, MouseState current)
@@ -33,6 +40,14 @@ namespace CrusadeGameClient
             }
             else
                 return this;
+        }
+
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            base.Draw(spriteBatch);
+            foreach (GameCell current in cellsHighlighted)
+                spriteBatch.Draw(highlight, new Vector2(current.X, current.Y), Color.White);
         }
 
 
@@ -109,6 +124,15 @@ namespace CrusadeGameClient
             return false;
         }
 
+
+        private void getValidDeployCells()
+        {
+            foreach(GameCell current in boardCells)
+            {
+                if (current.Row == ServerConnection.Instance.BackRow && current.GamepieceImg == null)
+                    cellsHighlighted.Add(current);
+            }
+        }
        
     }
 }
