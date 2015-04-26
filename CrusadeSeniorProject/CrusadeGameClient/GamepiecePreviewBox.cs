@@ -13,10 +13,11 @@ namespace CrusadeGameClient
 
         private readonly GameCell _cell;
 
-        private readonly int textX = CrusadeGameClient.Instance.Window.ClientBounds.Right - 105;
-        private readonly int textY = CrusadeGameClient.Instance.Window.ClientBounds.Top + 61;
+        private readonly int textX = CrusadeGameClient.Instance.Window.ClientBounds.Right - 93;
+        private readonly int textY = CrusadeGameClient.Instance.Window.ClientBounds.Top + 59;
         private readonly int recX = CrusadeGameClient.Instance.Window.ClientBounds.Right - 140;
         private readonly int recY = CrusadeGameClient.Instance.Window.ClientBounds.Top + 60;
+        private readonly int vert = 15;
 
         private Texture2D image;
         private Rectangle rec;
@@ -43,7 +44,7 @@ namespace CrusadeGameClient
         {
             base.LoadContent();
             image = ScreenManager.Instance.Content.Load<Texture2D>("Gameboard/Menu.png");
-            font = ScreenManager.Instance.Content.Load<SpriteFont>("MonoFont");
+            font = ScreenManager.Instance.Content.Load<SpriteFont>("PreviewFont");
             rec = new Rectangle(recX, recY, image.Width, image.Height);
         }
 
@@ -56,13 +57,13 @@ namespace CrusadeGameClient
                 Vector2 vec = new Vector2(textX, textY);
                 spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Name, vec, Color.Black);
 
-                vec.Y += 12;
+                vec.Y += vert;
                 spriteBatch.DrawString(font, owner, vec, Color.Black);
 
-                vec.Y += 12;
+                vec.Y += vert;
                 spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Attack.ToString(), vec, Color.Black);
 
-                vec.Y += 12;
+                vec.Y += vert;
                 Color defColor;
                 if (_cell.GamepieceImg.Gamepiece.Defense < _cell.GamepieceImg.Gamepiece.OriginalDefense)
                     defColor = Color.Red;
@@ -71,10 +72,10 @@ namespace CrusadeGameClient
 
                 spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Defense.ToString(), vec, defColor);
 
-                vec.Y += 12;
+                vec.Y += vert;
                 spriteBatch.DrawString(font, attackRange, vec, Color.Black);
 
-                vec.Y += 12;
+                vec.Y += vert;
                 spriteBatch.DrawString(font, _cell.GamepieceImg.Gamepiece.Move.ToString(), vec, Color.Black);
             }
 
