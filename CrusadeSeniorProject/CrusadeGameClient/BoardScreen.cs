@@ -97,16 +97,22 @@ namespace CrusadeGameClient
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(backgroundImage, bgRec, Color.White);
+            try
+            {
+                spriteBatch.Draw(backgroundImage, bgRec, Color.White);
 
-
-            DrawGameboard(spriteBatch);
-            DrawHand(spriteBatch);
-            drawAPandDeckSize(spriteBatch);
-            drawPlayerColor(spriteBatch);
-            currentState.Draw(spriteBatch);
-            if (menuState != null)
-                menuState.Draw(spriteBatch);
+                DrawGameboard(spriteBatch);
+                DrawHand(spriteBatch);
+                drawAPandDeckSize(spriteBatch);
+                drawPlayerColor(spriteBatch);
+                currentState.Draw(spriteBatch);
+                if (menuState != null)
+                    menuState.Draw(spriteBatch);
+            }
+            catch(NullReferenceException)
+            {
+                LoadContent();
+            }
         }
         
 
