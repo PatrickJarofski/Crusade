@@ -113,6 +113,10 @@ namespace CrusadeGameClient
             {
                 LoadContent();
             }
+            catch(ArgumentNullException)
+            {
+                LoadContent();
+            }
         }
         
 
