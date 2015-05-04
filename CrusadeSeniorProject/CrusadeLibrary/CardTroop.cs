@@ -56,7 +56,7 @@ namespace CrusadeLibrary
             _defense = 1;
             _maxAttackRange = 1;
             _minAttackRange = 1;
-            _moveRange = 3;
+            _moveRange = 1;
         }
         #endregion
     }

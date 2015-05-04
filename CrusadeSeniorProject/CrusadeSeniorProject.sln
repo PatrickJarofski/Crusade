@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrusadeServer", "CrusadeServer\CrusadeServer.csproj", "{78907635-3656-4AF8-AEF8-8C0386C5C785}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrusadeGameClient", "CrusadeGameClient\CrusadeGameClient.csproj", "{47B75169-8BDD-4FBD-968F-0FBA672D2A8F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReqRspLib", "ReqRspLib\ReqRspLib.csproj", "{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemTesting", "SystemTesting\SystemTesting.csproj", "{CAA7C812-F692-48E4-9F86-5D86F5CD045D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,16 @@ Global
 		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{D2A08936-AD2E-4D84-9EA9-79ADB399BD4A}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CAA7C812-F692-48E4-9F86-5D86F5CD045D}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
