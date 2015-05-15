@@ -13,7 +13,7 @@ namespace CrusadeGameClient
     internal class ServerConnection : ReqRspLib.ICrusadeClient
     {
         private const string ipAddress = "primefusion.ddns.net";
-        // private const string ipAddress = "127.0.0.1";
+         //private const string ipAddress = "127.0.0.1";
 
         #region Fields
 
