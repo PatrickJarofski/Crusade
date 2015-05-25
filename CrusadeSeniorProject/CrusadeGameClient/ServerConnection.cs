@@ -377,6 +377,7 @@ namespace CrusadeGameClient
 
         public void RestartGame()
         {
+            _inAGame = false;
             RequestRestartGame req = new RequestRestartGame(ID);
             SendRequestToServer(req);
             ActionPoints = 0;

@@ -36,14 +36,16 @@ namespace CrusadeGameClient
             if (passTurn == null || passTurnRec == null)
                 LoadContent();
 
-            spriteBatch.Draw(passTurn, passTurnRec, Color.White);
+            if(ServerConnection.Instance.InAGame)
+                spriteBatch.Draw(passTurn, passTurnRec, Color.White);
         }
 
 
         private void checkPassTurn()
         {
             if (mouseInRange(passTurnRec.Left, passTurnRec.Right, currentMouseState.X) &&
-                mouseInRange(passTurnRec.Top, passTurnRec.Bottom, currentMouseState.Y))
+                mouseInRange(passTurnRec.Top, passTurnRec.Bottom, currentMouseState.Y) &&
+                ServerConnection.Instance.InAGame)
                 ServerConnection.Instance.PassTurn();
         }
         
