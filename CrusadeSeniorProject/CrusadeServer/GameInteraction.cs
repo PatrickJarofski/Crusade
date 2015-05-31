@@ -275,6 +275,10 @@ namespace CrusadeServer
             {
                 SendInvalidChoiceError(ex.Message, clientId, new ResponseGetPlayerAction(_game.CurrentPlayerAP));
             }
+            catch(CrusadeLibrary.IllegalActionException ex)
+            {
+                SendInvalidChoiceError(ex.Message, clientId, new ResponseMessage(ex.Message));
+            }
         }
         #endregion
 
