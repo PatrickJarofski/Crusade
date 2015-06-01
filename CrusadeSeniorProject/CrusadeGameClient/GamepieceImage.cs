@@ -40,11 +40,12 @@ namespace CrusadeGameClient
             if(path != null && path != String.Empty)
             {
                 try
-                {                    
+                {
                     spriteBatch.Draw(image, rec, playerColor);
                 }
-                catch(Exception ex)
+                catch (ArgumentNullException ex)
                 {
+                    image = new Texture2D(CrusadeGameClient.Instance.GraphicsDevice, 64, 64);
                     Console.WriteLine("GamepieceImage Error: " + ex.Message);
                 }
             }

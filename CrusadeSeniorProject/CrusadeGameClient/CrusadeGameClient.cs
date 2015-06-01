@@ -19,6 +19,9 @@ namespace CrusadeGameClient
         public const int BOARD_COLS = ReqRspLib.Constants.BOARD_COLS;
         public const int BOARD_ROWS = ReqRspLib.Constants.BOARD_ROWS;
 
+        public const int GAMEPIECE_X_DIMENSION = 68;
+        public const int GAMEPIECE_Y_DIMENSION = 68;
+
         private Texture2D normalCursor;
         private Texture2D validChoiceCursor;
         private Texture2D invalidChoiceCursor;
@@ -149,7 +152,14 @@ namespace CrusadeGameClient
                 spriteBatch.Draw(Cursor, mousePos, Color.White);
                 spriteBatch.End();
             }
-            catch(Exception ex)
+            catch (ContentLoadException ex)
+            {
+                ServerConnection.Instance.WriteError(ex.Message);
+                System.Windows.Forms.MessageBox.Show("Core image files are missing from \nthe directory. Crusade must now close.");
+                ServerConnection.Instance.Disconnect();
+                Exit();
+            }
+            catch (Exception ex)
             {
                 ServerConnection.Instance.WriteError(ex.Message);
             }

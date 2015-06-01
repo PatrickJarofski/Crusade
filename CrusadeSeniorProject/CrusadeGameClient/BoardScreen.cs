@@ -65,33 +65,47 @@ namespace CrusadeGameClient
         
         public override void UnloadContent()
         {
-            cellImage.Dispose();
-            backgroundImage.Dispose();
-            currentState.UnloadContent();
-            base.UnloadContent();
+            try
+            {
+                cellImage.Dispose();
+                backgroundImage.Dispose();
+                currentState.UnloadContent();
+                base.UnloadContent();
+            }
+            catch(Exception ex)
+            {
+                ServerConnection.Instance.WriteError(ex.Message);
+            }
         }
 
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
+            try
+            {
+                base.Update(gameTime);
 
-            playerColor = getPlayerColor();
+                playerColor = getPlayerColor();
 
-            if (!CrusadeGameClient.Instance.IsTurnPlayer && !(currentState is NotTurnPlayerState))
-                currentState = new NotTurnPlayerState();
+                if (!CrusadeGameClient.Instance.IsTurnPlayer && !(currentState is NotTurnPlayerState))
+                    currentState = new NotTurnPlayerState();
 
-            else if (CrusadeGameClient.Instance.IsTurnPlayer && currentState is NotTurnPlayerState)
-                currentState = new AwaitUserInputState();
-                        
-            if (previousMouseState.LeftButton == ButtonState.Pressed && currentMouseState.LeftButton == ButtonState.Released)
-                handleMouseClick();
+                else if (CrusadeGameClient.Instance.IsTurnPlayer && currentState is NotTurnPlayerState)
+                    currentState = new AwaitUserInputState();
 
-            currentState = currentState.Update(gameTime, previousMouseState, currentMouseState);
-            handleMouseState();
+                if (previousMouseState.LeftButton == ButtonState.Pressed && currentMouseState.LeftButton == ButtonState.Released)
+                    handleMouseClick();
 
-            if (menuState != null)
-                menuState = menuState.Update(gameTime, previousMouseState, currentMouseState);
+                currentState = currentState.Update(gameTime, previousMouseState, currentMouseState);
+                handleMouseState();
+
+                if (menuState != null)
+                    menuState = menuState.Update(gameTime, previousMouseState, currentMouseState);
+            }
+            catch (Exception ex)
+            {
+                ServerConnection.Instance.WriteError(ex.Message);
+            }
         }
 
 

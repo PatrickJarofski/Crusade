@@ -30,26 +30,42 @@ namespace CrusadeGameClient
 
         public GameCell(int row, int col)
         {
-            image = ScreenManager.Instance.Content.Load<Texture2D>(IMG_PATH);
-            this.row = row;
-            this.col = col;
+            try
+            {
+                image = ScreenManager.Instance.Content.Load<Texture2D>(IMG_PATH);
+                this.row = row;
+                this.col = col;
 
-            x = col * image.Width + (ScreenManager.SCREEN_WIDTH / 4) - 10;
-            y = row * image.Height;
+                x = col * image.Width + (ScreenManager.SCREEN_WIDTH / 4) - 10;
+                y = row * image.Height;
 
-            rec = new Rectangle(x, y, image.Width, image.Height);
+                rec = new Rectangle(x, y, image.Width, image.Height);
 
-            int xc = rec.X + image.Width / 2;
-            int yc = rec.Y + image.Height / 2;
-            center = new Tuple<int, int>(xc, yc);
+                int xc = rec.X + image.Width / 2;
+                int yc = rec.Y + image.Height / 2;
+                center = new Tuple<int, int>(xc, yc);
+            }
+            catch(System.IO.FileNotFoundException)
+            {
+                image = new Texture2D(CrusadeGameClient.Instance.GraphicsDevice,
+                    CrusadeGameClient.GAMEPIECE_X_DIMENSION, CrusadeGameClient.GAMEPIECE_Y_DIMENSION);
+            }
         }
 
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(image, rec, Color.White);
-            if(GamepieceImg != null)
-                GamepieceImg.Draw(spriteBatch);
+            try
+            {
+                spriteBatch.Draw(image, rec, Color.White);
+                if (GamepieceImg != null)
+                    GamepieceImg.Draw(spriteBatch);
+            }
+            catch(ArgumentNullException)
+            {
+                image = new Texture2D(CrusadeGameClient.Instance.GraphicsDevice, 
+                    CrusadeGameClient.GAMEPIECE_X_DIMENSION, CrusadeGameClient.GAMEPIECE_Y_DIMENSION);
+            }
         }
     }
 }
