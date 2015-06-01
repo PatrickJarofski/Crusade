@@ -45,7 +45,8 @@ namespace CrusadeGameClient
                 }
                 catch (ArgumentNullException ex)
                 {
-                    image = new Texture2D(CrusadeGameClient.Instance.GraphicsDevice, 64, 64);
+                    image = new Texture2D(CrusadeGameClient.Instance.GraphicsDevice,
+                        CrusadeGameClient.GAMEPIECE_X_DIMENSION, CrusadeGameClient.GAMEPIECE_Y_DIMENSION);
                     Console.WriteLine("GamepieceImage Error: " + ex.Message);
                 }
             }
