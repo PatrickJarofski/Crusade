@@ -41,8 +41,6 @@ namespace CrusadeGameClient
             }
         }
 
-        private readonly ServerConnection _serverConnection;
-
         private GraphicsDeviceManager graphicsManager;
         private SpriteBatch spriteBatch;
 
@@ -52,15 +50,13 @@ namespace CrusadeGameClient
 
         public bool IsTurnPlayer
         {
-            get { return _serverConnection.IsTurnPlayer; }
+            get { return ServerConnection.Instance.IsTurnPlayer; }
         }
         
         private CrusadeGameClient()
             : base()
         {
             graphicsManager = new GraphicsDeviceManager(this);
-            _serverConnection = ServerConnection.Instance;
-
             IsMouseVisible = false;
         }
 
@@ -84,17 +80,24 @@ namespace CrusadeGameClient
         /// </summary>
         protected override void LoadContent()
         {
-            GraphicsDevice.BlendState = BlendState.AlphaBlend;
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            ScreenManager.Instance.LoadContent(Content);
+            try
+            {
+                GraphicsDevice.BlendState = BlendState.AlphaBlend;
+                spriteBatch = new SpriteBatch(GraphicsDevice);
+                ScreenManager.Instance.LoadContent(Content);
 
-            normalCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/NormalCursor.png");
-            validChoiceCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/ValidChoiceCursor.png");
-            invalidChoiceCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/InvalidChoiceCursor.png");
-            targetCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/AttackTroopCursor.png");
-            Cursor = NormalCursor;
-            
-            Window.Title = "Crusade Client";
+                normalCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/NormalCursor.png");
+                validChoiceCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/ValidChoiceCursor.png");
+                invalidChoiceCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/InvalidChoiceCursor.png");
+                targetCursor = ScreenManager.Instance.Content.Load<Texture2D>("Cursors/AttackTroopCursor.png");
+                Cursor = NormalCursor;
+
+                Window.Title = "Crusade Client";
+            }
+            catch(Exception ex)
+            {
+                ServerConnection.Instance.WriteError(ex.Message);
+            }
         }
 
         /// <summary>
@@ -113,16 +116,23 @@ namespace CrusadeGameClient
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (_serverConnection.HandUpdated)
-                ScreenManager.Instance.UpdateHand(_serverConnection.Hand);
+            try
+            {
+                if (ServerConnection.Instance.HandUpdated)
+                    ScreenManager.Instance.UpdateHand(ServerConnection.Instance.Hand);
 
-            if (_serverConnection.BoardUpdated)
-                ScreenManager.Instance.UpdateBoard(_serverConnection.Gameboard);
+                if (ServerConnection.Instance.BoardUpdated)
+                    ScreenManager.Instance.UpdateBoard(ServerConnection.Instance.Gameboard);
 
-            ScreenManager.Instance.Update(gameTime);
+                ScreenManager.Instance.Update(gameTime);
 
-            mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-            base.Update(gameTime);
+                mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+                base.Update(gameTime);
+            }
+            catch(Exception ex)
+            {
+                ServerConnection.Instance.WriteError(ex.Message);
+            }
         }
         
 
@@ -132,10 +142,17 @@ namespace CrusadeGameClient
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin();
-            ScreenManager.Instance.Draw(spriteBatch);
-            spriteBatch.Draw(Cursor, mousePos, Color.White);
-            spriteBatch.End();
+            try
+            {
+                spriteBatch.Begin();
+                ScreenManager.Instance.Draw(spriteBatch);
+                spriteBatch.Draw(Cursor, mousePos, Color.White);
+                spriteBatch.End();
+            }
+            catch(Exception ex)
+            {
+                ServerConnection.Instance.WriteError(ex.Message);
+            }
         }
 
 
@@ -143,8 +160,8 @@ namespace CrusadeGameClient
         {
             base.OnExiting(sender, args);
 
-            lock(_serverConnection)
-                _serverConnection.Disconnect();
+            lock(ServerConnection.Instance)
+                ServerConnection.Instance.Disconnect();
 
             UnloadContent();
         }     

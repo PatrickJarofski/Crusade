@@ -10,6 +10,11 @@ using ReqRspLib;
 
 namespace CrusadeGameClient
 {
+    /// <summary>
+    /// Handles outgoing requests to and incoming responses
+    /// from the Server. Also stores game information such
+    /// turn status, the gameboard, and the hand.
+    /// </summary>
     internal class ServerConnection : ReqRspLib.ICrusadeClient
     {
         private const string ipAddress = "primefusion.ddns.net";
@@ -64,6 +69,9 @@ namespace CrusadeGameClient
 
         public ConsoleColor PlayerColor { get; set; }
 
+        /// <summary>
+        /// Returns the object instance of the ServerConnection singleton.
+        /// </summary>
         public static ServerConnection Instance
         {
             get
@@ -281,34 +289,46 @@ namespace CrusadeGameClient
 
         public void GetCardToPlay()
         {
-            Console.WriteLine("{0}{0}Select a card to play.", Environment.NewLine);
-            DisplayHand();
-            int option = -1;
-            bool validChoice = false;
-
-            while(!validChoice)
+            try
             {
-                option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
+                Console.ReadLine();
+                Console.WriteLine("{0}{0}Select a card to play.", Environment.NewLine);
+                DisplayHand();
+                int option = -1;
+                bool validChoice = false;
 
-                if ((option - 1) < _hand.Count && (option - 1) > -1)
+                while (!validChoice)
                 {
-                    validChoice = true;
-                    RequestPlayCard rsp;
+                    //option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
+                    option = Console.Read() - 48;
+                    Console.ReadLine();
+                    Console.WriteLine("Card chosen: {0}", option.ToString());
 
-                    if (_hand[option - 1].Type == "Troop")
+                    if ((option - 1) < _hand.Count && (option - 1) > -1)
                     {
-                        Tuple<int, int> coords = GetUserCoordinates("Select where the troop should be deployed 'Row Col'");
-                        rsp = new RequestPlayCard(ID, (option - 1), (coords.Item1), (coords.Item2));
+                        validChoice = true;
+                        RequestPlayCard rsp;
+
+                        if (_hand[option - 1].Type == "Troop")
+                        {
+                            Tuple<int, int> coords = GetUserCoordinates("Select where the troop should be deployed 'Row Col'");
+                            Console.WriteLine("Coordinates chosen: {0}, {1}", coords.Item1.ToString(), coords.Item2.ToString());
+                            rsp = new RequestPlayCard(ID, (option - 1), (coords.Item1), (coords.Item2));
+                        }
+                        else
+                            rsp = new RequestPlayCard(ID, (option - 1));
+
+                        SendRequestToServer(rsp);
                     }
-                    else                    
-                        rsp = new RequestPlayCard(ID, (option - 1));                        
-                    
-                    SendRequestToServer(rsp);
+                    else
+                    {
+                        Console.WriteLine("Invalid Option\n");
+                    }
                 }
-                else
-                { 
-                    Console.WriteLine("Invalid Option\n");
-                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message);
             }
 
         }
@@ -418,7 +438,8 @@ namespace CrusadeGameClient
                 Console.WriteLine("Please choose an Action to perform:");
                 Console.WriteLine("{0} \n{1} \n{2} \n{3} \n{4}", "1. Play Card", "2. Move Troop", 
                     "3. Troop Combat", "4. Check Cell", "5. Pass Turn");
-                option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
+               // option = Convert.ToInt32(Console.ReadKey().KeyChar) - 48;
+                option = Console.Read() - 48;
 
                 switch(option)
                 {
@@ -446,6 +467,8 @@ namespace CrusadeGameClient
                         Console.WriteLine("Invalid selection.");
                         break;
                 }
+
+                Console.ReadLine();
             }
         }
 #else
@@ -585,7 +608,9 @@ namespace CrusadeGameClient
             {
                 Console.WriteLine("{0}{0}" + msg, Environment.NewLine);
                 input = Console.ReadLine();
-                if (input.Length == 3)
+
+                Console.WriteLine("Coordinate input: {0}. Length: {1}", input, input.Length.ToString());
+                if (input.Length > 2 && input.Length < 5)
                 {
                     row = (Convert.ToInt32(input[0] - 48)) - 1; // Adjust for ascii, then make zero based
                     col = (Convert.ToInt32(input[2] - 48)) - 1;

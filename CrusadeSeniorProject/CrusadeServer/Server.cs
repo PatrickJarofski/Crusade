@@ -251,6 +251,10 @@ namespace CrusadeServer
         {
             int num = CrusadeLibrary.CrusadeGame.RNG.Next() % 1;
 
+            #if DEBUG
+            num = 1; // Debug mode forces second client as player 1
+            #endif
+
             if (num == 0)
             {
                 _clientList[0].isTurnPlayer = true;
@@ -281,7 +285,7 @@ namespace CrusadeServer
             restartRequests = 0;
         }
 
-
+            
         private void assignColors()
         {
             foreach(GameClient client in _clientList)
