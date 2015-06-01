@@ -249,7 +249,7 @@ namespace CrusadeServer
 
         private void startNewGame()
         {
-            int num = CrusadeLibrary.CrusadeGame.RNG.Next() % 1;
+            int num = CrusadeLibrary.CrusadeGame.RNG.Next() % 2;
 
             #if DEBUG
             num = 1; // Debug mode forces second client as player 1
